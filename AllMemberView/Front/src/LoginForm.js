@@ -36,6 +36,7 @@ const LoginForm = () => {
 
       // ログイン成功後にユーザーリストに遷移
       navigate("/userlist"); // /userlist に遷移
+    //   navigate("/main"); // /userlist に遷移
     } catch (err) {
       setError("Invalid username or password");
       console.error("Login error", err);
