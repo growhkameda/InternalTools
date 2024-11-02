@@ -1,0 +1,34 @@
+/* styles.css */
+.org-chart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .org-chart > div {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #f9f9f9;
+    margin: 10px;
+    position: relative;
+  }
+  
+  .org-chart > div::before,
+  .org-chart > div::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 50%;
+    height: 2px;
+    background: #ccc;
+  }
+  
+  .org-chart > div::before {
+    left: -50%;
+  }
+  
+  .org-chart > div::after {
+    right: -50%;
+  }
+  
