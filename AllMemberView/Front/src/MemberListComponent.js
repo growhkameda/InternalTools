@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Card, CardContent, CardMedia, Typography, Grid, TextField, Button, InputAdornment } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Typography, TextField, Button, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import StarIcon from '@mui/icons-material/Star';
+import { useNavigate } from 'react-router-dom'; // 追加
 
 // サンプルデータ
 const people = [
@@ -35,6 +36,7 @@ const PeopleList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 20; // 4×5のレイアウト
+    const navigate = useNavigate(); // useNavigateフックを使用
   
     // フリーワード検索
     const filteredPeople = people.filter(person =>
@@ -58,6 +60,11 @@ const PeopleList = () => {
       }
     };
   
+    // 社員詳細ページに遷移する関数
+    const handleCardClick = (id) => {
+      navigate(`/employee/${id}`); // クリックされた社員の詳細ページに遷移
+    };
+  
     return (
       <Box sx={{ padding: 2 }}>
         {/* フリーワード検索用のテキストフィールド、虫眼鏡マーク付き */}
@@ -77,31 +84,39 @@ const PeopleList = () => {
           }}
         />
   
-        {/* 4×5レイアウトのGrid */}
-        <Grid container spacing={2}>
+        {/* 4×5レイアウトのCSS Grid */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)', // 4列
+            gap: 2,
+          }}
+        >
           {displayedPeople.map((person) => (
-            <Grid item xs={3} key={person.id}> {/* xs={3} で4列配置 */}
-              <Card>
-                <CardMedia
-                  component="img"
-                  height="150"
-                  image={person.image}
-                  alt={person.name}
-                />
-                <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
-                  {/* 名前の左にステータスアイコンを表示 */}
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {person.id === 1 && <StarIcon sx={{ color: 'gold', marginRight: '8px' }} />}
-                    <Box>
-                      <Typography variant="h6">{person.name}</Typography>
-                      <Typography variant="subtitle1">{person.position}</Typography>
-                    </Box>
+            <Card
+              key={person.id}
+              onClick={() => handleCardClick(person.id)}
+              sx={{ cursor: 'pointer' }}
+            >
+              <CardMedia
+                component="img"
+                height="150"
+                image={person.image}
+                alt={person.name}
+              />
+              <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+                {/* 名前の左にステータスアイコンを表示 */}
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {person.id === 1 && <StarIcon sx={{ color: 'gold', marginRight: '8px' }} />}
+                  <Box>
+                    <Typography variant="h6">{person.name}</Typography>
+                    <Typography variant="subtitle1">{person.position}</Typography>
                   </Box>
-                </CardContent>
-              </Card>
-            </Grid>
+                </Box>
+              </CardContent>
+            </Card>
           ))}
-        </Grid>
+        </Box>
   
         {/* ページ移動ボタン */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
