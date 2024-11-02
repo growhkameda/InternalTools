@@ -82,6 +82,14 @@ const OrganizationChartDemo = () => {
                   >
                     営業
                   </Button>
+                  <Button
+                    variant="contained"
+                    sx={customButtonStyle}
+                    onClick={() => navigate('/sales')}
+                    style={{ marginBottom: '10px' }}
+                  >
+                    広報
+                  </Button>
                 </Box>
               ),
             },
@@ -120,7 +128,7 @@ const OrganizationChartDemo = () => {
                     onClick={() => navigate('/staffing')}
                     style={{ marginBottom: '10px' }}
                   >
-                    人材派遣
+                    ITサポート課
                   </Button>
                 </Box>
               ),
@@ -153,6 +161,38 @@ const OrganizationChartDemo = () => {
                     style={{ marginBottom: '10px' }}
                   >
                     技術向上課
+                  </Button>
+                </Box>
+              ),
+            },
+          ],
+        },
+        {
+          label: (
+            <Box sx={boxStyle}>
+              人材サービス事業部
+            </Box>
+          ),
+          expanded: true,
+          children: [
+            {
+              label: (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Button
+                    variant="contained"
+                    sx={customButtonStyle}
+                    onClick={() => navigate('/development')}
+                    style={{ marginBottom: '10px' }}
+                  >
+                    人材サービス課
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={customButtonStyle}
+                    onClick={() => navigate('/testing')}
+                    style={{ marginBottom: '10px' }}
+                  >
+                    倉庫課
                   </Button>
                 </Box>
               ),
