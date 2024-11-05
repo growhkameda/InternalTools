@@ -35,8 +35,7 @@ const LoginForm = () => {
       localStorage.setItem("token", token); // トークンをローカルストレージに保存
 
       // ログイン成功後にユーザーリストに遷移
-      navigate("/userlist"); // /userlist に遷移
-    //   navigate("/main"); // /userlist に遷移
+      navigate("/organization-chart"); // /userlist に遷移
     } catch (err) {
       setError("Invalid username or password");
       console.error("Login error", err);
@@ -49,12 +48,20 @@ const LoginForm = () => {
       justifyContent="center"
       alignItems="center"
       height="100vh" // 画面全体の高さに合わせるために設定
+      sx={{
+        backgroundImage: 'url("https://start-it.co.jp/wp-content/uploads/2022/08/7bc30f40e205acea951afa95201eeaed-1024x499.png")', // ここに背景画像のパスを指定
+        backgroundSize: "cover", // 画像をコンテナ全体に拡大縮小
+        backgroundPosition: "center", // 中央に配置
+        backgroundRepeat: "no-repeat", // 繰り返しなし
+      }}
     >
       <Paper
         elevation={3}
         sx={{
           p: 4,
           width: "300px",
+          backdropFilter: "blur(5px)", // 背景をぼかす効果
+          backgroundColor: "rgba(255, 255, 255, 0.8)", // 半透明の背景
         }}
       >
         <Stack

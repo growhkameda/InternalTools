@@ -1,58 +1,48 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginForm from "./LoginForm";
-import UserList from "./UserList";
 import OrganizationChartComponent from "./OrganizationChartComponent";
 import MainContentsLayout from "./MainContentsLayout";
+import UserDetailComponent from "./UserDetailComponent";
 import MemberListComponent from "./MemberListComponent";
-import GroupsIcon from "@mui/icons-material/Groups";
+import PasswordChangeComponent from "./PasswordChangeComponent";
+import ProjectDetailComponent from "./ProjectDetailComponent";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import BarChartIcon from "@mui/icons-material/BarChart";
-import DescriptionIcon from "@mui/icons-material/Description";
-import LayersIcon from "@mui/icons-material/Layers";
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import KeyIcon from '@mui/icons-material/Key';
 
 const NAVIGATION = [
   {
     kind: "header",
-    title: "Main items",
-  },
-  {
-    segment: "userlist",
-    title: "Member",
-    icon: <GroupsIcon />,
+    title: "メニュー",
   },
   {
     segment: "organization-chart",
-    title: "Organization Chart",
+    title: "組織図",
     icon: <BarChartIcon />,
+  },
+  {
+    segment: "change-password",
+    title: "パスワード変更",
+    icon: <KeyIcon />,
   },
   {
     kind: "divider",
   },
   {
     kind: "header",
-    title: "Analytics",
+    title: "管理者メニュー",
   },
   {
-    segment: "reports",
-    title: "Reports",
-    icon: <BarChartIcon />,
-    children: [
-      {
-        segment: "sales",
-        title: "Sales",
-        icon: <DescriptionIcon />,
-      },
-      {
-        segment: "traffic",
-        title: "Traffic",
-        icon: <DescriptionIcon />,
-      },
-    ],
+    segment: "new-user",
+    title: "ユーザ登録",
+    icon: <PersonAddIcon />,
   },
   {
-    segment: "integrations",
-    title: "Integrations",
-    icon: <LayersIcon />,
+    segment: "new-project",
+    title: "案件登録",
+    icon: <AddBusinessIcon />,
   },
 ];
 
@@ -62,10 +52,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<LoginForm />} />
         <Route
-          path="/userlist"
+          path="/change-password"
           element={
             <MainContentsLayout navigation={NAVIGATION}>
-              <UserList />
+              <PasswordChangeComponent />
             </MainContentsLayout>
           }
         />
@@ -78,10 +68,34 @@ const App = () => {
           }
         />
         <Route
-          path="/accounting"
+          path="/userlist/:id"
           element={
             <MainContentsLayout navigation={NAVIGATION}>
               <MemberListComponent />
+            </MainContentsLayout>
+          }
+        />
+        <Route
+          path="/user/:id"
+          element={
+            <MainContentsLayout navigation={NAVIGATION}>
+              <UserDetailComponent />
+            </MainContentsLayout>
+          }
+        />
+        <Route
+          path="/new-user"
+          element={
+            <MainContentsLayout navigation={NAVIGATION}>
+              <UserDetailComponent isNewUser={true}/>
+            </MainContentsLayout>
+          }
+        />
+        <Route
+          path="/new-project"
+          element={
+            <MainContentsLayout navigation={NAVIGATION}>
+              <ProjectDetailComponent />
             </MainContentsLayout>
           }
         />
