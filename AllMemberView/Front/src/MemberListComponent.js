@@ -62,7 +62,7 @@ const PeopleList = () => {
   
     // 社員詳細ページに遷移する関数
     const handleCardClick = (id) => {
-      navigate(`/employee/${id}`); // クリックされた社員の詳細ページに遷移
+      navigate(`/user/${id}`); // クリックされた社員の詳細ページに遷移
     };
   
     return (
