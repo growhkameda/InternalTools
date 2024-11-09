@@ -2,13 +2,13 @@ package com.example.internaltools.entity;
 
 import java.sql.Blob;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.NoArgsConstructor; 
 
 @Data
 @NoArgsConstructor
@@ -24,7 +24,10 @@ public class UserEntity {
     private String birth_place;
     private String memo;
     private Blob image;
-    private String depertment_name;
+    
+    @Column(name = "department_name")
+    private String departmentName; // 修正: department_name を departmentName に変更
+    
     private String project_name;
     private String project_place;
 
