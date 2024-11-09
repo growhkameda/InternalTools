@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -16,6 +16,7 @@ import {
   Select,
 } from "@mui/material";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import { jwtDecode } from "jwt-decode";
 
 const UserProfile = ({ isNewUser = false }) => {
   const initialProfile = {
@@ -52,7 +53,16 @@ const UserProfile = ({ isNewUser = false }) => {
   const [profile, setProfile] = useState(initialProfile);
   const [image, setImage] = useState(profile.image);
   const [imageBinary, setImageBinary] = useState(null);
-  const isAdmin = true;
+  const [isAdmin, setIsAdmin] = useState(false); // 管理者かどうかの状態
+
+  useEffect(() => {
+    // トークンからisAdminを取得
+    const token = localStorage.getItem("token"); // ローカルストレージからトークンを取得
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setIsAdmin(decodedToken.isAdmin); // トークン内のisAdminをセット
+    }
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
