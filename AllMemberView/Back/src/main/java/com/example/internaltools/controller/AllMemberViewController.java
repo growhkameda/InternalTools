@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.internaltools.entity.AuthRequest;
 import com.example.internaltools.entity.AuthResponse;
+import com.example.internaltools.entity.DepartmentEntity;
 import com.example.internaltools.entity.UserEntity;
 import com.example.internaltools.service.AuthService;
+import com.example.internaltools.service.DepartmentService;
 import com.example.internaltools.service.UserService;
 import com.example.internaltools.utils.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +35,9 @@ public class AllMemberViewController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private DepartmentService departmentService;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -80,5 +86,48 @@ public class AllMemberViewController {
         
         return ResponseEntity.ok(returnValue);
     }
+    
+    //urlの方と表示を変える
+    @GetMapping("organization")
+    public ResponseEntity<String> getAllgetDepartment(@RequestHeader("Authorization") String token) {
+        String returnValue = "";
+        try {
+            String jwt = token.substring(7);
+            jwtUtil.extractUserId(jwt);
+
+            // 組織図データの取得
+            List<DepartmentEntity> organizationChart = departmentService.getDepartment();
+            returnValue = objectMapper.writeValueAsString(organizationChart);
+            System.out.println(returnValue);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving organization chart data");
+        }
+
+        return ResponseEntity.ok(returnValue);
+    }
+    
+    @GetMapping("department-users")
+    public ResponseEntity<String> getUsersByDepartment(@RequestHeader("Authorization") String token, @RequestParam String departmentName) {
+        String returnValue = "";
+        try {
+            String jwt = token.substring(7);
+            jwtUtil.extractUserId(jwt);
+
+            // 指定された部署のユーザーを取得
+            List<UserEntity> users = userService.findUsersByDepartmentName(departmentName);
+            returnValue = objectMapper.writeValueAsString(users);
+            
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving users for department");
+        }
+
+        return ResponseEntity.ok(returnValue);
+    }
+
+
 	
 }
