@@ -80,5 +80,8 @@ public class AllMemberViewController {
         
         return ResponseEntity.ok(returnValue);
     }
+    
+    
+    
 	
 }
