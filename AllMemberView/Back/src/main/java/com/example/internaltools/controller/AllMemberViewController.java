@@ -119,7 +119,6 @@ public class AllMemberViewController {
             List<UserEntity> users = userService.findUsersByDepartmentName(departmentName);
             returnValue = objectMapper.writeValueAsString(users);
             
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error retrieving users for department");
@@ -127,7 +126,5 @@ public class AllMemberViewController {
 
         return ResponseEntity.ok(returnValue);
     }
-
-
 	
 }
