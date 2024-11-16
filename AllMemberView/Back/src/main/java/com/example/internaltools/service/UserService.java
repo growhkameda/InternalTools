@@ -25,7 +25,7 @@ public class UserService {
     }
 	
 	// 部署 ID でユーザーを検索するメソッド
-	public List<UserEntity> findUsersByDepartmentName(String departmentName) {
-        return repository.findByDepartmentName(departmentName);
+	public List<UserEntity> findUsersByDepartmentName(Integer department_id) {
+        return repository.findByDepartmentId(department_id);
     }
 }

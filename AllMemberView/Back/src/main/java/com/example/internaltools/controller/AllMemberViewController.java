@@ -1,5 +1,6 @@
 package com.example.internaltools.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.internaltools.entity.AuthRequest;
 import com.example.internaltools.entity.AuthResponse;
 import com.example.internaltools.entity.DepartmentEntity;
+import com.example.internaltools.entity.DepartmentRequest;
 import com.example.internaltools.entity.UserEntity;
 import com.example.internaltools.service.AuthService;
 import com.example.internaltools.service.DepartmentService;
@@ -108,16 +109,21 @@ public class AllMemberViewController {
         return ResponseEntity.ok(returnValue);
     }
     
-    @GetMapping("department-users")
-    public ResponseEntity<String> getUsersByDepartment(@RequestHeader("Authorization") String token, @RequestParam String departmentName) {
+    @PostMapping("department-users")
+    public ResponseEntity<String> getUsersByDepartment(@RequestHeader("Authorization") String token, @RequestBody DepartmentRequest departmentRequest) {
         String returnValue = "";
         try {
             String jwt = token.substring(7);
             jwtUtil.extractUserId(jwt);
 
             // 指定された部署のユーザーを取得
-            List<UserEntity> users = userService.findUsersByDepartmentName(departmentName);
-            returnValue = objectMapper.writeValueAsString(users);
+            List<UserEntity> resultList = new ArrayList<>();
+            for(Integer i : departmentRequest.getDepartment_id()) {
+            	List<UserEntity> users = userService.findUsersByDepartmentName(i);
+            	resultList.addAll(users);
+            }
+            
+            returnValue = objectMapper.writeValueAsString(resultList);
             
         } catch (Exception e) {
             e.printStackTrace();

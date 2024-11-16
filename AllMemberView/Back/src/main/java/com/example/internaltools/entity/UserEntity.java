@@ -27,7 +27,8 @@ public class UserEntity {
     
     @Column(name = "department_name")
     private String departmentName; // 修正: department_name を departmentName に変更
-    
+    @Column(name = "department_id")
+    private Integer departmentId; // このフィールド名を確認
     private String project_name;
     private String project_place;
 

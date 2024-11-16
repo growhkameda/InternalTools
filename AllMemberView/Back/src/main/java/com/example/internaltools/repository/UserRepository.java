@@ -11,5 +11,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     
 	
     // 部署 ID に基づいてユーザー一覧を取得する
-	List<UserEntity> findByDepartmentName(String departmentName);
+	List<UserEntity> findByDepartmentId(Integer department_id);
 }
