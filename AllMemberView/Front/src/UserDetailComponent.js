@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -16,6 +16,7 @@ import {
   Select,
 } from "@mui/material";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import { jwtDecode } from "jwt-decode";
 
 const UserProfile = ({ isNewUser = false }) => {
   const initialProfile = {
@@ -52,7 +53,16 @@ const UserProfile = ({ isNewUser = false }) => {
   const [profile, setProfile] = useState(initialProfile);
   const [image, setImage] = useState(profile.image);
   const [imageBinary, setImageBinary] = useState(null);
-  const isAdmin = true;
+  const [isAdmin, setIsAdmin] = useState(false); // 管理者かどうかの状態
+
+  useEffect(() => {
+    // トークンからisAdminを取得
+    const token = localStorage.getItem("token"); // ローカルストレージからトークンを取得
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setIsAdmin(decodedToken.isAdmin); // トークン内のisAdminをセット
+    }
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -241,11 +251,11 @@ const UserProfile = ({ isNewUser = false }) => {
                 </FormControl>
 
                 <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
-                  <InputLabel>役職</InputLabel>
+                  <InputLabel>所属</InputLabel>
                   <Select
                     value={profile.positionId}
                     onChange={handlePositionChange}
-                    label="役職"
+                    label="所属"
                     disabled={!isEditing}
                   >
                     {positions.map((position) => (
@@ -257,7 +267,7 @@ const UserProfile = ({ isNewUser = false }) => {
                 </FormControl>
               </Box>
 
-              <Box display="flex" justifyContent="space-between">
+              {/* <Box display="flex" justifyContent="space-between">
                 <FormControl fullWidth margin="normal" sx={{ mr: 1 }}>
                   <InputLabel>案件名</InputLabel>
                   <Select
@@ -272,9 +282,9 @@ const UserProfile = ({ isNewUser = false }) => {
                       </MenuItem>
                     ))}
                   </Select>
-                </FormControl>
+                </FormControl> */}
 
-                <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
+                {/* <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
                   <InputLabel>出身地</InputLabel>
                   <OutlinedInput
                     value={profile.hometown}
@@ -284,14 +294,14 @@ const UserProfile = ({ isNewUser = false }) => {
                     readOnly={!isEditing}
                   />
                 </FormControl>
-              </Box>
+              </Box> */}
 
               <Box display="flex" justifyContent="space-between">
                 <FormControl fullWidth margin="normal" sx={{ mr: 1 }}>
-                  <InputLabel>生年月日</InputLabel>
+                  <InputLabel>誕生日</InputLabel>
                   <OutlinedInput
                     value={profile.birthDate}
-                    label="生年月日"
+                    label="誕生日"
                     name="birthDate"
                     onChange={handleInputChange}
                     readOnly={!isEditing}
