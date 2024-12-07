@@ -27,39 +27,39 @@ const App = () => {
 
   // NAVIGATION を動的に生成
   const NAVIGATION = [
-    {
-      kind: "header",
-      title: "メニュー",
-    },
+    // {
+    //   kind: "header",
+    //   title: "メニュー",
+    // },
     {
       segment: "organization-chart",
       title: "組織図",
-      icon: <BarChartIcon />,
+      icon: <BarChartIcon style={{ color: '#ffffff' }} />,
     },
     {
       segment: "change-password",
       title: "パスワード変更",
-      icon: <KeyIcon />,
+      icon: <KeyIcon style={{ color: '#ffffff' }} />,
     },
-    {
-      kind: "divider",
-    },
+    // {
+    //   kind: "divider",
+    // },
     // 管理者メニューはisAdminがtrueの場合のみ表示
     ...(isAdmin
       ? [
-          {
-            kind: "header",
-            title: "管理者メニュー",
-          },
+          // {
+          //   kind: "header",
+          //   title: "管理者メニュー",
+          // },
           {
             segment: "new-user",
             title: "ユーザ登録",
-            icon: <PersonAddIcon />,
+            icon: <PersonAddIcon style={{ color: '#ffffff' }} />,
           },
           {
             segment: "new-project",
             title: "案件登録",
-            icon: <AddBusinessIcon />,
+            icon: <AddBusinessIcon style={{ color: '#ffffff' }} />,
           },
         ]
       : []),

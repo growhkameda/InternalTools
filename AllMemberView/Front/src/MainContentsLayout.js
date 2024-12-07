@@ -8,20 +8,41 @@ import { useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 const demoTheme = createTheme({
-  cssVariables: {
-    colorSchemeSelector: "data-toolpad-color-scheme",
-  },
-  // colorSchemes: { light: true, dark: true },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
-      lg: 1200,
-      xl: 1536,
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "ffffff", // ヘッダーの色
+          color: "#ffffff", // ヘッダー内のテキスト色
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#333333", // サイドバーの背景色
+          color: "#ffffff", // サイドバーのテキスト色
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          // kind: "header"の行の色を追加
+          "&.header-item": {
+            backgroundColor: "#003366", // ヘッダーの背景色
+            color: "#ffffff", // ヘッダー内のテキスト色
+            "&:hover": {
+              backgroundColor: "#1976d2", // ホバー時の背景色
+            },
+          },
+        },
+      },
     },
   },
 });
+
+
 
 const LogoutButton = ({ isMobile }) => {
   const navigate = useNavigate();
@@ -44,6 +65,13 @@ const LogoutButton = ({ isMobile }) => {
 
 const MainContentsLayout = ({ children, navigation }) => {
   const isMobile = useMediaQuery(demoTheme.breakpoints.down("sm")); // 画面幅600px以下でモバイル表示
+  const [drawerOpen, setDrawerOpen] = React.useState(false); // ドロワーの開閉状態を管理
+
+  const handleDrawerToggle = () => {
+    // ドロワーが閉じているときにボタンを押しても開かないようにする
+    if (!drawerOpen) return;
+    setDrawerOpen(!drawerOpen);
+  };
 
   return (
     <AppProvider
@@ -52,7 +80,7 @@ const MainContentsLayout = ({ children, navigation }) => {
       branding={{
         logo: (
           <img
-            src="https://prtimes.jp/data/corp/106162/ogp/70bfd07cf65ac8125cd9ea34c728d206-f2334be5ffee7dba4ae23c3d975f5f4d.jpeg"
+            src="/titlelogo.png"
             alt="grow logo"
           />
         ),
@@ -66,7 +94,13 @@ const MainContentsLayout = ({ children, navigation }) => {
         //     : "linear-gradient(to bottom right, #001F3F, #003366, #00509E)", // PCではグラデーション
         //   height: "100vh",
         // }}
+        isDrawerOpen={drawerOpen} // 手動で開閉状態を管理
+        onDrawerToggle={handleDrawerToggle} // トグルボタンのクリック時に呼ばれる
         slots={{ toolbarActions: LogoutButton }}
+        sx={{
+          backgroundColor: "#f5f5f5", // モバイルとPCで背景色を変える
+          height: "100vh", // 高さを100vhに設定
+        }}
       >
         <Box sx={{ padding: isMobile ? 2 : 5 }}>{children}</Box> {/* レスポンシブなパディング */}
       </DashboardLayout>
