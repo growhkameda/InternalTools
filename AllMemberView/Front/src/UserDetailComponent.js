@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -14,8 +14,156 @@ import {
   Typography,
   MenuItem,
   Select,
+  styled
 } from "@mui/material";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import { jwtDecode } from "jwt-decode";
+import { useParams } from "react-router-dom";
+
+
+const people = [
+  {
+    id: 1,
+    name: "加藤 真太郎",
+    department_id: [1],
+    department_name: ["CEO"],
+    position: "CEO_1",
+    birthday: "11/10",
+    hobby: "サウナ、読書、筋トレ",
+    image: "/profile/1.jpg",
+  },
+  {
+    id: 2,
+    name: "杁本 翔太",
+    department_id: [14],
+    department_name: ["ITソリューション事業部"],
+    position: "ITソリューション事業部_3",
+    birthday: "9/24",
+    hobby: "野球",
+    image: "/profile/2.jpg",
+  },
+  {
+    id: 3,
+    name: "舟橋 大裕",
+    department_id: [7],
+    department_name: ["人事"],
+    position: "",
+    birthday: "4/11",
+    hobby: "菅原圭のおっかけ",
+    image: "/profile/3.jpg",
+  },
+  {
+    id: 4,
+    name: "中野 孝平",
+    department_id: [7],
+    department_name: ["人事"],
+    position: "",
+    birthday: "6/21",
+    hobby:
+      "散歩、歴史、酒、ダーツ、水泳、スノボ、中華巡り、サーフィン、バイク、旅行、アニメ",
+      image: "/profile/4.png",
+  },
+  {
+    id: 5,
+    name: "白石 和樹",
+    department_id: [13],
+    department_name: ["倉庫課"],
+    position: "倉庫課_4",
+    birthday: "7/15",
+    hobby: "サウナ、お酒、野球",
+    image: "/profile/5.JPG",
+  },
+  {
+    id: 6,
+    name: "雨宮 裕樹",
+    department_id: [20],
+    department_name: ["リスキリング事業部"],
+    position: "リスキリング事業部_3",
+    birthday: "7/15",
+    hobby: "ゲーム、スノボ",
+    image: "/profile/6.jpg",
+  },
+  {
+    id: 7,
+    name: "工藤 さよ子",
+    department_id: [3],
+    department_name: ["総務"],
+    position: "",
+    birthday: "8/16",
+    hobby: "ご飯とお酒、ASMR視聴、韓国",
+    image: "/profile/7.jpg",
+  },
+  {
+    id: 8,
+    name: "辻戸 翔希",
+    department_id: [19, 22],
+    department_name: ["ITサポート課", "技術向上課"],
+    position: "ITサポート課_5",
+    birthday: "7/2",
+    hobby: "麻雀、ダーツ、ライブ",
+    image: "/profile/8.png",
+  },
+  {
+    id: 9,
+    name: "柘植 航太",
+    department_id: [18, 22],
+    department_name: ["評価検証課", "技術向上課"],
+    position: "評価検証課_5",
+    birthday: "1/13",
+    hobby: "弾き語り、麻雀",
+    image: "/profile/9.jpg",
+  },
+  {
+    id: 10,
+    name: "吉川 翔",
+    department_id: [19],
+    department_name: ["ITサポート課"],
+    position: "ITサポート課_5",
+    birthday: "8/28",
+    hobby: "麻雀、ダーツ、スノボ",
+    image: "/profile/10.jpg",
+  },
+  {
+    id: 11,
+    name: "山下 暁大",
+    department_id: [17, 21],
+    department_name: ["開発課", "TechGrowUp課"],
+    position: "TechGrowUp課_4",
+    birthday: "12/13",
+    hobby: "ダイビング、ゲーム、爬虫類、ミュージカル、バイク、漫画",
+    image: "/profile/11.jpg",
+  },
+  {
+    id: 12,
+    name: "武藤 秀平",
+    department_id: [17, 22],
+    department_name: ["開発課", "技術向上課"],
+    position: "",
+    birthday: "7/24",
+    hobby: "キャンプ、スノボ",
+    image: "/profile/12.jpg",
+  },
+  {
+    id: 13,
+    name: "馬場 友規",
+    department_id: [18],
+    department_name: ["評価検証課"],
+    position: "評価検証課_5",
+    birthday: "8/10",
+    hobby: "バイク、カメラ",
+    image: "/profile/13.jpg",
+  },
+  {
+    id: 14,
+    name: "亀田 春樹",
+    department_id: [17, 22],
+    department_name: ["開発課", "技術向上課"],
+    position: "技術向上課_4",
+    birthday: "4/20",
+    hobby: "ゲーム、バスケ、野球",
+    image: "/profile/14.png",
+  },
+];
 
 const UserProfile = ({ isNewUser = false }) => {
   const initialProfile = {
@@ -30,6 +178,19 @@ const UserProfile = ({ isNewUser = false }) => {
     image: "https://randomuser.me/api/portraits/men/1.jpg",
     roleId: 2, // 追加: 権限IDを初期値として設定
   };
+
+  const { id } = useParams();
+
+  const getProfile = (id) =>{
+    let returnProfile = {}
+    people.forEach(item => {
+      if(item.id === id) {
+        returnProfile = item
+        return
+      }
+    })
+    return returnProfile
+  }
 
   const positions = [
     { id: 1, name: "事務経理" },
@@ -49,10 +210,19 @@ const UserProfile = ({ isNewUser = false }) => {
   ];
 
   const [isEditing, setIsEditing] = useState(isNewUser);
-  const [profile, setProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState(getProfile(Number(id)));
   const [image, setImage] = useState(profile.image);
   const [imageBinary, setImageBinary] = useState(null);
-  const isAdmin = true;
+  const [isAdmin, setIsAdmin] = useState(false); // 管理者かどうかの状態
+
+  useEffect(() => {
+    // トークンからisAdminを取得
+    const token = localStorage.getItem("token"); // ローカルストレージからトークンを取得
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setIsAdmin(decodedToken.isAdmin); // トークン内のisAdminをセット
+    }
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -119,8 +289,30 @@ const UserProfile = ({ isNewUser = false }) => {
       });
   };
 
+  const StyledCard = styled(Card)(({ theme }) => ({
+    padding: '0.2em 0.5em',
+    margin: '2em 0',
+    background: '#d6ebff',
+    boxShadow: '0px 0px 0px 10px #d6ebff',
+    border: 'dashed 2px white',
+    borderRadius: '8px',
+    '& p': {
+      margin: 0,
+      padding: 0,
+    },
+  }));
+
   return (
-    <Box display="flex" padding={3}>
+    <Box 
+      display="flex" 
+      padding={3}
+      sx={{ 
+        backgroundImage: 'url(https://image.en-gage.net/image/work_picture/481922/16802414219493benv.jpg?width=573)',
+        backgroundSize: 'cover', // 画像を全体にカバーする
+        backgroundPosition: 'center', // 中央に配置
+        // minHeight: '100vh', // ビューポート全体の高さに設定
+      }}
+    >
       <Box marginRight={3}>
         <Avatar
           alt={profile.name}
@@ -153,13 +345,13 @@ const UserProfile = ({ isNewUser = false }) => {
         )}
       </Box>
 
-      <Card variant="outlined" sx={{ flex: 1, boxShadow: 3 }}>
+      <StyledCard variant="outlined" sx={{ flex: 1, boxShadow: 3 }}>
         <CardHeader
           title={isNewUser ? "新規ユーザー登録" : "Profile"}
           subheader={
             isNewUser
               ? "必要な情報を入力してください"
-              : "The information can be edited"
+              : ""
           }
           action={
             isAdmin &&
@@ -241,11 +433,11 @@ const UserProfile = ({ isNewUser = false }) => {
                 </FormControl>
 
                 <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
-                  <InputLabel>役職</InputLabel>
-                  <Select
+                  <InputLabel>所属</InputLabel>
+                  {/* <Select
                     value={profile.positionId}
                     onChange={handlePositionChange}
-                    label="役職"
+                    label="所属"
                     disabled={!isEditing}
                   >
                     {positions.map((position) => (
@@ -253,11 +445,18 @@ const UserProfile = ({ isNewUser = false }) => {
                         {position.name}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <OutlinedInput
+                    value={profile.department_name}
+                    label="所属"
+                    name="department"
+                    onChange={handleInputChange}
+                    readOnly={!isEditing}
+                  />
                 </FormControl>
               </Box>
 
-              <Box display="flex" justifyContent="space-between">
+              {/* <Box display="flex" justifyContent="space-between">
                 <FormControl fullWidth margin="normal" sx={{ mr: 1 }}>
                   <InputLabel>案件名</InputLabel>
                   <Select
@@ -272,9 +471,9 @@ const UserProfile = ({ isNewUser = false }) => {
                       </MenuItem>
                     ))}
                   </Select>
-                </FormControl>
+                </FormControl> */}
 
-                <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
+                {/* <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
                   <InputLabel>出身地</InputLabel>
                   <OutlinedInput
                     value={profile.hometown}
@@ -284,15 +483,15 @@ const UserProfile = ({ isNewUser = false }) => {
                     readOnly={!isEditing}
                   />
                 </FormControl>
-              </Box>
+              </Box> */}
 
               <Box display="flex" justifyContent="space-between">
                 <FormControl fullWidth margin="normal" sx={{ mr: 1 }}>
-                  <InputLabel>生年月日</InputLabel>
+                  <InputLabel>誕生日</InputLabel>
                   <OutlinedInput
-                    value={profile.birthDate}
-                    label="生年月日"
-                    name="birthDate"
+                    value={profile.birthday}
+                    label="誕生日"
+                    name="birthday"
                     onChange={handleInputChange}
                     readOnly={!isEditing}
                   />
@@ -301,9 +500,9 @@ const UserProfile = ({ isNewUser = false }) => {
                 <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
                   <InputLabel>趣味</InputLabel>
                   <OutlinedInput
-                    value={profile.hobbies}
+                    value={profile.hobby}
                     label="趣味"
-                    name="hobbies"
+                    name="hobby"
                     onChange={handleInputChange}
                     readOnly={!isEditing}
                   />
@@ -320,7 +519,7 @@ const UserProfile = ({ isNewUser = false }) => {
             </Button>
           </Box>
         )}
-      </Card>
+      </StyledCard>
     </Box>
   );
 };
