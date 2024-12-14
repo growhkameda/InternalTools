@@ -118,8 +118,8 @@ public class AllMemberViewController {
 
             // 指定された部署のユーザーを取得
             List<UserEntity> resultList = new ArrayList<>();
-            for(Integer i : departmentRequest.getDepartment_id()) {
-            	List<UserEntity> users = userService.findUsersByDepartmentName(i);
+            for(Integer departmentId : departmentRequest.getDepartmentId()) {
+            	List<UserEntity> users = userService.findUsersByDepartmentName(departmentId);
             	resultList.addAll(users);
             }
             

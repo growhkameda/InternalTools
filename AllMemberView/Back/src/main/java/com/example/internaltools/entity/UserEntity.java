@@ -2,6 +2,8 @@ package com.example.internaltools.entity;
 
 import java.sql.Blob;
 
+import com.example.internaltools.common.Const;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,18 +20,34 @@ import lombok.NoArgsConstructor;
 public class UserEntity {
 
 	@Id
-	private Integer user_id;
-    private String user_name;
-    private String birth_date;
-    private String birth_place;
+	@Column(name = Const.USER_ID)
+	private Integer userId;
+	
+	@Column(name = Const.USER_NAME)
+    private String userName;
+	
+	@Column(name = Const.BIRTH_DATE)
+    private String birthDate;
+	
+	@Column(name = Const.BIRTH_PLACE)
+    private String birthPlace;
+	
+	@Column(name = Const.MEMO)
     private String memo;
+	
+	@Column(name = Const.IMAGE)
     private Blob image;
     
-    @Column(name = "department_name")
-    private String departmentName; // 修正: department_name を departmentName に変更
-    @Column(name = "department_id")
-    private Integer departmentId; // このフィールド名を確認
-    private String project_name;
-    private String project_place;
+    @Column(name = Const.DEPARTMENT_NAME)
+    private String departmentName; 
+    
+    @Column(name = Const.DEPARTMENT_ID)
+    private Integer departmentId;
+    
+    @Column(name = Const.PROJECT_NAME)
+    private String projectName;
+    
+    @Column(name = Const.PROJECT_PLACE)
+    private String projectPlace;
 
 }
