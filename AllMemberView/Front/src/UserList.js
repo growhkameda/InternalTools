@@ -12,7 +12,7 @@ const UserList = () => {
             console.log('Token:', token); // トークンをコンソールに出力
             
             try {
-                const response = await axios.get('http://localhost:8080/api/auth/alluserinfo', {
+                const response = await axios.get('http://localhost:8080/api/auth/alluserinfo/', {
                     headers: {
                         Authorization: `Bearer ${token}`, // トークンをヘッダーに追加
                     },
