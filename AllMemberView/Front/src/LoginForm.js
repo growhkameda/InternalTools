@@ -22,10 +22,10 @@ const LoginForm = () => {
   let loginUrl = ""
   const envType = process.env.REACT_APP_ENV_TYPE;
   if(envType === "stg") {
-    loginUrl = "http://" + process.env.REACT_APP_MY_IP + "/allmemberview/api/auth/login"
+    loginUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/login"
   }
   else {
-    loginUrl = "http://localhost:8080/allmemberview/api/auth/login"
+    loginUrl = "http://localhost:8080/api/login"
   }
 
   const handleLogin = async (e) => {

@@ -32,6 +32,12 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-web'
+}
+
+bootWar {
+    archiveBaseName = 'allmemberview'  // WARの名前
+    version =  '1.0.0'          // バージョン設定
 }
 
 tasks.named('test') {

@@ -25,7 +25,7 @@ import com.example.internaltools.utils.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
-@RequestMapping("/allmemberview")
+@RequestMapping("/api")
 public class AllMemberViewController {
 	
     @Autowired
@@ -46,7 +46,7 @@ public class AllMemberViewController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-    @PostMapping("/api/auth/login")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
     	
     	String en = passwordEncoder.encode(authRequest.getPassword());
@@ -56,7 +56,7 @@ public class AllMemberViewController {
         return ResponseEntity.ok(new AuthResponse(token));
     }
     
-    @GetMapping("/api/auth/info")
+    @GetMapping("/info")
     public String getUserInfo(@RequestHeader("Authorization") String token) {
         // トークンの"Bearer "プレフィックスを削除
         String jwt = token.substring(7);
@@ -67,7 +67,7 @@ public class AllMemberViewController {
         return "User ID: " + userId;
     }
 
-    @GetMapping("/api/auth/alluserinfo")
+    @GetMapping("/alluserinfo")
     public ResponseEntity<String> getAllUser(@RequestHeader("Authorization") String token) {
         String returnValue = "";
         try {

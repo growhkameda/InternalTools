@@ -36,8 +36,8 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())  // CSRFを無効化
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/allmemberview/api/auth/login").permitAll()  // 認証不要のエンドポイント
-                .requestMatchers("/api/auth/alluserinfo").authenticated()  // 認証が必要なエンドポイント
+                .requestMatchers("/api/login").permitAll()  // 認証不要のエンドポイント
+                .requestMatchers("/api/alluserinfo").authenticated()  // 認証が必要なエンドポイント
                 .anyRequest().authenticated()  // 他のエンドポイントは認証が必要
             )
             .sessionManagement(session -> session
