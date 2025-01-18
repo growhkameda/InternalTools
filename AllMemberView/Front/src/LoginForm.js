@@ -20,9 +20,9 @@ const LoginForm = () => {
   const navigate = useNavigate(); // useNavigateフックを使用
 
   let loginUrl = ""
-  const envType = process.env.ENV_TYPE;
+  const envType = process.env.REACT_APP_ENV_TYPE;
   if(envType === "stg") {
-    loginUrl = "http://" + process.env.MY_IP + "/allmemberview/api/auth/login"
+    loginUrl = "http://" + process.env.REACT_APP_MY_IP + "/allmemberview/api/auth/login"
   }
   else {
     loginUrl = "http://localhost:8080/allmemberview/api/auth/login"
