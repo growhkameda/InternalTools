@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.internaltools.common.Const;
 import com.example.internaltools.filter.JwtAuthenticationFilter;
 
 @Configuration
@@ -27,14 +28,15 @@ public class SecurityConfig {
 	
     @Autowired
     private UserDetailsService userDetailsService;  // UserDetailsService を Autowire
+    
+    String envType = System.getenv("ENV_TYPE");
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())  // CSRFを無効化
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORSを有効化
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login").permitAll()  // 認証不要のエンドポイント
+                .requestMatchers("/allmemberview/api/auth/login").permitAll()  // 認証不要のエンドポイント
                 .requestMatchers("/api/auth/alluserinfo").authenticated()  // 認証が必要なエンドポイント
                 .anyRequest().authenticated()  // 他のエンドポイントは認証が必要
             )
@@ -43,6 +45,11 @@ public class SecurityConfig {
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // フィルターを追加;
 
+        	if(!Const.ENV_TYPE.equals(envType)) {
+        		// CORSを有効化
+        		http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        	}
+        
         return http.build();
     }
     

@@ -12,5 +12,7 @@ public class Const {
 	public final static String PROJECT_NAME = "project_name";
 	public final static String PROJECT_PLACE = "project_place;";
 	
+	public final static String ENV_TYPE = "stg";
+	
 }
 

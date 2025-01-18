@@ -19,12 +19,20 @@ const LoginForm = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate(); // useNavigateフックを使用
 
+  let loginUrl = ""
+  const envType = process.env.ENV_TYPE;
+  if(envType === "stg") {
+    loginUrl = "http://" + process.env.MY_IP + "/allmemberview/api/auth/login"
+  }
+  else {
+    loginUrl = "http://localhost:8080/allmemberview/api/auth/login"
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault(); // フォームのデフォルトの動作を防ぐ
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
+      const response = await axios.post(loginUrl,
         {
           email: email,
           password: password,
