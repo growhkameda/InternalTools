@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { rootData } from "../RootConfig";
 import { useDemoRouter } from "@toolpad/core/internal";
+import Home from "./HomeLayout"
 
 const demoTheme = createTheme({
   components: {
@@ -57,6 +58,15 @@ const DashboardLayout = ({ children }) => {
 
   const router = useDemoRouter();
 
+  const contnts = () => {
+    if (router.pathname === "/home") {
+      return (<Home />)
+    }
+    else {
+      return (router.pathname)
+    }
+  }
+
   return (
     <AppProvider
       theme={demoTheme}
@@ -82,76 +92,7 @@ const DashboardLayout = ({ children }) => {
           height: "100vh", // 高さを100vhに設定
         }}
       >
-        <Box sx={{ display: "flex", height: "100vh" }}>
-          {/* 左側（縦2分割の左） */}
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Paper
-              elevation={3}
-              sx={{
-                width: "90%",
-                height: "90%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              組織図
-            </Paper>
-          </Box>
-
-          {/* 右側（縦2分割の右） */}
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Paper
-                elevation={3}
-                sx={{
-                  width: "90%",
-                  height: "90%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                誕生月の社員
-              </Paper>
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Paper
-                elevation={3}
-                sx={{
-                  width: "90%",
-                  height: "90%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                新入社員の社員
-              </Paper>
-            </Box>
-          </Box>
-        </Box>
+        {contnts()}
       </ToolpadDashboardLayout>
     </AppProvider>
   );
