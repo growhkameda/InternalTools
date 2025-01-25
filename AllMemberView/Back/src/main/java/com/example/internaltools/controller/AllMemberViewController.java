@@ -1,7 +1,11 @@
 package com.example.internaltools.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +17,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.internaltools.dto.DtoUserDepartment;
 import com.example.internaltools.entity.AuthRequest;
 import com.example.internaltools.entity.AuthResponse;
 import com.example.internaltools.entity.DepartmentEntity;
 import com.example.internaltools.entity.DepartmentRequest;
+import com.example.internaltools.entity.UserDepartmentEntity;
 import com.example.internaltools.entity.UserEntity;
 import com.example.internaltools.service.AuthService;
 import com.example.internaltools.service.DepartmentService;
+import com.example.internaltools.service.UserDepartmentService;
 import com.example.internaltools.service.UserService;
 import com.example.internaltools.utils.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +46,9 @@ public class AllMemberViewController {
 	
 	@Autowired
 	private DepartmentService departmentService;
+	
+	@Autowired
+	private UserDepartmentService userDepartmentService;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -76,9 +86,28 @@ public class AllMemberViewController {
 
             // torkenの検証
             jwtUtil.extractUserId(jwt);
+            
+            List<DtoUserDepartment> resultList = new ArrayList<>();
 
             List<UserEntity> userList = userService.getAllUsers(); // DB内のデータを全件取得
-            returnValue = objectMapper.writeValueAsString(userList);
+            List<UserDepartmentEntity> depatmentList = userDepartmentService.getAllUserDepartment();
+            
+            for(UserEntity user : userList) {
+            	DtoUserDepartment userDepartment = new DtoUserDepartment();
+            	
+            	List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
+            	for(UserDepartmentEntity department : depatmentList) {
+            		if(department.getUserId().equals(user.getUserId())) {
+            			tmpDepartmentList.add(department);
+            		}
+            	}
+            	
+            	userDepartment.setUser(user);
+            	userDepartment.setDepartment(tmpDepartmentList);
+            	resultList.add(userDepartment);
+            }
+            
+            returnValue = objectMapper.writeValueAsString(resultList);
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,10 +146,31 @@ public class AllMemberViewController {
             jwtUtil.extractUserId(jwt);
 
             // 指定された部署のユーザーを取得
-            List<UserEntity> resultList = new ArrayList<>();
+            Map<Integer, List<UserDepartmentEntity>> userDepartmentMap = new HashMap<>();
+            List<DtoUserDepartment> resultList = new ArrayList<>();
+            Set<Integer> memberIdList = new HashSet<>();
+            
+            // 部署に紐づくユーザIDを取得
             for(Integer departmentId : departmentRequest.getDepartmentId()) {
-            	List<UserEntity> users = userService.findUsersByDepartmentName(departmentId);
-            	resultList.addAll(users);
+            	List<UserDepartmentEntity> tmpDepatmentList = userDepartmentService.findUsersByDepartmentId(departmentId);
+            	for(UserDepartmentEntity tmpDepatment : tmpDepatmentList) {
+            		memberIdList.add(tmpDepatment.getUserId());
+            		
+            		// 初回格納時に格納するための空のリストを追加
+            		if(!userDepartmentMap.containsKey(tmpDepatment.getUserId())) {
+            			userDepartmentMap.put(departmentId, new ArrayList<UserDepartmentEntity>());
+            		}
+            		
+            		// ユーザID毎に部署情報をまとめなおす
+            		userDepartmentMap.get(departmentId).add(tmpDepatment);
+            	}
+            }
+            
+            // 部署情報とユーザ情報を格納
+            for (Integer userId : memberIdList) {
+            	DtoUserDepartment userDepartment = new DtoUserDepartment();
+            	userDepartment.setUser(userService.getUserById(userId));
+            	userDepartment.setDepartment(userDepartmentMap.get(userId));
             }
             
             returnValue = objectMapper.writeValueAsString(resultList);

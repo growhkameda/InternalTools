@@ -3,6 +3,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import HomeIcon from '@mui/icons-material/Home';
 import AddBusinessIcon from "@mui/icons-material/AddBusiness";
 import KeyIcon from "@mui/icons-material/Key";
+import GroupsIcon from '@mui/icons-material/Groups';
 
 
   // NAVIGATION を動的に生成
@@ -32,8 +33,13 @@ import KeyIcon from "@mui/icons-material/Key";
         icon: <PersonAddIcon />,
       },
       {
-        segment: "new-project",
-        title: "案件登録",
+        segment: "alluser",
+        title: "社員一覧",
+        icon: <GroupsIcon />,
+      },
+      {
+        segment: "user/:id",
+        title: "ユーザ",
         icon: <AddBusinessIcon />,
-      }
+      },
   ];

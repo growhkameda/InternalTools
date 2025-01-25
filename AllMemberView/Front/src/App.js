@@ -31,6 +31,12 @@ const App = () => {
             </ToolpadDashboardLayout>
           }
         />
+        <Route
+          path="/user/:id"
+          element={
+              <UserDetailComponent />
+          }
+        />
       </Routes>
     </Router>
   );

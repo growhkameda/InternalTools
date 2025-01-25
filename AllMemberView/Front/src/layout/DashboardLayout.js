@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from 'react';
 import { createTheme } from "@mui/material/styles";
 import { useMediaQuery } from "@mui/material";
 import { AppProvider } from "@toolpad/core/AppProvider";
@@ -9,6 +9,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { rootData } from "../RootConfig";
 import { useDemoRouter } from "@toolpad/core/internal";
 import Home from "./HomeLayout"
+import MemberView from "../components/MemberListComponent"
 
 const demoTheme = createTheme({
   components: {
@@ -46,7 +47,7 @@ const LogoutButton = ({ isMobile }) => {
   );
 };
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = () => {
   const isMobile = useMediaQuery(demoTheme.breakpoints.down("sm")); // 画面幅600px以下でモバイル表示
   const [drawerOpen, setDrawerOpen] = React.useState(false); // ドロワーの開閉状態を管理
 
@@ -56,11 +57,18 @@ const DashboardLayout = ({ children }) => {
     setDrawerOpen(!drawerOpen);
   };
 
-  const router = useDemoRouter();
+  const router = useDemoRouter("/home");
+  const [pathname, setPathname] = useState(); // 親でpathnameを管理
+  const handleRouteChange = (newPathname) => {
+    setPathname(newPathname);
+  };
 
   const contnts = () => {
     if (router.pathname === "/home") {
       return (<Home />)
+    }
+    else if(router.pathname === "/alluser") {
+      return (<MemberView onRouteChange={handleRouteChange}/>)
     }
     else {
       return (router.pathname)

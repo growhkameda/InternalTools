@@ -22,7 +22,7 @@ const Home = () => {
             alignItems: "center",
           }}
         >
-          組織図
+          組織図を編集したよ
         </Paper>
       </Box>
 
