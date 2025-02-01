@@ -22,6 +22,16 @@ public class LoginUser implements UserDetails {
     private Integer id;
     private String email;
     private String password;
+ // 追加: ユーザーの役割を示すフィールド（例: 1=管理者, 0=一般ユーザー）
+    private Integer role_id;
+    
+    public Integer getRole() {
+        return role_id;
+    }
+
+    public void setRole(Integer role) {
+        this.role_id = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

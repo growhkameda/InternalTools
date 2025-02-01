@@ -27,8 +27,8 @@ import KeyIcon from "@mui/icons-material/Key";
       icon: <KeyIcon />,
     },
     {
-        segment: "new-user",
-        title: "ユーザ登録",
+        segment: "admin-page",
+        title: "管理者ページ",
         icon: <PersonAddIcon />,
       },
       {

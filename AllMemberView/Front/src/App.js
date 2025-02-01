@@ -26,11 +26,13 @@ const App = () => {
         <Route
           path="/dashboard"
           element={
-            <ToolpadDashboardLayout>
-              
-            </ToolpadDashboardLayout>
-          }
+            <ToolpadDashboardLayout isAdmin={isAdmin} token={token} />}
         />
+        <Route path="/organization" element={<OrganizationChartComponent />} />
+        <Route path="/user/:id" element={<UserDetailComponent />} />
+        <Route path="/members" element={<MemberListComponent />} />
+        <Route path="/password-change" element={<PasswordChangeComponent />} />
+        <Route path="/project/:id" element={<ProjectDetailComponent />} />
       </Routes>
     </Router>
   );

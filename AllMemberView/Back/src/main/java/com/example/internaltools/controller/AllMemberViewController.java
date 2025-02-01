@@ -68,24 +68,22 @@ public class AllMemberViewController {
     }
 
     @GetMapping("/alluserinfo")
-    public ResponseEntity<String> getAllUser(@RequestHeader("Authorization") String token) {
-        String returnValue = "";
+    public ResponseEntity<List<UserEntity>> getAllUser(@RequestHeader("Authorization") String token) {
         try {
             // トークンの"Bearer "プレフィックスを削除
             String jwt = token.substring(7);
 
             // torkenの検証
             jwtUtil.extractUserId(jwt);
-
+            
             List<UserEntity> userList = userService.getAllUsers(); // DB内のデータを全件取得
-            returnValue = objectMapper.writeValueAsString(userList);
+            
+            return ResponseEntity.ok(userList);
             
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Error retrieving user data");
+            return ResponseEntity.status(500).body(null);
         }
-        
-        return ResponseEntity.ok(returnValue);
     }
     
     //urlの方と表示を変える

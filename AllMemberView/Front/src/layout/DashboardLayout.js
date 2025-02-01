@@ -9,6 +9,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { rootData } from "../RootConfig";
 import { useDemoRouter } from "@toolpad/core/internal";
 import Home from "./HomeLayout"
+import AdminPage from "./AdminPageLayout"
 
 const demoTheme = createTheme({
   components: {
@@ -46,7 +47,7 @@ const LogoutButton = ({ isMobile }) => {
   );
 };
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children, isAdmin }) => {
   const isMobile = useMediaQuery(demoTheme.breakpoints.down("sm")); // 画面幅600px以下でモバイル表示
   const [drawerOpen, setDrawerOpen] = React.useState(false); // ドロワーの開閉状態を管理
 
@@ -58,9 +59,18 @@ const DashboardLayout = ({ children }) => {
 
   const router = useDemoRouter();
 
+  const filteredRootData = rootData.filter(item => {
+    if (item.segment === "admin-page" || item.segment === "new-project") {
+      return isAdmin;
+    }
+    return true;
+  });
+
   const contnts = () => {
     if (router.pathname === "/home") {
       return (<Home />)
+    } else if (router.pathname === "/admin-page") {
+      return (<AdminPage />)
     }
     else {
       return (router.pathname)
@@ -70,7 +80,7 @@ const DashboardLayout = ({ children }) => {
   return (
     <AppProvider
       theme={demoTheme}
-      navigation={rootData}
+      navigation={filteredRootData}
       router={router}
       branding={{
         logo: <img src="/titlelogo.png" alt="grow logo" />,
