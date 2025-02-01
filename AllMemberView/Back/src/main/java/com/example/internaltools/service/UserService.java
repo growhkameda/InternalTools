@@ -24,8 +24,4 @@ public class UserService {
         return repository.findById(id).get();
     }
 	
-	// 部署 ID でユーザーを検索するメソッド
-	public List<UserEntity> findUsersByDepartmentName(Integer department_id) {
-        return repository.findByDepartmentId(department_id);
-    }
 }
