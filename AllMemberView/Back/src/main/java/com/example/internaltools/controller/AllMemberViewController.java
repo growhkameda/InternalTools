@@ -138,7 +138,7 @@ public class AllMemberViewController {
         return ResponseEntity.ok(returnValue);
     }
     
-    @PostMapping("department-users")
+    @PostMapping("/department-users")
     public ResponseEntity<String> getUsersByDepartment(@RequestHeader("Authorization") String token, @RequestBody DepartmentRequest departmentRequest) {
         String returnValue = "";
         try {
@@ -154,15 +154,17 @@ public class AllMemberViewController {
             for(Integer departmentId : departmentRequest.getDepartmentId()) {
             	List<UserDepartmentEntity> tmpDepatmentList = userDepartmentService.findUsersByDepartmentId(departmentId);
             	for(UserDepartmentEntity tmpDepatment : tmpDepatmentList) {
-            		memberIdList.add(tmpDepatment.getUserId());
+            		Integer userId = tmpDepatment.getUserId();
+            		
+            		memberIdList.add(userId);
             		
             		// 初回格納時に格納するための空のリストを追加
-            		if(!userDepartmentMap.containsKey(tmpDepatment.getUserId())) {
-            			userDepartmentMap.put(departmentId, new ArrayList<UserDepartmentEntity>());
+            		if(!userDepartmentMap.containsKey(userId)) {
+            			userDepartmentMap.put(userId, new ArrayList<UserDepartmentEntity>());
             		}
             		
             		// ユーザID毎に部署情報をまとめなおす
-            		userDepartmentMap.get(departmentId).add(tmpDepatment);
+            		userDepartmentMap.get(userId).add(tmpDepatment);
             	}
             }
             
@@ -171,6 +173,7 @@ public class AllMemberViewController {
             	DtoUserDepartment userDepartment = new DtoUserDepartment();
             	userDepartment.setUser(userService.getUserById(userId));
             	userDepartment.setDepartment(userDepartmentMap.get(userId));
+            	resultList.add(userDepartment);
             }
             
             returnValue = objectMapper.writeValueAsString(resultList);

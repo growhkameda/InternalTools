@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "v_user_department")
-@IdClass(UserDepartmentId.class) // 複合キーを指定
+@IdClass(UserDepartmentId.class) 
 public class UserDepartmentEntity {
 
 	@Id

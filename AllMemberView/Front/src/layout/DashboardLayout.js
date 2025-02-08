@@ -68,7 +68,10 @@ const DashboardLayout = () => {
       return (<Home />)
     }
     else if(router.pathname === "/alluser") {
-      return (<MemberView onRouteChange={handleRouteChange}/>)
+      return (<MemberView idList={""}/>)
+    }
+    else if(router.pathname === "/departmentuser") {
+      return (<MemberView idList={[20,21]}/>)
     }
     else {
       return (router.pathname)

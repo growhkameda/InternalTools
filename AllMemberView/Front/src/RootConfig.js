@@ -38,7 +38,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
         icon: <GroupsIcon />,
       },
       {
-        segment: "user/:id",
+        segment: "departmentuser",
         title: "ユーザ",
         icon: <AddBusinessIcon />,
       },

@@ -10,7 +10,7 @@ import {
   TextField,
   CardActionArea,
   InputAdornment,
-  useMediaQuery
+  useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
@@ -46,8 +46,7 @@ const Icon = ({ num }) => {
   );
 };
 
-const getDisplayMember = (id, memberList) => {
-
+const getDisplayMember = (memberList) => {
   // 役職のある部署が上にくるようにソート
   memberList.forEach((item) => {
     item.department.sort((a, b) => {
@@ -117,7 +116,49 @@ const alluserInfo = async () => {
   return responseData;
 };
 
-const PeopleList = () => {
+const departmentUserInfo = async (departmentIds) => {
+  let responseData = [];
+
+  let getMemberUrl = "";
+  const envType = process.env.REACT_APP_ENV_TYPE;
+  if (envType === "stg") {
+    getMemberUrl =
+      "http://" + process.env.REACT_APP_MY_IP + "/api/department-users";
+  } else {
+    getMemberUrl = "http://localhost:8080/allmemberview/api/department-users";
+  }
+
+  try {
+    // トークンを取得する
+    const token = localStorage.getItem("token"); // 例: ローカルストレージに保存されたトークンを取得
+
+    // トークンをAuthorizationヘッダーに追加してリクエストを送信
+    const response = await axios.post(
+      getMemberUrl,
+      {
+        departmentIdList: departmentIds,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Bearerトークンとして設定
+        },
+      }
+    );
+
+    if (response.data) {
+      responseData = response.data;
+    }
+  } catch (err) {
+    console.error("Login error", err);
+  }
+  return responseData;
+};
+
+const imagePath = (fileName) => {
+  return "/profile/" + fileName
+}
+
+const PeopleList = ({ idList }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [people, setPeople] = useState([]); // 人情報を管理するステート
   const [currentPage, setCurrentPage] = useState(0);
@@ -129,21 +170,29 @@ const PeopleList = () => {
   // コンポーネントの初期レンダリング時にユーザー情報を取得
   useEffect(() => {
     const fetchData = async () => {
-      const result = await alluserInfo();
-      setPeople(result); // 取得したデータをpeopleにセット
+      // 部署に紐づくすべての社員情報を取得
+      if (idList) {
+        setPeople(await departmentUserInfo(idList));
+      }
+      // すべての社員情報を取得
+      else {
+        setPeople(await alluserInfo());
+      }
     };
     fetchData();
   }, []);
 
   //表示するメンバー
   const { id } = useParams();
-  let displayMember = getDisplayMember("20", people);
+  let displayMember = getDisplayMember(people);
 
   // フリーワード検索
   const filteredPeople = displayMember.filter(
     (data) =>
       data.user.userName.includes(searchTerm) ||
-      data.department.some(department => department.departmentName.includes(searchTerm))
+      data.department.some((department) =>
+        department.departmentName.includes(searchTerm)
+      )
   );
 
   // 現在のページに表示するデータを取得
@@ -230,7 +279,7 @@ const PeopleList = () => {
             >
               <CardMedia
                 component="img"
-                image={`data:image/jpeg;base64,${person.user.image}`}
+                image={imagePath(person.user.image)}
                 alt={person.user.userName}
                 sx={{
                   width: 200, // 画像の幅を80pxに設定
