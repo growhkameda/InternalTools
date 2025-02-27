@@ -16,6 +16,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 
 
+
 const position = [
   {
     id: "1",
@@ -61,7 +62,7 @@ const people = [
     image: "/profile/2.jpg",
   },
   {
-    id: 3,
+    id: 15,
     name: "舟橋 大裕",
     department_id: [7],
     department_name: ["人事"],
@@ -376,8 +377,9 @@ const PeopleList = () => {
               }}
             >
               <CardMedia
-                component="img"
-                image={person.image}
+
+
+image={person.image}
                 alt={person.name}
                 sx={{
                   width: 80, // 画像の幅を80pxに設定

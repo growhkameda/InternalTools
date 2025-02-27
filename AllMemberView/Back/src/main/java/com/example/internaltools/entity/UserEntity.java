@@ -49,5 +49,8 @@ public class UserEntity {
     
     @Column(name = Const.PROJECT_PLACE)
     private String projectPlace;
-
+    
+    @Column(name = Const.JOINING_MONTH)
+    private String joiningMonth;
+    
 }

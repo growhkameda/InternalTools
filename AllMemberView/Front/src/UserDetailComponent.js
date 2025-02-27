@@ -14,11 +14,12 @@ import {
   Typography,
   MenuItem,
   Select,
-  styled
+  styled,
 } from "@mui/material";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import { jwtDecode } from "jwt-decode";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
 
 const people = [
@@ -61,7 +62,7 @@ const people = [
     birthday: "6/21",
     hobby:
       "散歩、歴史、酒、ダーツ、水泳、スノボ、中華巡り、サーフィン、バイク、旅行、アニメ",
-      image: "/profile/4.png",
+    image: "/profile/4.png",
   },
   {
     id: 5,
@@ -112,6 +113,7 @@ const people = [
     birthday: "1/13",
     hobby: "弾き語り、麻雀",
     image: "/profile/9.jpg",
+
   },
   {
     id: 10,
@@ -165,6 +167,32 @@ const people = [
   },
 ];
 
+const getProfile = async (id) => {
+  try {
+    let responseData = [];
+  
+    const token = localStorage.getItem('token');
+    const response = await axios.post(
+      "http://localhost:8080/api/auth/person",
+      {
+        userId: 15,
+
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Bearerトークンとして設定
+        },
+      }
+    );
+    if (response.data) {
+      responseData = response.data;
+    }
+  } catch (err) {
+
+    console.error("Login error", err);
+  }
+}
+
 const UserProfile = ({ isNewUser = false }) => {
   const initialProfile = {
     name: "佐藤 太郎",
@@ -175,22 +203,17 @@ const UserProfile = ({ isNewUser = false }) => {
     hometown: "東京都",
     birthDate: "1990年1月1日",
     hobbies: "読書、旅行",
+    joiningMonth: "1月",
     image: "https://randomuser.me/api/portraits/men/1.jpg",
     roleId: 2, // 追加: 権限IDを初期値として設定
   };
 
-  const { id } = useParams();
+  
 
-  const getProfile = (id) =>{
-    let returnProfile = {}
-    people.forEach(item => {
-      if(item.id === id) {
-        returnProfile = item
-        return
-      }
-    })
-    return returnProfile
-  }
+  
+  
+
+
 
   const positions = [
     { id: 1, name: "事務経理" },
@@ -210,10 +233,22 @@ const UserProfile = ({ isNewUser = false }) => {
   ];
 
   const [isEditing, setIsEditing] = useState(isNewUser);
-  const [profile, setProfile] = useState(getProfile(Number(id)));
-  const [image, setImage] = useState(profile.image);
+  const [profile, setProfile] = useState([]);
+  const [image, setImage] = useState();
   const [imageBinary, setImageBinary] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false); // 管理者かどうかの状態
+  const { id } = useParams();
+  
+  useEffect(() => {
+    
+    const fetchData = async () => {
+      // 部署に紐づくすべての社員情報を取得
+      
+      setProfile(await getProfile(id));
+      
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // トークンからisAdminを取得
@@ -274,6 +309,7 @@ const UserProfile = ({ isNewUser = false }) => {
     formData.append("hometown", profile.hometown);
     formData.append("birthDate", profile.birthDate);
     formData.append("hobbies", profile.hobbies);
+    formData.append("joiningMonth", profile.joiningMonth);
 
     fetch("/api/upload", {
       method: "POST",
@@ -303,10 +339,10 @@ const UserProfile = ({ isNewUser = false }) => {
   }));
 
   return (
-    <Box 
-      display="flex" 
+    <Box
+      display="flex"
       padding={3}
-      sx={{ 
+      sx={{
         backgroundImage: 'url(https://image.en-gage.net/image/work_picture/481922/16802414219493benv.jpg?width=573)',
         backgroundSize: 'cover', // 画像を全体にカバーする
         backgroundPosition: 'center', // 中央に配置
@@ -431,8 +467,20 @@ const UserProfile = ({ isNewUser = false }) => {
                     readOnly={!isEditing}
                   />
                 </FormControl>
-
                 <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
+                  <InputLabel>入社月</InputLabel>
+                  <OutlinedInput
+                    value={profile.joiningMonth}
+                    label="入社月"
+                    name="joiningMonth"
+                    onChange={handleInputChange}
+                    readOnly={!isEditing}
+                  />
+                </FormControl>
+              </Box>
+
+              <Box display="flex" justifyContent="space-between">
+                <FormControl fullWidth margin="normal">
                   <InputLabel>所属</InputLabel>
                   {/* <Select
                     value={profile.positionId}
@@ -473,7 +521,7 @@ const UserProfile = ({ isNewUser = false }) => {
                   </Select>
                 </FormControl> */}
 
-                {/* <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
+              {/* <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
                   <InputLabel>出身地</InputLabel>
                   <OutlinedInput
                     value={profile.hometown}
@@ -508,6 +556,8 @@ const UserProfile = ({ isNewUser = false }) => {
                   />
                 </FormControl>
               </Box>
+
+
             </Box>
           </Box>
         </CardContent>

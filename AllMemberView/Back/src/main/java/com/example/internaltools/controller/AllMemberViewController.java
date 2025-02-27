@@ -18,6 +18,7 @@ import com.example.internaltools.entity.AuthResponse;
 import com.example.internaltools.entity.DepartmentEntity;
 import com.example.internaltools.entity.DepartmentRequest;
 import com.example.internaltools.entity.UserEntity;
+import com.example.internaltools.entity.UserRequest;
 import com.example.internaltools.service.AuthService;
 import com.example.internaltools.service.DepartmentService;
 import com.example.internaltools.service.UserService;
@@ -124,6 +125,30 @@ public class AllMemberViewController {
             }
             
             returnValue = objectMapper.writeValueAsString(resultList);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving users for department");
+        }
+
+        return ResponseEntity.ok(returnValue);
+    }
+    
+    @PostMapping("person")
+    public ResponseEntity<String> getUsersByUser(@RequestHeader("Authorization") String token, @RequestBody UserRequest userrequest) {
+        String returnValue = "";
+        try {
+            String jwt = token.substring(7);
+            jwtUtil.extractUserId(jwt);
+
+            // 指定されたidのユーザーを取得
+            List<UserEntity> resultList = new ArrayList<>();
+            
+				UserEntity users = (UserEntity) userService.getUserById(userrequest.getUserId());
+            	
+            
+            
+            returnValue = objectMapper.writeValueAsString(users);
             
         } catch (Exception e) {
             e.printStackTrace();
