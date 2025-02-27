@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   ListItemButton,
@@ -8,9 +8,12 @@ import {
   Box,
   Button,
 } from "@mui/material";
+// from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { styled } from '@mui/system';
+import axios from "axios";
+
 
 const tableData = [
   {id:0,orgname:"グロウコミュニティ組織図",level:"0"},
@@ -42,6 +45,8 @@ const tableData = [
   {id:21,orgname:"TechGrowUp",level:"0_20_21"},
   {id:22,orgname:"技術向上課",level:"0_20_22"}
 ];
+
+
 
 const convertLevelData = () => {
   var levelDataDict = {};
@@ -100,6 +105,37 @@ const convertLevelData = () => {
   return { matrixData, levelList, makeOrgChartData };
 };
 
+const organizationInfo = async () => {
+  let responseData = [];
+
+  let getorganizationUrl = "";
+  const envType = process.env.REACT_APP_ENV_TYPE;
+  if (envType === "stg") {
+    getorganizationUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/organization";
+  } else {
+    getorganizationUrl = "http://localhost:8080/allmemberview/api/organization";
+  }
+
+  try {
+    // トークンを取得する
+    const token = localStorage.getItem("token"); // 例: ローカルストレージに保存されたトークンを取得
+
+    // トークンをAuthorizationヘッダーに追加してリクエストを送信
+    const response = await axios.get("http://localhost:8080/allmemberview/api/organization", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Bearerトークンとして設定
+      },
+    });
+
+    if (response.data) {
+      responseData = response.data;
+    }
+  } catch (err) {
+    console.error("Login error", err);
+  }
+  return responseData;
+};
+
 const GetNestLevelData = (dataDict, parentList, level) => {
   let returnData = [];
 
@@ -128,35 +164,44 @@ const GetNestLevelData = (dataDict, parentList, level) => {
 
 const CustomButton= styled(Button)(({ id }) => {
   // id に基づいて色を変更
-  let gradientColors;
+  let backgroundColor;
   switch (id) {
     case 0:
-      gradientColors = 'linear-gradient(90deg, #2af598 0%, #009efd 100%)'; // 親
+      // gradientColors = 'radial-gradient(circle, #ffffff 0%, #c0c0c0 100%)'; // 親
+      backgroundColor = ' #7878ff'
       break;
     case 1:
-      gradientColors = 'linear-gradient(90deg, #ff7e5f 0%, #feb47b 100%)'; // 子1（オレンジ系）
+      // backgroundColor = 'radial-gradient(circle, #ffffff 20%,rgb(120, 10, 255) 100%)'; // 子1（オレンジ系）
+      backgroundColor = ' #780aff'
       break;
     case 2:
-      gradientColors = 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)'; // 子2（紫・青系）
+      // gradientColors = 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)'; // 子2（紫・青系）
+      backgroundColor = 'radial-gradient(circle, #ffffff 20%,rgb(150, 150, 255) 100%)'
       break;
     case 3:
-      gradientColors = 'linear-gradient(90deg, #56ab2f 0%, #a8e063 100%)'; // 子3（緑系）
+      // gradientColors = 'linear-gradient(90deg, #56ab2f 0%, #a8e063 100%)'; // 子3（緑系）
+      backgroundColor = 'radial-gradient(circle, #ffffff 30%,rgb(180, 180, 180) 100%)'
       break;
     case 4:
-      gradientColors = 'linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%)'; // 子4（淡いピンク系）
+      // gradientColors = 'linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%)'; // 子4（淡いピンク系）
+      backgroundColor = 'radial-gradient(circle, #ffffff 0%, #c0c0c0 100%)'
       break;
     case 5:
-      gradientColors = 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)'; // 子5（青系）
+      // gradientColors = 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)'; // 子5（青系）
+      backgroundColor = 'radial-gradient(circle, #ffffff 0%, #c0c0c0 100%)'
       break;
     default:
-      gradientColors = 'linear-gradient(90deg, #2af598 0%, #009efd 100%)'; // デフォルト
+      // gradientColors = 'linear-gradient(90deg, #2af598 0%, #009efd 100%)'; // デフォルト
+      backgroundColor = 'radial-gradient(circle, #ffffff 0%, #c0c0c0 100%)'
   }
 
+
   return {
-    transform: 'skew(-15deg)',
-    color: '#fff',
+    transform: 'skew(-5deg)',
+    color: '#000',
+    // fontFamily:'Noto Sans JP',
     borderRadius: 0,
-    backgroundImage: gradientColors,
+    backgroundColor: backgroundColor,
     boxShadow: '0 5px 10px rgba(0, 0, 0, .1)',
     minWidth: '200px',
     '&:hover': {
@@ -166,8 +211,20 @@ const CustomButton= styled(Button)(({ id }) => {
   };
 });
 
-const NestedListWithIndentation = () => {
+const NestedListWithIndentation =  () => {
+
   const navigate = useNavigate();
+
+  const [tableData2, settableData2] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // const result = await organizationInfo();
+      settableData2(await organizationInfo()); // 取得したデータをpeopleにセット
+    };
+    fetchData();
+  }, []);
+
 
   // 展開状態を管理する
   const [open, setOpen] = useState({
@@ -189,6 +246,7 @@ const NestedListWithIndentation = () => {
 
   const {levelDataDict, levelList, relParentChildlevelData} = convertLevelData()
 
+      
   // リストアイテム内に展開ボタンと遷移ボタンを分けて配置する関数
   const renderListItem = (
     label,
@@ -235,13 +293,13 @@ const NestedListWithIndentation = () => {
 
   return (
     <Box 
-      sx={{ 
-        mt: 5,
-        backgroundImage: 'url(/org_back.png)',
-        backgroundSize: 'cover', // 画像を全体にカバーする
-        backgroundPosition: 'center', // 中央に配置
-        minHeight: '100vh', // ビューポート全体の高さに設定
-      }}
+      // sx={{ 
+      //   mt: 5,
+      //   backgroundImage: 'url(/org_back.png)',
+      //   backgroundSize: 'cover', // 画像を全体にカバーする
+      //   backgroundPosition: 'center', // 中央に配置
+      //   minHeight: '100vh', // ビューポート全体の高さに設定
+      // }}
     >
       <List component="nav">
         {renderListItem("グロウコミュニティ組織図", "all", "0", 0, true)}

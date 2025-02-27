@@ -9,6 +9,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { rootData } from "../RootConfig";
 import { useDemoRouter } from "@toolpad/core/internal";
 import Home from "./HomeLayout"
+import OrganizationChartComponent from "../components/OrganizationChartComponent"
 
 const demoTheme = createTheme({
   components: {
@@ -58,14 +59,27 @@ const DashboardLayout = ({ children }) => {
 
   const router = useDemoRouter();
 
+  // const contnts = () => {
+  //   if (router.pathname === "/home") {
+  //     return (<Home />)
+  //   }
+  //   else {
+  //     return (router.pathname)
+  //   }
+  // }
+
   const contnts = () => {
-    if (router.pathname === "/home") {
-      return (<Home />)
-    }
-    else {
-      return (router.pathname)
+    switch(router.pathname){
+      case "/home":
+        return (<Home />);
+      case "/organization-chart":
+        return (<OrganizationChartComponent />);
+      default:
+        return (router.pathname);
     }
   }
+
+
 
   return (
     <AppProvider

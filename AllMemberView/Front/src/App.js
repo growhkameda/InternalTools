@@ -9,6 +9,7 @@ import MemberListComponent from "./components/MemberListComponent";
 import PasswordChangeComponent from "./components/PasswordChangeComponent";
 import ProjectDetailComponent from "./components/ProjectDetailComponent";
 
+
 const App = () => {
   // トークンからisAdminを取得 (例: ローカルストレージからトークンを取得してデコード)
   const token = localStorage.getItem("token");
@@ -31,6 +32,7 @@ const App = () => {
             </ToolpadDashboardLayout>
           }
         />
+        <Route path="/organization-chart" element={<OrganizationChartComponent />} />
       </Routes>
     </Router>
   );

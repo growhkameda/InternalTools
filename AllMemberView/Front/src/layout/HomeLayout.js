@@ -1,6 +1,15 @@
 import { Button, Box, Paper, IconButton } from "@mui/material";
+import React, { useEffect, useRef } from 'react';
+import OrganizationChartComponent from "../components/OrganizationChartComponent"
 
 const Home = () => {
+  const leftPanelRef = useRef(null);
+
+  useEffect(() => {
+    if (leftPanelRef.current) {
+      leftPanelRef.current.scrollTop = 0; // スクロール位置を最上部に設定
+    }
+  }, []);
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       {/* 左側（縦2分割の左） */}
@@ -18,11 +27,16 @@ const Home = () => {
             width: "90%",
             height: "90%",
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+            overflow: "auto",  // スクロール機能を追加
           }}
         >
-          組織図
+          {/* 組織図 */}
+          
+          {/* インポートしたOrganizationChartComponent を表示 */}
+          {<OrganizationChartComponent />}
+    
         </Paper>
       </Box>
 
