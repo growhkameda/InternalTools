@@ -9,6 +9,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { rootData } from "../RootConfig";
 import { useDemoRouter } from "@toolpad/core/internal";
 import Home from "./HomeLayout"
+import PasswordChangeComponent from "../components/PasswordChangeComponent";
 
 const demoTheme = createTheme({
   components: {
@@ -62,10 +63,15 @@ const DashboardLayout = ({ children }) => {
     if (router.pathname === "/home") {
       return (<Home />)
     }
+    else if (router.pathname === "/change-password") {
+      return (<PasswordChangeComponent />)
+    }
     else {
-      return (router.pathname)
+      return (router.pathname);
     }
   }
+
+  
 
   return (
     <AppProvider
