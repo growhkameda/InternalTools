@@ -15,6 +15,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Grid from "@mui/material/Grid2";
 
 const Icon = ({ num }) => {
   let text;
@@ -155,8 +156,8 @@ const departmentUserInfo = async (departmentIds) => {
 };
 
 const imagePath = (fileName) => {
-  return "/profile/" + fileName
-}
+  return "/profile/" + fileName;
+};
 
 const PeopleList = ({ idList }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,7 +222,8 @@ const PeopleList = ({ idList }) => {
   };
 
   return (
-    <Box
+    <Grid
+      container
       sx={{
         padding: 2,
         backgroundSize: "cover", // 画像を全体にカバーする
@@ -251,59 +253,64 @@ const PeopleList = ({ idList }) => {
       />
 
       {/* レスポンシブなレイアウト */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", // モバイル時は2列、PC時は4列
-          gap: 2,
-        }}
-      >
+      <Grid container spacing={2}>
         {displayedPeople.map((person) => (
-          <Card
+          // スマホは1列(xs) スマホより大きい画面は2列 PCは3列
+          <Grid sise={{xs:12, sm:6,  md:3, lg:3, xl:3}}
+            key={person.user.userId}
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: "transparent",
-              boxShadow: "none",
             }}
           >
-            <CardActionArea
-              key={person.user.userId}
-              onClick={() => handleCardClick(person.user.userId)}
+            <Card
               sx={{
                 display: "flex",
-                flexDirection: "column",
+                justifyContent: "center",
                 alignItems: "center",
+                backgroundColor: "transparent",
+                boxShadow: "none",
               }}
             >
-              <CardMedia
-                component="img"
-                image={imagePath(person.user.image)}
-                alt={person.user.userName}
+              <CardActionArea
+                onClick={() => handleCardClick(person.user.userId)}
                 sx={{
-                  width: 200, // 画像の幅を80pxに設定
-                  height: 200, // 画像の高さを80pxに設定
-                  margin: 1, // 画像の周りにマージンを追加
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                  padding: { xs: 4, sm: 2, md: 3 }, 
                 }}
-              />
-              <CardContent>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", textAlign: "center" }}
-                >
-                  {person.user.userName}
-                </Typography>
-                {person.department.map((department, index) => {
-                  let positionId = department.positionId;
-
-                  return (
+              >
+                <CardMedia
+                  component="img"
+                  image={imagePath(person.user.image)}
+                  alt={person.user.userName}
+                  sx={{
+                    width: {xs:300, sm:200},
+                    height: {xs:300, sm:200},
+                    margin: 1,
+                  }}
+                />
+                <CardContent>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: "bold", textAlign: "center" }}
+                  >
+                    {person.user.userName}
+                  </Typography>
+                  {person.department.map((department, index) => (
                     <Box
                       key={index}
                       sx={{ display: "flex", alignItems: "center" }}
                     >
-                      {positionId !== "" && (
-                        <Icon num={Number(positionId)} sx={{ ml: 1 }} />
+                      {department.positionId && (
+                        <Icon
+                          num={Number(department.positionId)}
+                          sx={{ ml: 1 }}
+                        />
                       )}
                       <Typography
                         variant="subtitle1"
@@ -312,17 +319,17 @@ const PeopleList = ({ idList }) => {
                         {department.departmentName}
                       </Typography>
                     </Box>
-                  );
-                })}
-              </CardContent>
-            </CardActionArea>
-          </Card>
+                  ))}
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
         ))}
-      </Box>
+      </Grid>
 
       {/* ページ移動ボタン */}
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+      <Grid
+        sx={{ display: "flex", justifyContent: "space-between", margin: 2 }}
       >
         <Button
           variant="contained"
@@ -338,8 +345,8 @@ const PeopleList = ({ idList }) => {
         >
           次へ
         </Button>
-      </Box>
-    </Box>
+      </Grid>
+    </Grid>
   );
 };
 

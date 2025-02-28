@@ -71,7 +71,7 @@ const DashboardLayout = () => {
       return (<MemberView idList={""}/>)
     }
     else if(router.pathname === "/departmentuser") {
-      return (<MemberView idList={[20,21]}/>)
+      return (<MemberView idList={[20,21,22]}/>)
     }
     else {
       return (router.pathname)
