@@ -117,7 +117,39 @@ const alluserInfo = async () => {
   return responseData;
 };
 
-const PeopleList = () => {
+const birthuserInfo = async () => {
+  let responseData = [];
+
+  let getMemberUrl = "";
+  const envType = process.env.REACT_APP_ENV_TYPE;
+  if (envType === "stg") {
+    getMemberUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/alluserinfo";
+  } else {
+    getMemberUrl = "http://localhost:8080/allmemberview/api/birthuserinfo";
+  }
+
+  try {
+    // トークンを取得する
+    const token = localStorage.getItem("token"); // 例: ローカルストレージに保存されたトークンを取得
+
+    // トークンをAuthorizationヘッダーに追加してリクエストを送信
+    const response = await axios.get(getMemberUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Bearerトークンとして設定
+      },
+    });
+
+    if (response.data) {
+      responseData = response.data;
+    }
+  } catch (err) {
+    console.error("Login error", err);
+  }
+  return responseData;
+};
+
+
+const PeopleList = (action) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [people, setPeople] = useState([]); // 人情報を管理するステート
   const [currentPage, setCurrentPage] = useState(0);
@@ -129,7 +161,12 @@ const PeopleList = () => {
   // コンポーネントの初期レンダリング時にユーザー情報を取得
   useEffect(() => {
     const fetchData = async () => {
-      const result = await alluserInfo();
+      let result
+      if(action === 0){
+        result = await alluserInfo();
+      }else{
+        result = await birthuserInfo();
+      }
       setPeople(result); // 取得したデータをpeopleにセット
     };
     fetchData();

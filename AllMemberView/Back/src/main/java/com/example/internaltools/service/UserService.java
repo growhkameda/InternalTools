@@ -24,4 +24,11 @@ public class UserService {
         return repository.findById(id).get();
     }
 	
+	public List<UserEntity> getBirthUser() {
+//		int month = LocalDate.now().getMonthValue();
+		int month = 11;
+		String monthStr = String.valueOf(month);
+		return repository.findUsersByBirthMonth(monthStr);
+	}
+	
 }

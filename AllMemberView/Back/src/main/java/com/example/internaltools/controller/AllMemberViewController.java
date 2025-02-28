@@ -117,6 +117,46 @@ public class AllMemberViewController {
         return ResponseEntity.ok(returnValue);
     }
     
+    @GetMapping("/birthuserinfo")
+    public ResponseEntity<String> getBirthUser(@RequestHeader("Authorization") String token) {
+        String returnValue = "";
+        try {
+            // トークンの"Bearer "プレフィックスを削除
+            String jwt = token.substring(7);
+
+            // torkenの検証
+            jwtUtil.extractUserId(jwt);
+            
+            List<DtoUserDepartment> resultList = new ArrayList<>();
+
+            List<UserEntity> userList = userService.getBirthUser(); // DB内の誕生日月データを全件取得
+            List<UserDepartmentEntity> depatmentList = userDepartmentService.getAllUserDepartment();
+            
+            for(UserEntity user : userList) {
+            	DtoUserDepartment userDepartment = new DtoUserDepartment();
+            	
+            	List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
+            	for(UserDepartmentEntity department : depatmentList) {
+            		if(department.getUserId().equals(user.getUserId())) {
+            			tmpDepartmentList.add(department);
+            		}
+            	}
+            	
+            	userDepartment.setUser(user);
+            	userDepartment.setDepartment(tmpDepartmentList);
+            	resultList.add(userDepartment);
+            }
+            
+            returnValue = objectMapper.writeValueAsString(resultList);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving user data");
+        }
+        
+        return ResponseEntity.ok(returnValue);
+    }
+    
     //urlの方と表示を変える
     @GetMapping("organization")
     public ResponseEntity<String> getAllgetDepartment(@RequestHeader("Authorization") String token) {

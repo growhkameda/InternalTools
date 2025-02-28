@@ -1,4 +1,5 @@
 import { Button, Box, Paper, IconButton } from "@mui/material";
+import MemberView from "../components/MemberListComponent"
 
 const Home = () => {
   return (
@@ -46,7 +47,7 @@ const Home = () => {
               alignItems: "center",
             }}
           >
-            誕生月の社員
+          <MemberView action = {1}/>
           </Paper>
         </Box>
         <Box
