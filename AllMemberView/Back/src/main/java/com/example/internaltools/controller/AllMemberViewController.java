@@ -118,7 +118,7 @@ public class AllMemberViewController {
         return ResponseEntity.ok(returnValue);
     }
     
-    // 現在月に入社した社員を取得し送信する
+    // 現在年月に入社した社員のデータを取得し送信する
     @GetMapping("/users-by-newEmployee")
     public ResponseEntity<String> getEmployeesByJoiningMonth(
     		@RequestHeader("Authorization") String token,

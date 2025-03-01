@@ -42,7 +42,7 @@ public class UserEntity {
 	@Column(name = Const.BIRTH_PLACE)
     private String birthPlace;
 	
-	@Column(name = Const.JOINING_MONTH)
+	@Column(name = Const.JOINING_MONTH)		//新規DB
 	private String joiningMonth;
 	
 	@Column(name = Const.MEMO)
