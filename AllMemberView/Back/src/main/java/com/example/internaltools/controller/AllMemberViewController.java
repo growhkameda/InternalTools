@@ -142,7 +142,7 @@ public class AllMemberViewController {
     				DtoUserDepartment userDepartment = new DtoUserDepartment();
     				List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
     				
-    				//取得した部署情報から該当社員の情報だけを取得
+    				// 取得した部署情報から該当社員の情報だけを取得
     				for (UserDepartmentEntity department : departmentList) {
     					if (department.getUserId().equals(user.getUserId())) {
     						tmpDepartmentList.add(department);
@@ -154,7 +154,7 @@ public class AllMemberViewController {
     				resultList.add(userDepartment);
     			}
     			
-    			//DTOリストをJSONに変換
+    			// DTOリストをJSONに変換
     			returnValue = objectMapper.writeValueAsString(resultList);
     				
     		} catch (Exception e) {
@@ -166,7 +166,7 @@ public class AllMemberViewController {
     }
     
     
-    //urlの方と表示を変える
+    // urlの方と表示を変える
     @GetMapping("organization")
     public ResponseEntity<String> getAllgetDepartment(@RequestHeader("Authorization") String token) {
         String returnValue = "";

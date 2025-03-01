@@ -117,13 +117,13 @@ const alluserInfo = async () => {
   return responseData;
 };
 
-//現在の年月を"yyyy/mm"形式で取得する
+// 現在の年月を"yyyy/mm"形式で取得する
 const getCurrentJoiningMonth = () => {
-  const now = new Date();           //フィルタリング用の変数
-  const year = now.getFullYear();   //現在の年を取得
-  const month = now.getMonth() + 1; //現在の月を取得
+  const now = new Date();           // フィルタリング用の変数
+  const year = now.getFullYear();   // 現在の年を取得
+  const month = now.getMonth() + 1; // 現在の月を取得
   
-  //月が一桁の場合先頭に0を追加して渡す
+  // 月が一桁の場合先頭に0を追加して渡す
   return `${year}/${month < 10 ? "0" + month : month}`;
 };
 
@@ -132,8 +132,8 @@ const getEmployeesByJoiningMonth = async (joiningMonth) => {
   let responseData = [];  // サーバーからのレスポンスデータの格納用
   let getMemberUrl = "";  // 取得した社員情報のURLの格納用
 
-  const envType = process.env.REACT_APP_ENV_TYPE; //  環境変数を格納
-  //環境変数がstgなら
+  const envType = process.env.REACT_APP_ENV_TYPE; // 環境変数を格納
+  // 環境変数がstgなら
   if (envType === "stg") {
     getMemberUrl =
       "http://" + process.env.REACT_APP_MY_IP + "/api/users-by-newEmployee?joiningMonth=" + joiningMonth;
@@ -151,7 +151,7 @@ const getEmployeesByJoiningMonth = async (joiningMonth) => {
       },
     });
 
-    //オブジェクトにdateプロパティがある場合、その値をresponseDateに格納
+    // オブジェクトにdateプロパティがある場合、その値をresponseDateに格納
     if (response.data) {
       responseData = response.data;
     }
@@ -161,9 +161,9 @@ const getEmployeesByJoiningMonth = async (joiningMonth) => {
   return responseData;
 };
 
-//alluserinfoとgetEmployeesByJoiningMonthを切り替える(初期値はJoiningMonth)
+// alluserinfoとgetEmployeesByJoiningMonthを切り替える(初期値はJoiningMonth)
 const PeopleList = ({fetchMode = "JoiningMonth", joiningMonth: propJoiningMonth}) => {
-  //fecthModeが"JoiningMonth"の場合、getCurrentJoiningMonthを設定, "all"の場合joiningMonthを使用せずnullに設定
+  // fecthModeが"JoiningMonth"の場合、getCurrentJoiningMonthを設定, "all"の場合joiningMonthを使用せずnullに設定
   const [joiningMonth, setJoiningMonth] = useState(    
     fetchMode === "JoiningMonth" ? (propJoiningMonth !== undefined ? propJoiningMonth : getCurrentJoiningMonth) : null
   );    
@@ -174,7 +174,7 @@ const PeopleList = ({fetchMode = "JoiningMonth", joiningMonth: propJoiningMonth}
   const navigate = useNavigate();                     // useNavigateフックを使用
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm")); // モバイル判定
 
-  //コンポーネントの初期レンダリング時にalluserInfoとgetEmployeesByJoiningMonthを切り替えて呼び出す
+  // コンポーネントの初期レンダリング時にalluserInfoとgetEmployeesByJoiningMonthを切り替えて呼び出す
   useEffect(() => {
     const fetchData = async () => {
       let result;
@@ -189,7 +189,7 @@ const PeopleList = ({fetchMode = "JoiningMonth", joiningMonth: propJoiningMonth}
       setPeople(result);
     };
     fetchData();
-    //fetchModeまたはフィルタ条件が変わった場合に再フェッチ
+    // fetchModeまたはフィルタ条件が変わった場合に再フェッチ
   },[fetchMode, joiningMonth]);
   
 
