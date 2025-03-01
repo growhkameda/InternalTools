@@ -35,8 +35,8 @@ public class UserEntity {
 	@Column(name = Const.MEMO)
     private String memo;
 	
-	@Column(name = Const.IMAGE)
-    private Blob image;
+//	@Column(name = Const.IMAGE)
+//    private Blob image;
     
     @Column(name = Const.DEPARTMENT_NAME)
     private String departmentName; 

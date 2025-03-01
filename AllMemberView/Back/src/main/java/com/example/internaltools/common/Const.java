@@ -10,7 +10,7 @@ public class Const {
 	public final static String DEPARTMENT_NAME = "department_name";
 	public final static String DEPARTMENT_ID = "departmentId";
 	public final static String PROJECT_NAME = "project_name";
-	public final static String PROJECT_PLACE = "project_place;";
+	public final static String PROJECT_PLACE = "project_place";
 	public final static String JOINING_MONTH = "joining_month";
 	
 }

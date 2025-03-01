@@ -142,9 +142,9 @@ public class AllMemberViewController {
             jwtUtil.extractUserId(jwt);
 
             // 指定されたidのユーザーを取得
-            List<UserEntity> resultList = new ArrayList<>();
+//            List<UserEntity> resultList = new ArrayList<>();
             
-				UserEntity users = (UserEntity) userService.getUserById(userrequest.getUserId());
+            UserEntity users = (UserEntity) userService.getUserById(userrequest.getUserId());
             	
             
             
