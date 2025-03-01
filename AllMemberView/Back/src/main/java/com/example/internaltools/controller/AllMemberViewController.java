@@ -94,7 +94,7 @@ public class AllMemberViewController {
 
 	// パスワード変更エンドポイント
 	@PostMapping("/change-password")
-	public String changePassword(@RequestHeader("Authorization") String token, @RequestBody PasswordInfo passwordData) {
+	public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody PasswordInfo passwordData) {
 		try {
 			System.out.println("パスワード変更ボタン押下後の変更処理開始");
 			// トークンの"Bearer "プレフィックスを削除
@@ -102,16 +102,20 @@ public class AllMemberViewController {
 
 			// torkenの検証
 			jwtUtil.extractUserId(jwt);
-			Integer userId = jwtUtil.extractUserId(jwt);
-			passwordData.setUserId(userId);
+			int userId = jwtUtil.extractUserId(jwt);
+			//passwordData.setUserId(userId);
+			
 			//パスワードをエンコード
 			//String en = passwordEncoder.encode(passwordData.getCurrentPassword());
 			//passwordData.setCurrentPassword(en);
 
 			// AuthServiceを使ってパスワード変更処理
-			return AuthServiceChangePassword.changePassword(passwordData);
+			String returnValue = AuthServiceChangePassword.changePassword(passwordData,userId);
+
+			return ResponseEntity.ok(returnValue);
 		} catch (Exception e) {
-			return "エラーが発生しました: " + e.getMessage();
+			e.printStackTrace();
+			return ResponseEntity.status(500).body("Error retrieving user data");
 		}
 	}
 

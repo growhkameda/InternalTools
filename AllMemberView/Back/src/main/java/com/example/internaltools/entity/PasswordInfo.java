@@ -7,5 +7,5 @@ public class PasswordInfo {
 
 	private String currentPassword;
 	private String newPassword;
-	private int userId;
+	//private int userId;
 }

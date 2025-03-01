@@ -15,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -87,6 +89,14 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration); // 全エンドポイントに適用
 
         return source;
+    }
+    
+    @Bean
+    protected HttpFirewall defaultHttpFirewall() {
+        DefaultHttpFirewall firewall = new DefaultHttpFirewall();
+        firewall.setAllowUrlEncodedSlash(true); // % エンコードされた文字を許可
+        firewall.setAllowUrlEncodedSlash(true);   // エンコードされたスラッシュを許可
+        return firewall;
     }
 
 }

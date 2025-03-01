@@ -25,9 +25,9 @@ public class AuthServiceChangePassword {
     }
     
     @Transactional
-    public static String changePassword(PasswordInfo passwordData) throws Exception {
+    public static String changePassword(PasswordInfo passwordData,int userId) throws Exception {
         // ユーザーの情報を取得
-        UserPasswordInfo userEntityChangePassword = passwordChangeRepository.findById(passwordData.getUserId());
+        UserPasswordInfo userEntityChangePassword = passwordChangeRepository.findById(userId);
         
         /*if (userEntityChangePassword == null) {
             throw new UsernameNotFoundException("ユーザーが見つかりません");
@@ -46,7 +46,7 @@ public class AuthServiceChangePassword {
         //UserPasswordInfo resistPassword = new UserPasswordInfo();
         //resistPassword.setPassword(encodePassword);
         
-        passwordChangeRepository.updatePassword(encodePassword,passwordData.getUserId());//＠Queryつけて、SQL文にして、save→updateに書き換え
+        passwordChangeRepository.updatePassword(encodePassword,userId);//＠Queryつけて、SQL文にして、save→updateに書き換え
        
         return "パスワードが正常に変更されました";
     }
