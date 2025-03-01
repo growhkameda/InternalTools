@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.internaltools.dto.DtoUserDepartment;
 import com.example.internaltools.entity.AuthRequest;
@@ -116,6 +117,54 @@ public class AllMemberViewController {
         
         return ResponseEntity.ok(returnValue);
     }
+    
+    // 現在月に入社した社員を取得し送信する
+    @GetMapping("/users-by-newEmployee")
+    public ResponseEntity<String> getEmployeesByJoiningMonth(
+    		@RequestHeader("Authorization") String token,
+    		@RequestParam("joiningMonth") String joiningMonth) {
+    	
+    		String returnValue = "";
+    		try {
+    			// トークンの"Bearer"プレフィックスを削除して検証
+    			String jwt = token.substring(7);
+    			jwtUtil.extractUserId(jwt);
+    			
+    			// サービスでDBから今月入社の社員(現状はuserIdでフィルタリング)を取得
+    			List<UserEntity> userList = userService.getEmployeesByJoiningMonth(joiningMonth);	//DB実装後引数をjoiningMonth(予定)に変更
+    			
+    			// すべての社員の部署情報を取得
+    			List<UserDepartmentEntity> departmentList = userDepartmentService.getAllUserDepartment();	//DB実装後引数をjoiningMonth(予定)に変更
+    			
+    			// 各社員に対して所属部署情報をDTOにまとめる
+    			List<DtoUserDepartment> resultList = new ArrayList<>();
+    			for (UserEntity user : userList) {
+    				DtoUserDepartment userDepartment = new DtoUserDepartment();
+    				List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
+    				
+    				//取得した部署情報から該当社員の情報だけを取得
+    				for (UserDepartmentEntity department : departmentList) {
+    					if (department.getUserId().equals(user.getUserId())) {
+    						tmpDepartmentList.add(department);
+    					}
+    				}
+    				
+    				userDepartment.setUser(user);
+    				userDepartment.setDepartment(tmpDepartmentList);
+    				resultList.add(userDepartment);
+    			}
+    			
+    			//DTOリストをJSONに変換
+    			returnValue = objectMapper.writeValueAsString(resultList);
+    				
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    			return ResponseEntity.status(500).body("Error retrieving filtered user data");
+    		}
+    		
+    		return ResponseEntity.ok(returnValue);
+    }
+    
     
     //urlの方と表示を変える
     @GetMapping("organization")

@@ -24,4 +24,9 @@ public class UserService {
         return repository.findById(id).get();
     }
 	
+	//フロントから受け取った入社年月(joiningMonth)からリポジトリのメソッドを呼び出し該当するユーザーのリストを返す
+	public List<UserEntity> getEmployeesByJoiningMonth(String joiningMonth) {
+		return repository.findEmployeesByJoiningMonth(joiningMonth);
+	}
+	
 }

@@ -22,6 +22,7 @@
     "mysql2": "^3.12.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.8.4",
+    "proxy": "http://localhost:8080/allmemberview",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-organization-chart": "^0.0.5",

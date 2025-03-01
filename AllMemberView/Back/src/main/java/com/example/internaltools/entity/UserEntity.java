@@ -42,6 +42,9 @@ public class UserEntity {
 	@Column(name = Const.BIRTH_PLACE)
     private String birthPlace;
 	
+	@Column(name = Const.JOINING_MONTH)
+	private String joiningMonth;
+	
 	@Column(name = Const.MEMO)
     private String memo;
 	
