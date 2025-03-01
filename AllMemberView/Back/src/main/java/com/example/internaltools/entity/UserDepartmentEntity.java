@@ -4,10 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import com.example.internaltools.common.Const;
 import com.example.internaltools.expansion.UserDepartmentId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,5 +40,22 @@ public class UserDepartmentEntity {
 	
 	@Column(name = Const.POSITION_NAME)
     private String positionName;
+	
+	//UserEntity とのリレーションを追加
+    @ManyToOne
+    @JoinColumn(name = Const.USER_ID, insertable = false, updatable = false)
+    @JsonIgnore
+    private UserEntity user;
+    
+    @Override
+    public String toString() {
+        return "UserDepartmentEntity{" +
+                "userId=" + userId +
+                ", departmentId=" + departmentId +
+                ", departmentName='" + departmentName + '\'' +
+                ", positionId=" + positionId +
+                ", positionName='" + positionName + '\'' +
+                '}'; // ✅ `user` を含めない
+    }
 	
 }

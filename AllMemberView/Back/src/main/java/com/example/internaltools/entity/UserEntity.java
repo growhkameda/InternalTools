@@ -53,9 +53,24 @@ public class UserEntity {
 	@Transient
 	private String image;
 	
+//	// ユーザーに紐づく部署情報
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private List<UserDepartmentEntity> departments;
+//
+//    // 部署情報をセットするためのメソッドを追加
+//    public void setDepartments(List<UserDepartmentEntity> departments) {
+//        this.departments = departments;
+//    }
+//
+//    public List<UserDepartmentEntity> getDepartments() {
+//        return departments;
+//    }
+	
 	// シリアライズ時にimageBlobをBase64に変換する
 	@PostLoad
 	public void postLoad() {
+		
         try {
             if (imageBlob != null) {
                 // Blobの長さを取得
@@ -69,6 +84,17 @@ public class UserEntity {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Unexpected error while converting Blob to Base64", e);
         }
+    }
+	
+	@Override
+    public String toString() {
+        return "UserEntity{" +
+                "userId=" + userId +
+                ", userName='" + userName + '\'' +
+                ", birthDate='" + birthDate + '\'' +
+                ", birthPlace='" + birthPlace + '\'' +
+                ", memo='" + memo + '\'' +
+                '}'; // `departments` を含めない
     }
     
     @Column(name = Const.PROJECT_NAME)

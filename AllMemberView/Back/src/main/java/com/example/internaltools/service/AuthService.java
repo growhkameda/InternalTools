@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.internaltools.entity.AuthRequest;
 import com.example.internaltools.entity.LoginUser;
+import com.example.internaltools.repository.UserUpdateRepository;
 import com.example.internaltools.utils.JwtUtil;
 
 @Service
@@ -34,10 +35,10 @@ public class AuthService {
             Integer userId = loginUser.getId();  // ユーザーIDを取得
             
             // ユーザーのroleを取得
-            Integer role = loginUser.getRole();  // ここでroleを取得（例えば、1が管理者、0が一般ユーザー）
+            Integer role_id = loginUser.getRole();  // ここでroleを取得（例えば、1が管理者、0が一般ユーザー）
 
             // roleが1の場合、isAdminをtrueに設定
-            boolean isAdmin = (role == 1);
+            boolean isAdmin = (role_id == 1);
 
             // ユーザー名とユーザーIDでトークンを生成
             final String token = jwtUtil.generateToken(authRequest.getEmail(), userId, isAdmin);
@@ -46,5 +47,8 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials"); // 認証失敗時のエラーメッセージ
         }
     }
+    
+    @Autowired
+    private UserUpdateRepository userUpdateRepository;
 
 }

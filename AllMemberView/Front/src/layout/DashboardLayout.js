@@ -11,114 +11,7 @@ import { useDemoRouter } from "@toolpad/core/internal";
 import Home from "./HomeLayout"
 import MemberView from "../components/MemberListComponent"
 
-const demoTheme = createTheme({
-  components: {
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          backgroundColor: "ffffff", // ヘッダーの色
-          color: "#ffffff", // ヘッダー内のテキスト色
-        },
-      },
-    },
-  },
-});
-
-const LogoutButton = ({ isMobile }) => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
-
-  return isMobile ? (
-    <IconButton color="primary" onClick={handleLogout}>
-      <LogoutIcon />
-    </IconButton>
-  ) : (
-    <Button
-      variant="contained"
-      startIcon={<LogoutIcon />}
-      onClick={handleLogout}
-    >
-      ログアウト
-    </Button>
-  );
-};
-
-const DashboardLayout = () => {
-  const isMobile = useMediaQuery(demoTheme.breakpoints.down("sm")); // 画面幅600px以下でモバイル表示
-  const [drawerOpen, setDrawerOpen] = React.useState(false); // ドロワーの開閉状態を管理
-
-  const handleDrawerToggle = () => {
-    // ドロワーが閉じているときにボタンを押しても開かないようにする
-    if (!drawerOpen) return;
-    setDrawerOpen(!drawerOpen);
-  };
-
-  const router = useDemoRouter("/home");
-  const [pathname, setPathname] = useState(); // 親でpathnameを管理
-  const handleRouteChange = (newPathname) => {
-    setPathname(newPathname);
-  };
-
-  const contnts = () => {
-    if (router.pathname === "/home") {
-      return (<Home />)
-    }
-    else if(router.pathname === "/alluser") {
-      return (<MemberView onRouteChange={handleRouteChange}/>)
-    }
-    else {
-      return (router.pathname)
-    }
-  }
-
-  return (
-    <AppProvider
-      theme={demoTheme}
-      navigation={rootData}
-      router={router}
-      branding={{
-        logo: <img src="/titlelogo.png" alt="grow logo" />,
-        title: "ぐろなび",
-      }}
-    >
-      <ToolpadDashboardLayout
-        // sx={{
-        //   backgroundImage: isMobile
-        //     ? "none" // モバイルでは背景画像をオフ
-        //     : "linear-gradient(to bottom right, #001F3F, #003366, #00509E)", // PCではグラデーション
-        //   height: "100vh",
-        // }}
-        isDrawerOpen={drawerOpen} // 手動で開閉状態を管理
-        onDrawerToggle={handleDrawerToggle} // トグルボタンのクリック時に呼ばれる
-        slots={{ toolbarActions: LogoutButton }}
-        sx={{
-          backgroundColor: "#f5f5f5", // モバイルとPCで背景色を変える
-          height: "100vh", // 高さを100vhに設定
-        }}
-      >
-        {contnts()}
-      </ToolpadDashboardLayout>
-    </AppProvider>
-  );
-};
-
-export default DashboardLayout;
-import * as React from "react";
-import { createTheme } from "@mui/material/styles";
-import { useMediaQuery } from "@mui/material";
-import { AppProvider } from "@toolpad/core/AppProvider";
-import { DashboardLayout as ToolpadDashboardLayout } from "@toolpad/core/DashboardLayout";
-import { Button, Box, Paper, IconButton } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { rootData } from "../RootConfig";
-import { useDemoRouter } from "@toolpad/core/internal";
-import Home from "./HomeLayout"
-import AdminPage from "./AdminPageLayout"
+import AdminPage from "../components/AdminPageComponent"
 
 const demoTheme = createTheme({
   components: {
@@ -166,19 +59,27 @@ const DashboardLayout = ({ children, isAdmin }) => {
     setDrawerOpen(!drawerOpen);
   };
 
-  const router = useDemoRouter();
+  const router = useDemoRouter("/home");
+  const [pathname, setPathname] = useState(); // 親でpathnameを管理
+  const handleRouteChange = (newPathname) => {
+    setPathname(newPathname);
+  };
 
   const filteredRootData = rootData.filter(item => {
-    if (item.segment === "admin-page" || item.segment === "new-project") {
-      return isAdmin;
+    if (item.segment === "admin-page") {
+    return isAdmin;
     }
     return true;
-  });
+    });
 
   const contnts = () => {
     if (router.pathname === "/home") {
       return (<Home />)
-    } else if (router.pathname === "/admin-page") {
+    }
+    else if(router.pathname === "/alluser") {
+      return (<MemberView onRouteChange={handleRouteChange}/>)
+    }
+    else if (router.pathname === "/admin-page") {
       return (<AdminPage />)
     }
     else {
