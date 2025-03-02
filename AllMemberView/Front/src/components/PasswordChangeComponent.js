@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Button, Card, CardContent, CardHeader, Divider, FormControl, InputLabel, OutlinedInput, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { httpRequestUtil } from "../common/Utils";
+import { REQUEST_METHOD_POST } from "../common/Const";
 
 const PasswordChangeForm = () => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -11,13 +14,30 @@ const PasswordChangeForm = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  let changePasswordUrl = ""
+  const envType = process.env.REACT_APP_ENV_TYPE;
+  if(envType === "stg") {
+    changePasswordUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/change-password"
+  }
+  else {
+    changePasswordUrl = "http://localhost:8080/allmemberview/api/change-password"
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // フォームのデフォルトの動作を防ぐ
 
     if (newPassword !== confirmPassword) {
       setErrorMessage('新しいパスワードと確認用パスワードが一致しません');
       setSuccessMessage('');
     } else {
+
+      let body = {
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      }
+
+      await httpRequestUtil(changePasswordUrl, body, REQUEST_METHOD_POST);
+
       // パスワード変更処理をここに実装（成功時）
       setSuccessMessage('パスワードが変更されました');
       setErrorMessage('');
@@ -25,9 +45,8 @@ const PasswordChangeForm = () => {
       setTimeout(() => {
         navigate('/');
       }, 2000);
-    }
-  };
-
+    };
+  }  
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
       <Card sx={{ maxWidth: 500, width: '100%' }}>

@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -8,297 +7,276 @@ import {
   CardContent,
   Typography,
   TextField,
+  CardActionArea,
   InputAdornment,
-  useMediaQuery,
-  styled
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
-
-
-const position = [
-  {
-    id: "1",
-    name: "ceo",
-  },
-  {
-    id: "2",
-    name: "執行役員",
-  },
-  {
-    id: "3",
-    name: "部長",
-  },
-  {
-    id: "4",
-    name: "課長",
-  },
-  {
-    id: "5",
-    name: "リーダ",
-  },
-];
-
-const people = [
-  {
-    id: 1,
-    name: "加藤 真太郎",
-    department_id: [1],
-    department_name: ["CEO"],
-    position: "CEO_1",
-    birthday: "11/10",
-    hobby: "サウナ、読書、筋トレ",
-    image: "/profile/1.jpg",
-  },
-  {
-    id: 2,
-    name: "杁本 翔太",
-    department_id: [14],
-    department_name: ["ITソリューション事業部"],
-    position: "ITソリューション事業部_3",
-    birthday: "9/24",
-    hobby: "野球",
-    image: "/profile/2.jpg",
-  },
-  {
-    id: 3,
-    name: "舟橋 大裕",
-    department_id: [7],
-    department_name: ["人事"],
-    position: "",
-    birthday: "4/11",
-    hobby: "菅原圭のおっかけ",
-    image: "/profile/3.jpg",
-  },
-  {
-    id: 4,
-    name: "中野 孝平",
-    department_id: [7],
-    department_name: ["人事"],
-    position: "",
-    birthday: "6/21",
-    hobby:
-      "散歩、歴史、酒、ダーツ、水泳、スノボ、中華巡り、サーフィン、バイク、旅行、アニメ",
-    image: "/profile/4.png",
-  },
-  {
-    id: 5,
-    name: "白石 和樹",
-    department_id: [13],
-    department_name: ["倉庫課"],
-    position: "倉庫課_4",
-    birthday: "7/15",
-    hobby: "サウナ、お酒、野球",
-    image: "/profile/5.JPG",
-  },
-  {
-    id: 6,
-    name: "雨宮 裕樹",
-    department_id: [20],
-    department_name: ["リスキリング事業部"],
-    position: "リスキリング事業部_3",
-    birthday: "7/15",
-    hobby: "ゲーム、スノボ",
-    image: "/profile/6.jpg",
-  },
-  {
-    id: 7,
-    name: "工藤 さよ子",
-    department_id: [3],
-    department_name: ["総務"],
-    position: "",
-    birthday: "8/16",
-    hobby: "ご飯とお酒、ASMR視聴、韓国",
-    image: "/profile/7.jpg",
-  },
-  {
-    id: 8,
-    name: "辻戸 翔希",
-    department_id: [19, 22],
-    department_name: ["ITサポート課", "技術向上課"],
-    position: "ITサポート課_5",
-    birthday: "7/2",
-    hobby: "麻雀、ダーツ、ライブ",
-    image: "/profile/8.png",
-  },
-  {
-    id: 9,
-    name: "柘植 航太",
-    department_id: [18, 22],
-    department_name: ["評価検証課", "技術向上課"],
-    position: "評価検証課_5",
-    birthday: "1/13",
-    hobby: "弾き語り、麻雀",
-    image: "/profile/9.jpg",
-  },
-  {
-    id: 10,
-    name: "吉川 翔",
-    department_id: [19],
-    department_name: ["ITサポート課"],
-    position: "ITサポート課_5",
-    birthday: "8/28",
-    hobby: "麻雀、ダーツ、スノボ",
-    image: "/profile/10.jpg",
-  },
-  {
-    id: 11,
-    name: "山下 暁大",
-    department_id: [17, 21],
-    department_name: ["TechGrowUp課", "開発課"],
-    position: "TechGrowUp課_4",
-    birthday: "12/13",
-    hobby: "ダイビング、ゲーム、爬虫類、ミュージカル、バイク、漫画",
-    image: "/profile/11.jpg",
-  },
-  {
-    id: 12,
-    name: "武藤 秀平",
-    department_id: [17, 22],
-    department_name: ["開発課", "技術向上課"],
-    position: "",
-    birthday: "7/24",
-    hobby: "キャンプ、スノボ",
-    image: "/profile/12.jpg",
-  },
-  {
-    id: 13,
-    name: "馬場 友規",
-    department_id: [18],
-    department_name: ["評価検証課"],
-    position: "評価検証課_5",
-    birthday: "8/10",
-    hobby: "バイク、カメラ",
-    image: "/profile/13.jpg",
-  },
-  {
-    id: 14,
-    name: "亀田 春樹",
-    department_id: [17, 22],
-    department_name: ["技術向上課", "開発課"],
-    position: "技術向上課_4",
-    birthday: "4/20",
-    hobby: "ゲーム、バスケ、野球",
-    image: "/profile/14.png",
-  },
-];
+import Grid2 from "@mui/material/Grid2";
+import { httpRequestUtil } from "../common/Utils";
+import {
+  ACTIONVIEW_ALL_USER,
+  ACTIONVIEW_DEPARTMENT_USER,
+  ACTIONVIEW_BIRTHDAY_USER,
+  ACTIONVIEW_JOINMONTH_USER,
+} from "../common/Const";
 
 const Icon = ({ num }) => {
-  let iconSrc;
-  let altSrc;
+  let text;
   if (num === 1) {
-    iconSrc = "/icons/ceo.png";
-    altSrc = "CEOIcon";
+    text = "CEO";
   } else if (num === 3) {
-    iconSrc = "/icons/manager.png";
-    altSrc = "ManagerIcon";
+    text = "部長";
   } else if (num === 4) {
-    iconSrc = "/icons/department.png";
-    altSrc = "ChiefIcon";
+    text = "課長";
   } else if (num === 5) {
-    iconSrc = "/icons/leader.png";
-    altSrc = "ADIcon";
+    text = "リーダー";
   }
   return (
-    <img
-      src={iconSrc}
-      alt={altSrc}
-      style={{ width: 40, height: 40, borderRadius: "50%" }} // アイコンのサイズや形を調整
-    />
+    <Typography
+      variant="h12"
+      component="div"
+      sx={{
+        fontWeight: "bold",
+        color: "#ffffff", // 文字色を白に設定
+        textAlign: "center",
+        fontFamily: "Arial",
+        backgroundColor: "#4caf50", // 背景を緑に設定 (MUIのgreen[500]色)
+        borderRadius: "8px", // 角を少し丸く
+        border: "2px solid #ffffff", // 白い罫線を追加
+      }}
+    >
+      {text}
+    </Typography>
   );
 };
 
-const departmentIdGroup = {
-  "2": ["2", "3", "4"],
-  "6": ["6", "7", "8"],
-  "9": ["9", "10", "11", "12", "13"],
-  "11": ["11", "12", "13"],
-  "14": ["14", "15", "16", "17", "18", "19"],
-  "16": ["16", "17", "18", "19"],
-  "20": ["20", "21", "22"],
+// 現在の年月を"yyyy/mm"形式で取得する
+const getCurrentJoiningMonth = () => {
+  const now = new Date(); // フィルタリング用の変数
+  const year = now.getFullYear(); // 現在の年を取得
+  const month = now.getMonth() + 1; // 現在の月を取得
+
+  // 月が一桁の場合先頭に0を追加して渡す
+  return `${year}/${month < 10 ? "0" + month : month}`;
 };
 
-const getDisplayMember = (id) => {
-  let memberList = [];
-  if (id === "0") {
-    return people;
+const getDisplayUser = async (actionView, bodyValue) => {
+  let responseData = [];
+  let getUserUrl = "";
+  const envType = process.env.REACT_APP_ENV_TYPE;
+
+  if (actionView === ACTIONVIEW_ALL_USER) {
+    if (envType === "stg") {
+      getUserUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/alluserinfo";
+    } else {
+      getUserUrl = "http://localhost:8080/allmemberview/api/alluserinfo";
+    }
+
+    responseData = await httpRequestUtil(getUserUrl, null, "GET");
+  } else if (actionView === ACTIONVIEW_DEPARTMENT_USER) {
+    if (envType === "stg") {
+      getUserUrl =
+        "http://" + process.env.REACT_APP_MY_IP + "/api/department-users";
+    } else {
+      getUserUrl = "http://localhost:8080/allmemberview/api/department-users";
+    }
+
+    let body = {
+      departmentIdList: bodyValue,
+    };
+
+    responseData = await httpRequestUtil(getUserUrl, body, "POST");
+  } else if (actionView === ACTIONVIEW_BIRTHDAY_USER) {
+    if (envType === "stg") {
+      getUserUrl =
+        "http://" + process.env.REACT_APP_MY_IP + "/api/birthuserinfo";
+    } else {
+      getUserUrl = "http://localhost:8080/allmemberview/api/birthuserinfo";
+    }
+
+    responseData = await httpRequestUtil(getUserUrl, null, "GET");
+  } else if (actionView === ACTIONVIEW_JOINMONTH_USER) {
+    if (envType === "stg") {
+      getUserUrl =
+        "http://" +
+        process.env.REACT_APP_MY_IP +
+        "/api/users-by-newEmployee?joiningMonth=" +
+        getCurrentJoiningMonth();
+    } else {
+      getUserUrl =
+        "http://localhost:8080/allmemberview/api/users-by-newEmployee?joiningMonth=" +
+        getCurrentJoiningMonth();
+    }
+
+    responseData = await httpRequestUtil(getUserUrl, null, "GET");
   }
 
-  if (id in departmentIdGroup) {
-    let groupId = departmentIdGroup[id];
-    groupId.forEach((element) => {
-      people.forEach((member) => {
-        member.department_id.forEach((depId) => {
-          if (element === String(depId)) {
-            memberList.push(member);
-          }
-        });
-      });
-    });
-  } else {
-    people.forEach((member) => {
-      member.department_id.forEach((depId) => {
-        if (id === String(depId)) {
-          memberList.push(member);
-          return;
-        }
-      });
-      if (memberList) {
-        return;
+  return responseData;
+};
+
+const sortDisplayUser = (userList) => {
+  // 役職のある部署が上にくるようにソート
+  userList.forEach((item) => {
+    item.department.sort((a, b) => {
+      if (a.positionId === null && b.positionId !== null) {
+        return 1; // aがnullならbを上に
+      } else if (a.positionId !== null && b.positionId === null) {
+        return -1; // bがnullならaを上に
+      } else if (a.positionId === null && b.positionId === null) {
+        return 0; // 両方nullなら順序を変えない
       }
+      return a.positionId - b.positionId; // 両方positionIdがある場合は値が小さい方を上に
     });
-  }
-
-  memberList.sort((a, b) => {
-    if (a.position === "" && b.position === "") return 0;
-    if (a.position === "") return 1; // aのpositionが空ならbが前に来る
-    if (b.position === "") return -1; // bのpositionが空ならaが前に来る
-
-
-
-    return a.position.split("_")[1].localeCompare(b.position.split("_")[1]); // positionが空でない場合はアルファベット順で並べる
   });
 
-  return memberList;
+  // 役職がある人が先にくるようにソート
+  userList.sort((a, b) => {
+    const aPositionIds = a.department
+      .map((dep) => dep.positionId)
+      .filter((id) => id !== null);
+    const bPositionIds = b.department
+      .map((dep) => dep.positionId)
+      .filter((id) => id !== null);
+
+    if (aPositionIds.length === 0 && bPositionIds.length === 0) {
+      return 0; // 両方ともpositionIdがない場合はそのまま
+    } else if (aPositionIds.length === 0) {
+      return 1; // aがpositionIdを持っていない場合は後ろに
+    } else if (bPositionIds.length === 0) {
+      return -1; // bがpositionIdを持っていない場合は後ろに
+    } else {
+      // 両方ともpositionIdがある場合は小さい方を前に
+      return Math.min(...aPositionIds) - Math.min(...bPositionIds);
+    }
+  });
+
+  return userList;
 };
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  padding: '0.5em 1em', // .box16 のパディング
-  background: 'repeating-linear-gradient(-45deg, #f0f8ff, #f0f8ff 3px, #e9f4ff 3px, #e9f4ff 7px)', // .box16 の背景
-  '& p': {
-    margin: 0,
-    padding: 0,         // .box16 p のスタイル
-  },
-}));
+const makeUserInfoCard = (
+  userInfoList,
+  imagePath,
+  handleCardClick,
+  gridSize,
+  imageSize
+) => {
+  return userInfoList.map((person) => (
+    // カードのレイアウト設定
+    // スマホは1列(xs) スマホより大きい画面は2列 PCは3列
+    <Grid2
+      size={gridSize}
+      key={person.user.userId}
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+      }}
+    >
+      {/* 一人分の社員情報のカードを作成 */}
+      <Card
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          backgroundColor: "transparent",
+          boxShadow: "none",
+          width: "100%",
+        }}
+      >
+        {/* カードがクリックされた際の動作やエリアの設定 */}
+        <CardActionArea
+          onClick={() => handleCardClick(person.user.userId)}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          {/* カードで表示されるメディアの設定 */}
+          <CardMedia
+            component="img"
+            image={imagePath(person.user.image)}
+            alt={person.user.userName}
+            sx={{
+              width: imageSize,
+              height: imageSize,
+              margin: 1,
+            }}
+          />
 
-const PeopleList = () => {
+          {/* カードに記載される内容を設定 */}
+          <CardContent>
+            {/* 社員の名前を表示 */}
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", textAlign: "center" }}
+            >
+              {person.user.userName}
+            </Typography>
+
+            {/* 社員の部署情報を表示 */}
+            {person.department.map((department, index) => (
+              <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
+                {/* 社員の役職にあったアイコンを表示 */}
+                {department.positionId && (
+                  <Icon num={Number(department.positionId)} sx={{ ml: 1 }} />
+                )}
+
+                {/* 社員の部署名を表示 */}
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontSize: "0.7rem", textAlign: "center" }}
+                >
+                  {department.departmentName}
+                </Typography>
+              </Box>
+            ))}
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Grid2>
+  ));
+};
+
+const UserList = ({ actionView, bodyValue }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [userList, setDisplayUser] = useState([]); // 人情報を管理するステート
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 20; // 4×5のレイアウト
   const navigate = useNavigate(); // useNavigateフックを使用
 
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm")); // モバイル判定
+  // コンポーネントの初期レンダリング時にユーザー情報を取得
+  useEffect(() => {
+    const fetchData = async () => {
+      setDisplayUser(await getDisplayUser(actionView, bodyValue));
+    };
+    fetchData();
+  }, []);
 
-  //表示するメンバー
-  const { id } = useParams();
-  let displayMember = getDisplayMember(id);
+  // 表示するユーザを役職がある人順にソート
+  let sortedDisplayUser = sortDisplayUser(userList);
 
   // フリーワード検索
-  const filteredPeople = displayMember.filter(
-    (person) =>
-      person.name.includes(searchTerm) ||
-      person.department_name.includes(searchTerm)
+  const filteredUser = sortedDisplayUser.filter(
+    (data) =>
+      data.user.userName.includes(searchTerm) ||
+      data.department.some((department) =>
+        department.departmentName.includes(searchTerm)
+      )
   );
 
   // 現在のページに表示するデータを取得
-  const displayedPeople = filteredPeople.slice(
+  const displayedPeople = filteredUser.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
   );
 
   // 次のページに進む関数
   const handleNextPage = () => {
-    if ((currentPage + 1) * itemsPerPage < filteredPeople.length) {
+    if ((currentPage + 1) * itemsPerPage < filteredUser.length) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -310,132 +288,66 @@ const PeopleList = () => {
     }
   };
 
-  // 社員詳細ページに遷移する関数
-  const handleCardClick = (id) => {
-    navigate(`/user/${id}`); // クリックされた社員の詳細ページに遷移
+  // 社員の画像情報を表示
+  const imagePath = (fileName) => {
+    return "/profile/" + fileName;
   };
 
-  return (
-    <Box sx={{ 
-      padding: 2,
-      backgroundImage: 'url(https://grow-community.net/wp-content/uploads/2022/09/S__15138831-1024x768.jpg.webp)',
-      backgroundSize: 'cover', // 画像を全体にカバーする
-      backgroundPosition: 'center', // 中央に配置
-      minHeight: '100vh', // ビューポート全体の高さに設定
-    }}>
-      {/* フリーワード検索用のテキストフィールド、虫眼鏡マーク付き */}
-      <TextField
-        label="検索"
-        variant="outlined"
-        fullWidth
-        sx={{ 
-          marginBottom: 2, 
-          backgroundColor: 'white'  // 背景色を白に設定
-        }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        InputProps={{
-          shrink: true,
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
+  // 社員詳細ページに遷移する関数
+  const handleCardClick = (userid) => {
+    navigate(`/user/${userid}`); // クリックされた社員の詳細ページに遷移
+  };
 
-      {/* レスポンシブなレイアウト */}
-      <Box
+  const UserCardList = ({
+    users,
+    imagePath,
+    handleCardClick,
+    cardProps,
+    imageSize,
+  }) => {
+    return (
+      <Grid2
+        container
+        spacing={users.length === 1 ? 0 : 2} // ユーザーが1人だけの場合はspacingを0に
         sx={{
-          display: "grid",
-          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", // モバイル時は2列、PC時は4列
-          gap: 2,
+          justifyContent: "center", // カードを中心に配置
+          alignItems: "flex-start", // 上寄せ
+          flexWrap: "wrap", // 折り返しを有効にする
+          gap: 2, // アイテム間の隙間を設定
         }}
       >
-        {displayedPeople.map((person) => (
-          <StyledCard
-            key={person.id}
-            onClick={() => handleCardClick(person.id)}
-            sx={{
-              cursor: "pointer",
-              display: "flex",
-              borderRadius: 2, // カードの角を丸く
-              overflow: "hidden", // 画像のオーバーフローを隠す
-              boxShadow: 3, // 少し影をつける
-              flexDirection: isMobile ? "column" : "row", // モバイル時は縦並び、PC時は横並び
-            }}
-          >
-            {/* 画像を含むラップするBox */}
-            <Box
-              sx={{
-                position: "relative", // 親Boxにposition: relativeを追加して、アイコンの位置を相対的に指定できるように
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                marginBottom: isMobile ? 1 : 0, // モバイル時のみ下にマージンを追加
-              }}
+        {users.length === 0 ? (
+          <Grid2 size={12}>
+            <Typography
+              variant="h6"
+              sx={{ textAlign: "center", color: "gray" }}
             >
-              <CardMedia
-                component="img"
-                image={person.image}
-                alt={person.name}
-                sx={{
-                  width: 80, // 画像の幅を80pxに設定
-                  height: 80, // 画像の高さを80pxに設定
-                  borderRadius: "50%", // 丸く切り取る
-                  margin: 1, // 画像の周りにマージンを追加
-                }}
-              />
+              今月はいないよ...
+            </Typography>
+          </Grid2>
+        ) : (
+          makeUserInfoCard(
+            users,
+            imagePath,
+            handleCardClick,
+            cardProps,
+            imageSize
+          )
+        )}
+      </Grid2>
+    );
+  };
 
-            </Box>
-            {/* 名前と職位を表示するCardContent */}
-            <CardContent
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                padding: 2,
-                textAlign: isMobile ? "center" : "left", // モバイル時は中央揃え
-              }}
-            >
-              <Box sx={{ display: "flex", flexDirection: "column" }}>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", fontSize: "1rem" }}
-                >
-                  {person.name}
-                </Typography>
-                {person.department_name.map((department, index) => {
-                  let positionId = "";
-                  if (person.position !== "") {
-                    if (person.position.split("_")[0] === department) {
-                      positionId = person.position.split("_")[1];
-                    }
-                  }
-
-                  return (
-                    <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{ fontSize: "0.7rem" }}
-                      >
-                        {department}
-                      </Typography>
-                      {positionId !== "" && (
-                        <Icon num={Number(positionId)} sx={{ ml: 1 }} /> 
-                      )}
-                    </Box>
-                  );
-                })}
-              </Box>            
-            </CardContent>
-          </StyledCard>
-        ))}
-      </Box>
-
-      {/* ページ移動ボタン */}
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+  const PaginationButtons = ({
+    handlePreviousPage,
+    handleNextPage,
+    currentPage,
+    itemsPerPage,
+    filteredUser,
+  }) => {
+    return (
+      <Grid2
+        sx={{ display: "flex", justifyContent: "space-between", margin: 2 }}
       >
         <Button
           variant="contained"
@@ -447,13 +359,80 @@ const PeopleList = () => {
         <Button
           variant="contained"
           onClick={handleNextPage}
-          disabled={(currentPage + 1) * itemsPerPage >= filteredPeople.length}
+          disabled={(currentPage + 1) * itemsPerPage >= filteredUser.length}
         >
           次へ
         </Button>
-      </Box>
-    </Box>
+      </Grid2>
+    );
+  };
+
+  return (
+    <Grid2
+      container
+      sx={{
+        padding: 2,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "flex-start",
+      }}
+    >
+      {actionView === ACTIONVIEW_ALL_USER ||
+      actionView === ACTIONVIEW_DEPARTMENT_USER ? (
+        <>
+          {/* フリーワード検索用のテキストフィールド、虫眼鏡マーク付き */}
+          <TextField
+            label="検索"
+            variant="outlined"
+            fullWidth
+            sx={{
+              marginBottom: 2,
+              backgroundColor: "white",
+            }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            Input={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          {/* 人数分の社員情報一覧のカードを作成 */}
+          <UserCardList
+            users={displayedPeople}
+            imagePath={imagePath}
+            handleCardClick={handleCardClick}
+            cardProps={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 3 }}
+            imageSize={{ xs: 250, md: 300 }}
+          />
+          {/* 1Pに20人表示するため次の20人や前の20人を表示するためのボタン表示 */}
+          <PaginationButtons
+            handlePreviousPage={handlePreviousPage}
+            handleNextPage={handleNextPage}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            filteredUser={filteredUser}
+          />
+        </>
+      ) : (
+        <>
+          {/* 人数分の社員情報一覧のカードを作成 */}
+          <UserCardList
+            users={sortedDisplayUser}
+            imagePath={imagePath}
+            handleCardClick={handleCardClick}
+            cardProps={{ xs: 12, sm: 6 }}
+            imageSize={{ xs: 100, sm: 200 }}
+          />
+        </>
+      )}
+    </Grid2>
   );
 };
 
-export default PeopleList;
+export default UserList;

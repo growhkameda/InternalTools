@@ -2,6 +2,7 @@ package com.example.internaltools.entity;
 
 import java.util.Collection;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,6 +12,8 @@ import jakarta.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.internaltools.common.Const;
+
 import lombok.Data;
 
 @Data
@@ -19,9 +22,17 @@ import lombok.Data;
 public class LoginUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = Const.ID)
     private Integer id;
+    
+    @Column(name = Const.EMAIL)
     private String email;
+    
+    @Column(name = Const.PASSWORD)
     private String password;
+    
+    @Column(name = Const.ROLE_ID)
+    private Integer roleId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

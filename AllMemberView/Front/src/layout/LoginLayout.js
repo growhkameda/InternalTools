@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
 import {
   Avatar,
   Box,
@@ -13,7 +14,7 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { teal } from "@mui/material/colors";
 
-const LoginForm = () => {
+const LoginForm = ({setIsAdmin}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -41,6 +42,10 @@ const LoginForm = () => {
 
       const token = response.data.token; // サーバーからのトークンを取得
       localStorage.setItem("token", token); // トークンをローカルストレージに保存
+
+      const decodedToken = jwtDecode(token);
+      const isAdmin = decodedToken.isAdmin; // トークンのisAdminフィールドを使用
+      setIsAdmin(isAdmin)
 
       // ログイン成功後にユーザーリストに遷移
       navigate("/dashboard"); // /userlist に遷移

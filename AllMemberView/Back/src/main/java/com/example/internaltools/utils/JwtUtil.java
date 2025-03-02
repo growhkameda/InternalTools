@@ -46,9 +46,10 @@ public class JwtUtil {
     }
 
     // ユーザー名からトークンを生成
-    public String generateToken(String userName, int userId) {
+    public String generateToken(String userName, int userId, boolean isAdmin) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);  // ユーザーIDをトークンに含める
+        claims.put("isAdmin", isAdmin); // isAdminをトークンに含める
         return createToken(claims, userName);
     }
 

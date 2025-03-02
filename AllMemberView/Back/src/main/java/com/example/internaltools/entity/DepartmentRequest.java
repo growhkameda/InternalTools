@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 
 public class DepartmentRequest {
-	@JsonProperty(Const.DEPARTMENT_ID)
+	@JsonProperty(Const.DEPARTMENT_ID_LIST)
 	private List<Integer> departmentId;
 }
 

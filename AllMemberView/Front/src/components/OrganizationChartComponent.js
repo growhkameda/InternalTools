@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   ListItemButton,
@@ -11,167 +11,128 @@ import {
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { styled } from '@mui/system';
+import { httpRequestUtil } from '../common/Utils';
 
-const tableData = [
-  {id:0,orgname:"グロウコミュニティ組織図",level:"0"},
-  {id:1,orgname:"CEO",level:"0_1"},
+const hierarchy_0_List = [0]
+const hierarchy_1_List = [1,2,7,13,17,20]
+const hierarchy_2_List = [3,4,8,9,14,15,16,18,19,21,22]
+const hierarchy_3_List = [5,6,10,11,12]
 
-  {id:2,orgname:"人材サービス事業部",level:"0_2"},
-  {id:3,orgname:"営業部",level:"0_2_3"},
-  {id:4,orgname:"人材サービス部",level:"0_2_4"},
-  {id:5,orgname:"人材サービス課",level:"0_2_4_5"},
-  {id:6,orgname:"倉庫課",level:"0_2_4_6"},
+const sectionKeyMap = {
+  "0":{section:"all", childFlg:true, viewidList:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]},
+  "1":{section:"ceo", childFlg:false, viewidList:[1]},
+  "2":{section:"ses", childFlg:true,  viewidList:[2,3,4,5,6]},
+  "3":{section:"sesEigyo", childFlg:false,  viewidList:[3]},
+  "4":{section:"sesZinzai", childFlg:true,  viewidList:[4,5,6]},
+  "5":{section:"sesZinzaiServise", childFlg:false,  viewidList:[5]},
+  "6":{section:"sesSouko", childFlg:false,  viewidList:[6]},
+  "7":{section:"itDept", childFlg:true,  viewidList:[7,8,9,10,11,12]},
+  "8":{section:"itEigyo", childFlg:false,  viewidList:[8]},
+  "9":{section:"itSol", childFlg:true,  viewidList:[9,10,11,12]},
+  "10":{section:"dev", childFlg:false,  viewidList:[10]},
+  "11":{section:"test", childFlg:false,  viewidList:[11]},
+  "12":{section:"itHelp", childFlg:false,  viewidList:[12]},
+  "13":{section:"backOffice", childFlg:true,  viewidList:[13,14,15,16]},
+  "14":{section:"soumu", childFlg:false,  viewidList:[14]},
+  "15":{section:"keiri", childFlg:false,  viewidList:[15]},
+  "16":{section:"zimu", childFlg:false,  viewidList:[16]},
+  "17":{section:"hr", childFlg:true,  viewidList:[17,18,19]},
+  "18":{section:"zinji", childFlg:false,  viewidList:[18]},
+  "19":{section:"kouhou", childFlg:false,  viewidList:[19]},
+  "20":{section:"reSkikking", childFlg:true,  viewidList:[20,21,22]},
+  "21":{section:"teck", childFlg:false,  viewidList:[21]},
+  "22":{section:"teckup", childFlg:false,  viewidList:[22]}
+}
 
-  {id:7,orgname:"ITソリューション事業部",level:"0_7"},
-  {id:8,orgname:"営業部",level:"0_7_8"},
-  {id:9,orgname:"ITソリューション部",level:"0_7_9"},
-  {id:10,orgname:"開発課",level:"0_7_9_10"},
-  {id:11,orgname:"評価検証課",level:"0_7_9_11"},
-  {id:12,orgname:"ITサポート課",level:"0_7_9_12"},
+const organizationInfo = async () => {
+  let responseData = [];
 
-  {id:13,orgname:"コーポレート事業部",level:"0_13"},
-  {id:14,orgname:"総務",level:"0_13_14"},
-  {id:15,orgname:"経理",level:"0_13_15"},
-  {id:16,orgname:"事務",level:"0_13_16"},
-
-  {id:17,orgname:"HR推進部",level:"0_17"},
-  {id:18,orgname:"人事",level:"0_17_18"},
-  {id:19,orgname:"広報",level:"0_17_19"},
-
-  {id:20,orgname:"リスキリング事業部",level:"0_20"},
-  {id:21,orgname:"TechGrowUp",level:"0_20_21"},
-  {id:22,orgname:"技術向上課",level:"0_20_22"}
-];
-
-const convertLevelData = () => {
-  var levelDataDict = {};
-  var levelList = [];
-  var parentList = [];
-
-  // 階層(レベル)毎のデータリストを作成
-  tableData.forEach((item) => {
-    var level = Number(item.level.split("_").length);
-    if (level in levelDataDict) {
-      levelDataDict[level].push(item);
-    } else {
-      levelDataDict[level] = [item];
-      levelList.push(level);
-    }
-  });
-
-  // データリストを作成。2階層目までを取得
-  let levelCnt = 0;
-  levelList.forEach((level) => {
-    if (levelCnt === 2) return;
-    levelDataDict[level].forEach((data) => {
-      if (!parentList.includes(data.level)) {
-        parentList.push(data.level);
-      }
-    });
-    levelCnt++;
-  });
-
-  // 2次元配列として考える: levelList(階層リスト) × parentList(2階層名からの親データ)
-  let matrixData = [];
-  parentList.forEach((col) => {
-    let rowData = [];
-    levelList.forEach((row) => {
-      let cell = [];
-      if (levelDataDict[row]) {
-        levelDataDict[row].forEach((data) => {
-          if (data.level === col || data.level.startsWith(col + "_")) {
-            cell.push(data.level);
-          }
-        });
-      }
-      rowData.push(cell);
-    });
-    matrixData.push({ [col]: rowData });
-  });
-
-  // 階層データを基に組織図データを作成
-  let makeOrgChartData = [];
-  matrixData.forEach((colData) => {
-    let col = Object.keys(colData)[0]; // 各親データ(col)を取得
-    let rowData = colData[col];
-    makeOrgChartData.push(GetNestLevelData(levelDataDict, rowData, 1)); // 再帰的にデータ取得
-  });
-
-  return { matrixData, levelList, makeOrgChartData };
-};
-
-const GetNestLevelData = (dataDict, parentList, level) => {
-  let returnData = [];
-
-  if (dataDict[level]) {
-    parentList.forEach((parent) => {
-      let children = dataDict[level].filter((data) => data.level.startsWith(parent + "_"));
-      if (children.length > 0) {
-        let childData = { parent: parent, children: [] };
-        children.forEach((child) => {
-          childData.children.push(child);
-        });
-        returnData.push(childData);
-      }
-    });
+  let getorganizationUrl = "";
+  const envType = process.env.REACT_APP_ENV_TYPE;
+  if (envType === "stg") {
+    getorganizationUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/organization";
+  } else {
+    getorganizationUrl = "http://localhost:8080/allmemberview/api/organization";
   }
 
-  // 再帰処理: 次のレベルのデータを取得
-  if (dataDict[level + 1]) {
-    returnData.forEach((item) => {
-      item.children = GetNestLevelData(dataDict, item.children.map(c => c.level), level + 1);
-    });
-  }
+  responseData = await httpRequestUtil(getorganizationUrl, null , "GET")
 
-  return returnData;
+  return orgchartHierarchy(responseData)
 };
 
 const CustomButton= styled(Button)(({ id }) => {
-  // id に基づいて色を変更
-  let gradientColors;
-  switch (id) {
-    case 0:
-      gradientColors = 'linear-gradient(90deg, #2af598 0%, #009efd 100%)'; // 親
-      break;
-    case 1:
-      gradientColors = 'linear-gradient(90deg, #ff7e5f 0%, #feb47b 100%)'; // 子1（オレンジ系）
-      break;
-    case 2:
-      gradientColors = 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)'; // 子2（紫・青系）
-      break;
-    case 3:
-      gradientColors = 'linear-gradient(90deg, #56ab2f 0%, #a8e063 100%)'; // 子3（緑系）
-      break;
-    case 4:
-      gradientColors = 'linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%)'; // 子4（淡いピンク系）
-      break;
-    case 5:
-      gradientColors = 'linear-gradient(90deg, #00c6ff 0%, #0072ff 100%)'; // 子5（青系）
-      break;
-    default:
-      gradientColors = 'linear-gradient(90deg, #2af598 0%, #009efd 100%)'; // デフォルト
-  }
-
+  
   return {
-    transform: 'skew(-15deg)',
-    color: '#fff',
-    borderRadius: 0,
-    backgroundImage: gradientColors,
     boxShadow: '0 5px 10px rgba(0, 0, 0, .1)',
-    minWidth: '200px',
+    minWidth: '190px',
     '&:hover': {
-      transform: 'skew(0)',
       boxShadow: '0 2px 3px rgba(0, 0, 0, .1)',
     },
   };
 });
 
-const NestedListWithIndentation = () => {
+const orgchartHierarchy = (data) => {
+  let returnData = []
+  if(data) {
+    let hierarchy_0 = []
+    let hierarchy_1 = []
+    let hierarchy_2 = []
+    let hierarchy_3 = []
+
+    // eslint-disable-next-line array-callback-return
+    data.map((orginfo) => {
+      let tmpData = {
+        label: orginfo.name,
+        sectionKey: sectionKeyMap[String(orginfo.id)].section,
+        navigatePath: String(orginfo.id),
+        hasChild: sectionKeyMap[String(orginfo.id)].childFlg,
+        viewId: sectionKeyMap[String(orginfo.id)].viewidList,
+      };
+
+      if (hierarchy_0_List.includes(orginfo.id)) {
+        tmpData.indentLevel = 0; // indentLevelを設定
+        hierarchy_0.push(tmpData); // tmpDataを配列に追加
+      }
+      else if (hierarchy_1_List.includes(orginfo.id)) {
+        tmpData.indentLevel = 1; // indentLevelを設定
+        hierarchy_1.push(tmpData); // tmpDataを配列に追加
+      }
+      else if (hierarchy_2_List.includes(orginfo.id)) {
+        tmpData.indentLevel = 2; // indentLevelを設定
+        hierarchy_2.push(tmpData); // tmpDataを配列に追加
+      }
+      else if (hierarchy_3_List.includes(orginfo.id)) {
+        tmpData.indentLevel = 3; // indentLevelを設定
+        hierarchy_3.push(tmpData); // tmpDataを配列に追加
+      }
+    });
+
+    // 各階層を結合
+    returnData = [ 
+      hierarchy_0,
+      hierarchy_1,
+      hierarchy_2,
+      hierarchy_3,
+    ];
+  }
+  return returnData;
+}
+
+const NestedListWithIndentation = ({router}) => {
   const navigate = useNavigate();
+
+  const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setTableData(await organizationInfo()); // 取得したデータをpeopleにセット
+    };
+    fetchData();
+  }, []);
 
   // 展開状態を管理する
   const [open, setOpen] = useState({
-    all: true,
+    all: true, // グロウ組織図のみ全展開
     ceo: true,
     backOffice: true, // 初期状態でバックオフィスを展開
     hr: true,
@@ -187,20 +148,24 @@ const NestedListWithIndentation = () => {
     setOpen((prevState) => ({ ...prevState, [section]: !prevState[section] }));
   };
 
-  const {levelDataDict, levelList, relParentChildlevelData} = convertLevelData()
-
   // リストアイテム内に展開ボタンと遷移ボタンを分けて配置する関数
   const renderListItem = (
     label,
     sectionKey,
     navigatePath,
     indentLevel = 0,
-    hasChild = false
+    hasChild = false,
+    idValue
   ) => {
     // インデントを統一する
     const paddingLeft = indentLevel * 4; // インデントを段階的に追加
     const iconColor = hasChild ? "inherit" : "transparent"; // 子要素がない場合アイコンを透明に
-    convertLevelData()
+    const handleClick = () => {
+      // ローカルストレージにidValueを保存
+      localStorage.setItem('selectedId', idValue);
+      // ナビゲート先に遷移
+      router.navigate("/departmentuser");
+    };
     return (
       <ListItemButton sx={{ 
           pl: paddingLeft, 
@@ -223,8 +188,9 @@ const NestedListWithIndentation = () => {
         </ListItemIcon>
         <CustomButton
           variant="outlined"
+          color="primary"
           sx={{ ml: 1 , textTransform: 'none'}} // ボタンの間隔を調整
-          onClick={() => navigate(`/userlist/${navigatePath}`)}
+          onClick={ handleClick}
           id = {indentLevel}
         >
           {label}
@@ -234,81 +200,82 @@ const NestedListWithIndentation = () => {
   };
 
   return (
-    <Box 
-      sx={{ 
-        mt: 5,
-        backgroundImage: 'url(/org_back.png)',
-        backgroundSize: 'cover', // 画像を全体にカバーする
-        backgroundPosition: 'center', // 中央に配置
-        minHeight: '100vh', // ビューポート全体の高さに設定
-      }}
-    >
-      <List component="nav">
-        {renderListItem("グロウコミュニティ組織図", "all", "0", 0, true)}
-        <Collapse in={open.all} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {renderListItem("CEO", "ceo", "1", 1, false)}
-            <Collapse in={open.ceo} timeout="auto" unmountOnExit />
+    <Box>
+      {tableData.length > 0 && ( // tableDataが存在する場合のみ表示
+        <List component="nav">
+          {/* グロウコミュニティ組織図 */}
+          {renderListItem(tableData[0][0].label, tableData[0][0].sectionKey, tableData[0][0].navigatePath, tableData[0][0].indentLevel, tableData[0][0].hasChild, tableData[0][0].viewId)}
+          <Collapse in={open.all} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
 
-            {renderListItem("コーポレート事業部", "backOffice", "2", 1, true)}
-            <Collapse in={open.backOffice} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderListItem("総務", "soumu", "3", 2, false)}
-                {renderListItem("経理", "keiri", "4", 2, false)}
-                {renderListItem("事務", "zimu", "5", 2, false)}
-              </List>
-            </Collapse>
+              {/* CEO */}
+              {renderListItem(tableData[1][0].label, tableData[1][0].sectionKey, tableData[1][0].navigatePath, tableData[1][0].indentLevel, tableData[1][0].hasChild, tableData[1][0].viewId)}
+              <Collapse in={open.ceo} timeout="auto" unmountOnExit />
 
-            {renderListItem("HR推進部", "hr", "6", 1, true)}
-            <Collapse in={open.hr} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderListItem("人事", "zinji", "7", 2, false)}
-                {renderListItem("広報", "kouhou", "8", 2, false)}
-              </List>
-            </Collapse>
+              {/* 人材サービス事業部 */}
+              {renderListItem(tableData[1][1].label, tableData[1][1].sectionKey, tableData[1][1].navigatePath, tableData[1][1].indentLevel, tableData[1][1].hasChild, tableData[1][1].viewId)}
+              <Collapse in={open.ses} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {renderListItem(tableData[2][0].label, tableData[2][0].sectionKey, tableData[2][0].navigatePath, tableData[2][0].indentLevel, tableData[2][0].hasChild, tableData[2][0].viewId)}
+                  {renderListItem(tableData[2][1].label, tableData[2][1].sectionKey, tableData[2][1].navigatePath, tableData[2][1].indentLevel, tableData[2][1].hasChild, tableData[2][1].viewId)}
+                  <Collapse in={open.sesZinzai} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      {renderListItem(tableData[3][0].label, tableData[3][0].sectionKey, tableData[3][0].navigatePath, tableData[3][0].indentLevel, tableData[3][0].hasChild, tableData[3][0].viewId)}
+                      {renderListItem(tableData[3][1].label, tableData[3][1].sectionKey, tableData[3][1].navigatePath, tableData[3][1].indentLevel, tableData[3][1].hasChild, tableData[3][1].viewId)}
+                    </List>
+                  </Collapse>
+                </List>
+              </Collapse>
 
-            {renderListItem("人材サービス事業部", "ses", "9", 1, true)}
-            <Collapse in={open.ses} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderListItem("営業部", "sesEigyo", "10", 2, false)}
-                {renderListItem("人材サービス部", "sesZinzai", "11", 2, true)}
-                <Collapse in={open.sesZinzai} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {renderListItem("人材サービス課", "sesZinzai", "12", 3, false)}
-                    {renderListItem("倉庫課", "sesSouko", "13", 3, false)}
-                  </List>
-                </Collapse>
-              </List>
-            </Collapse>
+              {/* ITソリューション事業部 */}
+              {renderListItem(tableData[1][2].label, tableData[1][2].sectionKey, tableData[1][2].navigatePath, tableData[1][2].indentLevel, tableData[1][2].hasChild, tableData[1][2].viewId)}
+              <Collapse in={open.itDept} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {renderListItem(tableData[2][2].label, tableData[2][2].sectionKey, tableData[2][2].navigatePath, tableData[2][2].indentLevel, tableData[2][2].hasChild, tableData[2][2].viewId)}
+                  {renderListItem(tableData[2][3].label, tableData[2][3].sectionKey, tableData[2][3].navigatePath, tableData[2][3].indentLevel, tableData[2][3].hasChild, tableData[2][3].viewId)}
+                  <Collapse in={open.itSol} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      {renderListItem(tableData[3][2].label, tableData[3][2].sectionKey, tableData[3][2].navigatePath, tableData[3][2].indentLevel, tableData[3][2].hasChild, tableData[3][2].viewId)}
+                      {renderListItem(tableData[3][3].label, tableData[3][3].sectionKey, tableData[3][3].navigatePath, tableData[3][3].indentLevel, tableData[3][3].hasChild, tableData[3][3].viewId)}
+                      {renderListItem(tableData[3][4].label, tableData[3][4].sectionKey, tableData[3][4].navigatePath, tableData[3][4].indentLevel, tableData[3][4].hasChild, tableData[3][4].viewId)}
+                    </List>
+                  </Collapse>
+                </List>
+              </Collapse>
 
-            {renderListItem("ITソリューション事業部", "itDept", "14", 1, true)}
-            <Collapse in={open.itDept} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderListItem("営業部", "itEigyo", "15", 2, false)}
-                {renderListItem("ITソリューション部", "itSol", "16", 2, true)}
-                <Collapse in={open.itSol} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {renderListItem("開発課", "dev", "17", 3, false)}
-                    {renderListItem("評価検証課", "test", "18", 3, false)}
-                    {renderListItem("ITサポート課", "itHelp", "19", 3, false)}
-                  </List>
-                </Collapse>
-              </List>
-            </Collapse>
+              {/* コーポレート事業部 */}
+              {renderListItem(tableData[1][3].label, tableData[1][3].sectionKey, tableData[1][3].navigatePath, tableData[1][3].indentLevel, tableData[1][3].hasChild, tableData[1][3].viewId)}
+              <Collapse in={open.backOffice} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {renderListItem(tableData[2][4].label, tableData[2][4].sectionKey, tableData[2][4].navigatePath, tableData[2][4].indentLevel, tableData[2][4].hasChild, tableData[2][4].viewId)}
+                  {renderListItem(tableData[2][5].label, tableData[2][5].sectionKey, tableData[2][5].navigatePath, tableData[2][5].indentLevel, tableData[2][5].hasChild, tableData[2][5].viewId)}
+                  {renderListItem(tableData[2][6].label, tableData[2][6].sectionKey, tableData[2][6].navigatePath, tableData[2][6].indentLevel, tableData[2][6].hasChild, tableData[2][6].viewId)}
+                </List>
+              </Collapse>
+  
+              {/* HR推進部 */}
+              {renderListItem(tableData[1][4].label, tableData[1][4].sectionKey, tableData[1][4].navigatePath, tableData[1][4].indentLevel, tableData[1][4].hasChild, tableData[1][4].viewId)}
+              <Collapse in={open.hr} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {renderListItem(tableData[2][7].label, tableData[2][7].sectionKey, tableData[2][7].navigatePath, tableData[2][7].indentLevel, tableData[2][7].hasChild, tableData[2][7].viewId)}
+                  {renderListItem(tableData[2][8].label, tableData[2][8].sectionKey, tableData[2][8].navigatePath, tableData[2][8].indentLevel, tableData[2][8].hasChild, tableData[2][8].viewId)}
+                </List>
+              </Collapse>
 
-            {renderListItem("リスキリング事業部", "reSkikking", "20", 1, true)}
-            <Collapse in={open.reSkikking} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderListItem("TechGrowUp課", "teck", "21", 2, false)}
-                {renderListItem("技術向上課", "hr", "22", 2, false)}
-              </List>
-            </Collapse>
-
-         </List>
-        </Collapse>
-      </List>
+              {/* リスキリング事業部 */}
+              {renderListItem(tableData[1][5].label, tableData[1][5].sectionKey, tableData[1][5].navigatePath, tableData[1][5].indentLevel, tableData[1][5].hasChild, tableData[1][5].viewId)}
+              <Collapse in={open.reSkikking} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {renderListItem(tableData[2][9].label, tableData[2][9].sectionKey, tableData[2][9].navigatePath, tableData[2][9].indentLevel, tableData[2][9].hasChild, tableData[2][9].viewId)}
+                  {renderListItem(tableData[2][10].label, tableData[2][10].sectionKey, tableData[2][10].navigatePath, tableData[2][10].indentLevel, tableData[2][10].hasChild, tableData[2][10].viewId)}
+                </List>
+              </Collapse>
+            </List>
+          </Collapse>
+        </List>
+      )}
     </Box>
-  );
+  );  
 };
 
 export default NestedListWithIndentation;
