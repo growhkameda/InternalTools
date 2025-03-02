@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React from "react";
 import { createTheme } from "@mui/material/styles";
-import { useMediaQuery } from "@mui/material";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout as ToolpadDashboardLayout } from "@toolpad/core/DashboardLayout";
-import { Button, Box, Paper, IconButton } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { rootData } from "../RootConfig";
 import { useDemoRouter } from "@toolpad/core/internal";
-import Home from "./HomeLayout"
-import MemberView from "../components/MemberListComponent"
+import Home from "./HomeLayout";
+import MemberView from "../components/MemberListComponent";
+import AdminPage from "../components/AdminPageComponent";
+import PasswordChangeComponent from "../components/PasswordChangeComponent";
+import {
+  ACTIONVIEW_ALL_USER,
+  ACTIONVIEW_DEPARTMENT_USER,
+} from "../common/Const";
 
 const demoTheme = createTheme({
   components: {
@@ -47,8 +52,7 @@ const LogoutButton = ({ isMobile }) => {
   );
 };
 
-const DashboardLayout = () => {
-  const isMobile = useMediaQuery(demoTheme.breakpoints.down("sm")); // 画面幅600px以下でモバイル表示
+const DashboardLayout = ({ isAdmin }) => {
   const [drawerOpen, setDrawerOpen] = React.useState(false); // ドロワーの開閉状態を管理
 
   const handleDrawerToggle = () => {
@@ -58,30 +62,32 @@ const DashboardLayout = () => {
   };
 
   const router = useDemoRouter("/home");
-  const [pathname, setPathname] = useState(); // 親でpathnameを管理
-  const handleRouteChange = (newPathname) => {
-    setPathname(newPathname);
-  };
 
   const contnts = () => {
     if (router.pathname === "/home") {
-      return (<Home />)
+      return <Home router={router}/>;
+    } else if (router.pathname === "/alluser") {
+      return <MemberView actionView={ACTIONVIEW_ALL_USER} />;
+    } else if (router.pathname === "/departmentuser") {
+      const storedId = localStorage.getItem('selectedId');
+      if(storedId) {
+        const idList = storedId.split(',').map(id => id.trim());
+        router.pathname = "/alluser"
+        return <MemberView actionView={ACTIONVIEW_DEPARTMENT_USER} bodyValue={idList} />;
+      }
+    } else if (router.pathname === "/change-password") {
+      return <PasswordChangeComponent />;
+    } else if (router.pathname === "/admin-page") {
+      return <AdminPage />;
+    } else {
+      return router.pathname;
     }
-    else if(router.pathname === "/alluser") {
-      return (<MemberView idList={""}/>)
-    }
-    else if(router.pathname === "/departmentuser") {
-      return (<MemberView idList={[20,21,22]}/>)
-    }
-    else {
-      return (router.pathname)
-    }
-  }
+  };
 
   return (
     <AppProvider
       theme={demoTheme}
-      navigation={rootData}
+      navigation={rootData({isAdmin})}
       router={router}
       branding={{
         logo: <img src="/titlelogo.png" alt="grow logo" />,
@@ -89,12 +95,6 @@ const DashboardLayout = () => {
       }}
     >
       <ToolpadDashboardLayout
-        // sx={{
-        //   backgroundImage: isMobile
-        //     ? "none" // モバイルでは背景画像をオフ
-        //     : "linear-gradient(to bottom right, #001F3F, #003366, #00509E)", // PCではグラデーション
-        //   height: "100vh",
-        // }}
         isDrawerOpen={drawerOpen} // 手動で開閉状態を管理
         onDrawerToggle={handleDrawerToggle} // トグルボタンのクリック時に呼ばれる
         slots={{ toolbarActions: LogoutButton }}

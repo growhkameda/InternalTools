@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import LoginForm from "./layout/LoginLayout";
@@ -10,33 +10,26 @@ import PasswordChangeComponent from "./components/PasswordChangeComponent";
 import ProjectDetailComponent from "./components/ProjectDetailComponent";
 
 const App = () => {
-  // トークンからisAdminを取得 (例: ローカルストレージからトークンを取得してデコード)
-  const token = localStorage.getItem("token");
-  let isAdmin = false;
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  if (token) {
-    const decodedToken = jwtDecode(token);
-    isAdmin = decodedToken.isAdmin; // トークンのisAdminフィールドを使用
-  }
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const isAdminValue = decodedToken.isAdmin; // トークンのisAdminフィールドを使用
+      setIsAdmin(isAdminValue);
+    }
+  }, []); // 空の依存配列でコンポーネントのマウント時のみ実行
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginForm />} />
+        <Route path="/" element={<LoginForm setIsAdmin={setIsAdmin} />} />
         <Route
           path="/dashboard"
-          element={
-            <ToolpadDashboardLayout>
-              
-            </ToolpadDashboardLayout>
-          }
+          element={<ToolpadDashboardLayout isAdmin={isAdmin} />}
         />
-        <Route
-          path="/user/:id"
-          element={
-              <UserDetailComponent />
-          }
-        />
+        <Route path="/user/:id" element={<UserDetailComponent isAdmin={isAdmin} />} />
       </Routes>
     </Router>
   );

@@ -33,8 +33,14 @@ public class AuthService {
             LoginUser loginUser = (LoginUser) userDetailsService.loadUserByUsername(authRequest.getEmail());
             Integer userId = loginUser.getId();  // ユーザーIDを取得
 
+            // ユーザーのroleを取得
+            Integer roleId = loginUser.getRoleId();  // ここでroleを取得（例えば、1が管理者、0が一般ユーザー）
+
+            // roleが1の場合、isAdminをtrueに設定
+            boolean isAdmin = (roleId == 1);
+
             // ユーザー名とユーザーIDでトークンを生成
-            final String token = jwtUtil.generateToken(authRequest.getEmail(), userId);
+            final String token = jwtUtil.generateToken(authRequest.getEmail(), userId, isAdmin);
             return token;
         } catch (Exception e) {
             throw new RuntimeException("Invalid credentials"); // 認証失敗時のエラーメッセージ

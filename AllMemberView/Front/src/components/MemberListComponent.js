@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -10,12 +9,17 @@ import {
   TextField,
   CardActionArea,
   InputAdornment,
-  useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import Grid from "@mui/material/Grid2";
+import Grid2 from "@mui/material/Grid2";
+import { httpRequestUtil } from "../common/Utils";
+import {
+  ACTIONVIEW_ALL_USER,
+  ACTIONVIEW_DEPARTMENT_USER,
+  ACTIONVIEW_BIRTHDAY_USER,
+  ACTIONVIEW_JOINMONTH_USER,
+} from "../common/Const";
 
 const Icon = ({ num }) => {
   let text;
@@ -47,9 +51,73 @@ const Icon = ({ num }) => {
   );
 };
 
-const getDisplayMember = (memberList) => {
+// 現在の年月を"yyyy/mm"形式で取得する
+const getCurrentJoiningMonth = () => {
+  const now = new Date(); // フィルタリング用の変数
+  const year = now.getFullYear(); // 現在の年を取得
+  const month = now.getMonth() + 1; // 現在の月を取得
+
+  // 月が一桁の場合先頭に0を追加して渡す
+  return `${year}/${month < 10 ? "0" + month : month}`;
+};
+
+const getDisplayUser = async (actionView, bodyValue) => {
+  let responseData = [];
+  let getUserUrl = "";
+  const envType = process.env.REACT_APP_ENV_TYPE;
+
+  if (actionView === ACTIONVIEW_ALL_USER) {
+    if (envType === "stg") {
+      getUserUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/alluserinfo";
+    } else {
+      getUserUrl = "http://localhost:8080/allmemberview/api/alluserinfo";
+    }
+
+    responseData = await httpRequestUtil(getUserUrl, null, "GET");
+  } else if (actionView === ACTIONVIEW_DEPARTMENT_USER) {
+    if (envType === "stg") {
+      getUserUrl =
+        "http://" + process.env.REACT_APP_MY_IP + "/api/department-users";
+    } else {
+      getUserUrl = "http://localhost:8080/allmemberview/api/department-users";
+    }
+
+    let body = {
+      departmentIdList: bodyValue,
+    };
+
+    responseData = await httpRequestUtil(getUserUrl, body, "POST");
+  } else if (actionView === ACTIONVIEW_BIRTHDAY_USER) {
+    if (envType === "stg") {
+      getUserUrl =
+        "http://" + process.env.REACT_APP_MY_IP + "/api/birthuserinfo";
+    } else {
+      getUserUrl = "http://localhost:8080/allmemberview/api/birthuserinfo";
+    }
+
+    responseData = await httpRequestUtil(getUserUrl, null, "GET");
+  } else if (actionView === ACTIONVIEW_JOINMONTH_USER) {
+    if (envType === "stg") {
+      getUserUrl =
+        "http://" +
+        process.env.REACT_APP_MY_IP +
+        "/api/users-by-newEmployee?joiningMonth=" +
+        getCurrentJoiningMonth();
+    } else {
+      getUserUrl =
+        "http://localhost:8080/allmemberview/api/users-by-newEmployee?joiningMonth=" +
+        getCurrentJoiningMonth();
+    }
+
+    responseData = await httpRequestUtil(getUserUrl, null, "GET");
+  }
+
+  return responseData;
+};
+
+const sortDisplayUser = (userList) => {
   // 役職のある部署が上にくるようにソート
-  memberList.forEach((item) => {
+  userList.forEach((item) => {
     item.department.sort((a, b) => {
       if (a.positionId === null && b.positionId !== null) {
         return 1; // aがnullならbを上に
@@ -63,7 +131,7 @@ const getDisplayMember = (memberList) => {
   });
 
   // 役職がある人が先にくるようにソート
-  memberList.sort((a, b) => {
+  userList.sort((a, b) => {
     const aPositionIds = a.department
       .map((dep) => dep.positionId)
       .filter((id) => id !== null);
@@ -83,112 +151,116 @@ const getDisplayMember = (memberList) => {
     }
   });
 
-  return memberList;
+  return userList;
 };
 
-const alluserInfo = async () => {
-  let responseData = [];
+const makeUserInfoCard = (
+  userInfoList,
+  imagePath,
+  handleCardClick,
+  gridSize,
+  imageSize
+) => {
+  return userInfoList.map((person) => (
+    // カードのレイアウト設定
+    // スマホは1列(xs) スマホより大きい画面は2列 PCは3列
+    <Grid2
+      size={gridSize}
+      key={person.user.userId}
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+      }}
+    >
+      {/* 一人分の社員情報のカードを作成 */}
+      <Card
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          backgroundColor: "transparent",
+          boxShadow: "none",
+          width: "100%",
+        }}
+      >
+        {/* カードがクリックされた際の動作やエリアの設定 */}
+        <CardActionArea
+          onClick={() => handleCardClick(person.user.userId)}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          {/* カードで表示されるメディアの設定 */}
+          <CardMedia
+            component="img"
+            image={imagePath(person.user.image)}
+            alt={person.user.userName}
+            sx={{
+              width: imageSize,
+              height: imageSize,
+              margin: 1,
+            }}
+          />
 
-  let getMemberUrl = "";
-  const envType = process.env.REACT_APP_ENV_TYPE;
-  if (envType === "stg") {
-    getMemberUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/alluserinfo";
-  } else {
-    getMemberUrl = "http://localhost:8080/allmemberview/api/alluserinfo";
-  }
+          {/* カードに記載される内容を設定 */}
+          <CardContent>
+            {/* 社員の名前を表示 */}
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", textAlign: "center" }}
+            >
+              {person.user.userName}
+            </Typography>
 
-  try {
-    // トークンを取得する
-    const token = localStorage.getItem("token"); // 例: ローカルストレージに保存されたトークンを取得
+            {/* 社員の部署情報を表示 */}
+            {person.department.map((department, index) => (
+              <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
+                {/* 社員の役職にあったアイコンを表示 */}
+                {department.positionId && (
+                  <Icon num={Number(department.positionId)} sx={{ ml: 1 }} />
+                )}
 
-    // トークンをAuthorizationヘッダーに追加してリクエストを送信
-    const response = await axios.get(getMemberUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Bearerトークンとして設定
-      },
-    });
-
-    if (response.data) {
-      responseData = response.data;
-    }
-  } catch (err) {
-    console.error("Login error", err);
-  }
-  return responseData;
+                {/* 社員の部署名を表示 */}
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontSize: "0.7rem", textAlign: "center" }}
+                >
+                  {department.departmentName}
+                </Typography>
+              </Box>
+            ))}
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Grid2>
+  ));
 };
 
-const departmentUserInfo = async (departmentIds) => {
-  let responseData = [];
-
-  let getMemberUrl = "";
-  const envType = process.env.REACT_APP_ENV_TYPE;
-  if (envType === "stg") {
-    getMemberUrl =
-      "http://" + process.env.REACT_APP_MY_IP + "/api/department-users";
-  } else {
-    getMemberUrl = "http://localhost:8080/allmemberview/api/department-users";
-  }
-
-  try {
-    // トークンを取得する
-    const token = localStorage.getItem("token"); // 例: ローカルストレージに保存されたトークンを取得
-
-    // トークンをAuthorizationヘッダーに追加してリクエストを送信
-    const response = await axios.post(
-      getMemberUrl,
-      {
-        departmentIdList: departmentIds,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Bearerトークンとして設定
-        },
-      }
-    );
-
-    if (response.data) {
-      responseData = response.data;
-    }
-  } catch (err) {
-    console.error("Login error", err);
-  }
-  return responseData;
-};
-
-const imagePath = (fileName) => {
-  return "/profile/" + fileName;
-};
-
-const PeopleList = ({ idList }) => {
+const UserList = ({ actionView, bodyValue }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [people, setPeople] = useState([]); // 人情報を管理するステート
+  const [userList, setDisplayUser] = useState([]); // 人情報を管理するステート
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 20; // 4×5のレイアウト
   const navigate = useNavigate(); // useNavigateフックを使用
 
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm")); // モバイル判定
-
   // コンポーネントの初期レンダリング時にユーザー情報を取得
   useEffect(() => {
     const fetchData = async () => {
-      // 部署に紐づくすべての社員情報を取得
-      if (idList) {
-        setPeople(await departmentUserInfo(idList));
-      }
-      // すべての社員情報を取得
-      else {
-        setPeople(await alluserInfo());
-      }
+      setDisplayUser(await getDisplayUser(actionView, bodyValue));
     };
     fetchData();
   }, []);
 
-  //表示するメンバー
-  const { id } = useParams();
-  let displayMember = getDisplayMember(people);
+  // 表示するユーザを役職がある人順にソート
+  let sortedDisplayUser = sortDisplayUser(userList);
 
   // フリーワード検索
-  const filteredPeople = displayMember.filter(
+  const filteredUser = sortedDisplayUser.filter(
     (data) =>
       data.user.userName.includes(searchTerm) ||
       data.department.some((department) =>
@@ -197,14 +269,14 @@ const PeopleList = ({ idList }) => {
   );
 
   // 現在のページに表示するデータを取得
-  const displayedPeople = filteredPeople.slice(
+  const displayedPeople = filteredUser.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
   );
 
   // 次のページに進む関数
   const handleNextPage = () => {
-    if ((currentPage + 1) * itemsPerPage < filteredPeople.length) {
+    if ((currentPage + 1) * itemsPerPage < filteredUser.length) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -216,119 +288,65 @@ const PeopleList = ({ idList }) => {
     }
   };
 
+  // 社員の画像情報を表示
+  const imagePath = (fileName) => {
+    return "/profile/" + fileName;
+  };
+
   // 社員詳細ページに遷移する関数
   const handleCardClick = (userid) => {
     navigate(`/user/${userid}`); // クリックされた社員の詳細ページに遷移
   };
 
-  return (
-    <Grid
-      container
-      sx={{
-        padding: 2,
-        backgroundSize: "cover", // 画像を全体にカバーする
-        backgroundPosition: "center", // 中央に配置
-        minHeight: "100vh", // ビューポート全体の高さに設定
-      }}
-    >
-      {/* フリーワード検索用のテキストフィールド、虫眼鏡マーク付き */}
-      <TextField
-        label="検索"
-        variant="outlined"
-        fullWidth
+  const UserCardList = ({
+    users,
+    imagePath,
+    handleCardClick,
+    cardProps,
+    imageSize,
+  }) => {
+    return (
+      <Grid2
+        container
+        spacing={users.length === 1 ? 0 : 2} // ユーザーが1人だけの場合はspacingを0に
         sx={{
-          marginBottom: 2,
-          backgroundColor: "white", // 背景色を白に設定
+          justifyContent: "center", // カードを中心に配置
+          alignItems: "flex-start", // 上寄せ
+          flexWrap: "wrap", // 折り返しを有効にする
+          gap: 2, // アイテム間の隙間を設定
         }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        InputProps={{
-          shrink: true,
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon />
-            </InputAdornment>
-          ),
-        }}
-      />
-
-      {/* レスポンシブなレイアウト */}
-      <Grid container spacing={2}>
-        {displayedPeople.map((person) => (
-          // スマホは1列(xs) スマホより大きい画面は2列 PCは3列
-          <Grid sise={{xs:12, sm:6,  md:3, lg:3, xl:3}}
-            key={person.user.userId}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Card
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "transparent",
-                boxShadow: "none",
-              }}
+      >
+        {users.length === 0 ? (
+          <Grid2 size={12}>
+            <Typography
+              variant="h6"
+              sx={{ textAlign: "center", color: "gray" }}
             >
-              <CardActionArea
-                onClick={() => handleCardClick(person.user.userId)}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                  padding: { xs: 4, sm: 2, md: 3 }, 
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  image={imagePath(person.user.image)}
-                  alt={person.user.userName}
-                  sx={{
-                    width: {xs:300, sm:200},
-                    height: {xs:300, sm:200},
-                    margin: 1,
-                  }}
-                />
-                <CardContent>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: "bold", textAlign: "center" }}
-                  >
-                    {person.user.userName}
-                  </Typography>
-                  {person.department.map((department, index) => (
-                    <Box
-                      key={index}
-                      sx={{ display: "flex", alignItems: "center" }}
-                    >
-                      {department.positionId && (
-                        <Icon
-                          num={Number(department.positionId)}
-                          sx={{ ml: 1 }}
-                        />
-                      )}
-                      <Typography
-                        variant="subtitle1"
-                        sx={{ fontSize: "0.7rem", textAlign: "center" }}
-                      >
-                        {department.departmentName}
-                      </Typography>
-                    </Box>
-                  ))}
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+              今月はいないよ...
+            </Typography>
+          </Grid2>
+        ) : (
+          makeUserInfoCard(
+            users,
+            imagePath,
+            handleCardClick,
+            cardProps,
+            imageSize
+          )
+        )}
+      </Grid2>
+    );
+  };
 
-      {/* ページ移動ボタン */}
-      <Grid
+  const PaginationButtons = ({
+    handlePreviousPage,
+    handleNextPage,
+    currentPage,
+    itemsPerPage,
+    filteredUser,
+  }) => {
+    return (
+      <Grid2
         sx={{ display: "flex", justifyContent: "space-between", margin: 2 }}
       >
         <Button
@@ -341,13 +359,80 @@ const PeopleList = ({ idList }) => {
         <Button
           variant="contained"
           onClick={handleNextPage}
-          disabled={(currentPage + 1) * itemsPerPage >= filteredPeople.length}
+          disabled={(currentPage + 1) * itemsPerPage >= filteredUser.length}
         >
           次へ
         </Button>
-      </Grid>
-    </Grid>
+      </Grid2>
+    );
+  };
+
+  return (
+    <Grid2
+      container
+      sx={{
+        padding: 2,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "flex-start",
+      }}
+    >
+      {actionView === ACTIONVIEW_ALL_USER ||
+      actionView === ACTIONVIEW_DEPARTMENT_USER ? (
+        <>
+          {/* フリーワード検索用のテキストフィールド、虫眼鏡マーク付き */}
+          <TextField
+            label="検索"
+            variant="outlined"
+            fullWidth
+            sx={{
+              marginBottom: 2,
+              backgroundColor: "white",
+            }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            Input={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          {/* 人数分の社員情報一覧のカードを作成 */}
+          <UserCardList
+            users={displayedPeople}
+            imagePath={imagePath}
+            handleCardClick={handleCardClick}
+            cardProps={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 3 }}
+            imageSize={{ xs: 250, md: 300 }}
+          />
+          {/* 1Pに20人表示するため次の20人や前の20人を表示するためのボタン表示 */}
+          <PaginationButtons
+            handlePreviousPage={handlePreviousPage}
+            handleNextPage={handleNextPage}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            filteredUser={filteredUser}
+          />
+        </>
+      ) : (
+        <>
+          {/* 人数分の社員情報一覧のカードを作成 */}
+          <UserCardList
+            users={sortedDisplayUser}
+            imagePath={imagePath}
+            handleCardClick={handleCardClick}
+            cardProps={{ xs: 12, sm: 6 }}
+            imageSize={{ xs: 100, sm: 200 }}
+          />
+        </>
+      )}
+    </Grid2>
   );
 };
 
-export default PeopleList;
+export default UserList;
