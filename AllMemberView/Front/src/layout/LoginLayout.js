@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import {
   Avatar,
   Box,
@@ -14,38 +14,35 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { teal } from "@mui/material/colors";
 
-const LoginForm = ({setIsAdmin}) => {
+const LoginForm = ({ setIsAdmin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate(); // useNavigateフックを使用
 
-  let loginUrl = ""
+  let loginUrl = "";
   const envType = process.env.REACT_APP_ENV_TYPE;
-  if(envType === "stg") {
-    loginUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/login"
-  }
-  else {
-    loginUrl = "http://localhost:8080/allmemberview/api/login"
+  if (envType === "stg") {
+    loginUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/login";
+  } else {
+    loginUrl = "http://localhost:8080/allmemberview/api/login";
   }
 
   const handleLogin = async (e) => {
     e.preventDefault(); // フォームのデフォルトの動作を防ぐ
 
     try {
-      const response = await axios.post(loginUrl,
-        {
-          email: email,
-          password: password,
-        }
-      );
+      const response = await axios.post(loginUrl, {
+        email: email,
+        password: password,
+      });
 
       const token = response.data.token; // サーバーからのトークンを取得
       localStorage.setItem("token", token); // トークンをローカルストレージに保存
 
       const decodedToken = jwtDecode(token);
       const isAdmin = decodedToken.isAdmin; // トークンのisAdminフィールドを使用
-      setIsAdmin(isAdmin)
+      setIsAdmin(isAdmin);
 
       // ログイン成功後にユーザーリストに遷移
       navigate("/dashboard"); // /userlist に遷移
@@ -80,9 +77,21 @@ const LoginForm = ({setIsAdmin}) => {
           alignItems="center"
           spacing={2}
         >
-          <Avatar sx={{ bgcolor: teal[400] }}>
-            <LockOutlinedIcon />
-          </Avatar>
+          <Box
+            component="img"
+            src="/titlelogo.png"
+            alt="grow logo"
+            sx={{ width: 200, height: 100 }} // 画像のサイズを指定
+          />
+          <Typography
+            variant="h6"
+            sx={{
+              color: "blue",
+              fontWeight: "bold"
+            }}
+          >
+            - ぐろなび -
+          </Typography>
           <Typography variant="h6">Login</Typography>
 
           <form onSubmit={handleLogin}>
@@ -103,9 +112,7 @@ const LoginForm = ({setIsAdmin}) => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {error && (
-                <Typography color="error">{error}</Typography>
-              )}
+              {error && <Typography color="error">{error}</Typography>}
               <Button
                 type="submit"
                 fullWidth

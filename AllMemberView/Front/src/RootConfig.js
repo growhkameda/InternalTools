@@ -12,20 +12,20 @@ export const rootData = ({ isAdmin }) => {
       icon: <HomeIcon />,
     },
     {
-      segment: "change-password",
-      title: "パスワード変更",
-      icon: <KeyIcon />,
-    },
-    {
       segment: "alluser",
       title: "社員一覧",
       icon: <GroupsIcon />,
     },
+    {
+      segment: "change-password",
+      title: "パスワード変更",
+      icon: <KeyIcon />,
+    }
   ];
 
   // 管理者用のメニューを条件付きで追加
   if (isAdmin) {
-    baseMenu.push({
+    baseMenu.splice(2, 0, {
       segment: "admin-page",
       title: "管理者ページ",
       icon: <PersonAddIcon />,
