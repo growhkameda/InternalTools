@@ -19,10 +19,8 @@ const Home = ({router}) => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "flex-start",
             alignItems: "center",
-            height: "100%", // 親と同じ高さに
-            overflow: "auto", // 親の高さを超える内容のスクロール
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: "bold", textAlign: "center" }}>
@@ -33,11 +31,9 @@ const Home = ({router}) => {
             elevation={3}
             sx={{
               width: "100%",
-              height: "100%",
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "flex-start",
-              overflow: "auto",
               padding: 2,
             }}
           >
@@ -52,9 +48,7 @@ const Home = ({router}) => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
-            height: "100%", // 親と同じ高さに
-            overflow: "auto", // 親の高さを超える内容のスクロール
+            justifyContent: "flex-start",
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: "bold", textAlign: "center" }}>
@@ -65,11 +59,9 @@ const Home = ({router}) => {
             elevation={3}
             sx={{
               width: "100%",
-              height: "50%",
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "flex-start",
-              overflow: "auto",
               padding: 2,
             }}
           >
@@ -88,11 +80,9 @@ const Home = ({router}) => {
             elevation={3}
             sx={{
               width: "100%",
-              height: "50%",
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "flex-start",
-              overflow: "auto",
               padding: 2,
             }}
           >

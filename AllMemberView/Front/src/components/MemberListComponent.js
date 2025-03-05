@@ -34,7 +34,7 @@ const Icon = ({ num }) => {
   }
   return (
     <Typography
-      variant="h12"
+      variant="subtitle"
       component="div"
       sx={{
         fontWeight: "bold",
@@ -154,12 +154,32 @@ const sortDisplayUser = (userList) => {
   return userList;
 };
 
+const sortDates = (userList) => {
+  let tmpDataList = [...userList];
+  tmpDataList.sort((a,b) => {
+      const [monthA, dayA] = a.user.birthDate.split('/').map(Number);
+      const [monthB, dayB] = b.user.birthDate.split('/').map(Number);
+
+    // 月と日を比較してソート
+    if (monthA !== monthB) {
+      return monthA - monthB;  // 月でソート
+    } else {
+      return dayA - dayB;  // 同じ月の場合、日でソート
+    }
+  });
+  return tmpDataList;
+};
+
 const makeUserInfoCard = (
   userInfoList,
   imagePath,
   handleCardClick,
   gridSize,
-  imageSize
+  imageSizeWidth,
+  imageSizeHeight,
+  textSize,
+  textSubSize,
+  actionView
 ) => {
   return userInfoList.map((person) => (
     // カードのレイアウト設定
@@ -201,39 +221,70 @@ const makeUserInfoCard = (
             image={imagePath(person.user.image)}
             alt={person.user.userName}
             sx={{
-              width: imageSize,
-              height: imageSize,
-              margin: 1,
+              width: imageSizeWidth,
+              height: imageSizeHeight
             }}
           />
 
           {/* カードに記載される内容を設定 */}
-          <CardContent>
+          <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
             {/* 社員の名前を表示 */}
             <Typography
               variant="h6"
-              sx={{ fontWeight: "bold", textAlign: "center" }}
+              sx={{fontSize:textSize, fontWeight: "bold", textAlign: "center"}}
             >
               {person.user.userName}
             </Typography>
 
-            {/* 社員の部署情報を表示 */}
-            {person.department.map((department, index) => (
-              <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
-                {/* 社員の役職にあったアイコンを表示 */}
-                {department.positionId && (
-                  <Icon num={Number(department.positionId)} sx={{ ml: 1 }} />
-                )}
-
-                {/* 社員の部署名を表示 */}
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontSize: "0.7rem", textAlign: "center" }}
-                >
-                  {department.departmentName}
+            {actionView === ACTIONVIEW_BIRTHDAY_USER ? (
+              <>
+                {/* 社員の誕生日を表示 */}
+                <Typography variant="subtitle" sx={{fontSize:textSubSize, textAlign: "center"}}>
+                  {person.user.birthDate}
                 </Typography>
-              </Box>
-            ))}
+              </>
+            ) : actionView === ACTIONVIEW_JOINMONTH_USER ? (
+              <>
+                {/* 社員の部署情報を表示 */}
+                {person.department.map((department, index) => (
+                  <Box
+                    key={index}
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
+                    {/* 社員の部署名を表示 */}
+                    <Typography variant="subtitle" sx={{ fontSize:textSubSize}}>
+                      {department.departmentName}
+                    </Typography>
+                  </Box>
+                ))}
+              </>
+            ) : (
+              <>
+                {/* 社員の部署情報を表示 */}
+                {person.department.map((department, index) => (
+                  <Box
+                    key={index}
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
+                    {/* 社員の役職にあったアイコンを表示 */}
+                    {department.positionId && (
+                      <Icon
+                        num={Number(department.positionId)}
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+
+                    {/* 社員の部署名を表示 */}
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontSize:textSubSize }}
+                    >
+                      {department.departmentName}
+                    </Typography>
+                  </Box>
+                ))}
+              </>
+            )}
           </CardContent>
         </CardActionArea>
       </Card>
@@ -258,6 +309,7 @@ const UserList = ({ actionView, bodyValue }) => {
 
   // 表示するユーザを役職がある人順にソート
   let sortedDisplayUser = sortDisplayUser(userList);
+  let sortedBirthDateUser = sortDates(userList);
 
   // フリーワード検索
   const filteredUser = sortedDisplayUser.filter(
@@ -303,14 +355,18 @@ const UserList = ({ actionView, bodyValue }) => {
     imagePath,
     handleCardClick,
     cardProps,
-    imageSize,
+    imageSizeWidth,
+    imageSizeHeight,
+    textSize,
+    textSubSize,
+    actionView,
   }) => {
     return (
       <Grid2
         container
         spacing={users.length === 1 ? 0 : 2} // ユーザーが1人だけの場合はspacingを0に
         sx={{
-          justifyContent: "center", // カードを中心に配置
+          justifyContent: "flex-start", // カードを中心に配置
           alignItems: "flex-start", // 上寄せ
           flexWrap: "wrap", // 折り返しを有効にする
           gap: 2, // アイテム間の隙間を設定
@@ -331,7 +387,11 @@ const UserList = ({ actionView, bodyValue }) => {
             imagePath,
             handleCardClick,
             cardProps,
-            imageSize
+            imageSizeWidth,
+            imageSizeHeight,
+            textSize,
+            textSubSize,
+            actionView
           )
         )}
       </Grid2>
@@ -371,13 +431,12 @@ const UserList = ({ actionView, bodyValue }) => {
     <Grid2
       container
       sx={{
-        padding: 2,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        minHeight: "100vh",
         display: "flex",
         justifyContent: "flex-start",
         alignItems: "flex-start",
+        margin: 1
       }}
     >
       {actionView === ACTIONVIEW_ALL_USER ||
@@ -389,7 +448,7 @@ const UserList = ({ actionView, bodyValue }) => {
             variant="outlined"
             fullWidth
             sx={{
-              marginBottom: 2,
+              margin: 2,
               backgroundColor: "white",
             }}
             value={searchTerm}
@@ -407,8 +466,12 @@ const UserList = ({ actionView, bodyValue }) => {
             users={displayedPeople}
             imagePath={imagePath}
             handleCardClick={handleCardClick}
-            cardProps={{ xs: 12, sm: 6, md: 3, lg: 3, xl: 3 }}
-            imageSize={{ xs: 250, md: 300 }}
+            cardProps={{ xs: 4, sm: 3, md: 2, lg: 2, xl: 2 }}
+            imageSizeWidth={{ xs: 120, sm: 150 }}
+            imageSizeHeight={{ xs: 160, sm: 200 }}
+            textSize={"18px"}
+            textSubSize={"16px"}
+            actionView={actionView}
           />
           {/* 1Pに20人表示するため次の20人や前の20人を表示するためのボタン表示 */}
           <PaginationButtons
@@ -423,11 +486,15 @@ const UserList = ({ actionView, bodyValue }) => {
         <>
           {/* 人数分の社員情報一覧のカードを作成 */}
           <UserCardList
-            users={sortedDisplayUser}
+            users={sortedBirthDateUser}
             imagePath={imagePath}
             handleCardClick={handleCardClick}
-            cardProps={{ xs: 12, sm: 6 }}
-            imageSize={{ xs: 100, sm: 200 }}
+            cardProps={{ xs: 4, sm: 2 }}
+            imageSizeWidth={{ xs: 110}}
+            imageSizeHeight={{ xs: 120}}
+            textSize={"10px"}
+            textSubSize={"8px"}
+            actionView={actionView}
           />
         </>
       )}

@@ -133,14 +133,14 @@ const NestedListWithIndentation = ({router}) => {
   // 展開状態を管理する
   const [open, setOpen] = useState({
     all: true, // グロウ組織図のみ全展開
-    ceo: true,
-    backOffice: true, // 初期状態でバックオフィスを展開
-    hr: true,
-    ses: true,
-    sesZinzai: true,
-    itDept: true, // 開発課の展開状態
-    itSol: true, // JAVAの子要素の展開状態
-    reSkikking: true,
+    ceo: false,
+    backOffice: false, // 初期状態でバックオフィスを展開
+    hr: false,
+    ses: false,
+    sesZinzai: false,
+    itDept: false, // 開発課の展開状態
+    itSol: false, // JAVAの子要素の展開状態
+    reSkikking: false,
   });
 
   // セクションの展開/閉じるトグル関数
