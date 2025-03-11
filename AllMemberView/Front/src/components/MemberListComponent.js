@@ -19,18 +19,19 @@ import {
   ACTIONVIEW_DEPARTMENT_USER,
   ACTIONVIEW_BIRTHDAY_USER,
   ACTIONVIEW_JOINMONTH_USER,
+  DELETE_DEPARTMENT_NAME
 } from "../common/Const";
 
 const Icon = ({ num }) => {
   let text;
   if (num === 1) {
-    text = "CEO";
+    text = "社";
   } else if (num === 3) {
-    text = "部長";
+    text = "部";
   } else if (num === 4) {
-    text = "課長";
+    text = "課";
   } else if (num === 5) {
-    text = "リーダー";
+    text = "リ";
   }
   return (
     <Typography
@@ -191,6 +192,8 @@ const makeUserInfoCard = (
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
+        minWidth:imageSizeWidth,
+        minHeight:imageSizeHeight,
       }}
     >
       {/* 一人分の社員情報のカードを作成 */}
@@ -253,7 +256,7 @@ const makeUserInfoCard = (
                   >
                     {/* 社員の部署名を表示 */}
                     <Typography variant="subtitle" sx={{ fontSize:textSubSize}}>
-                      {department.departmentName}
+                      {department.departmentName.replace(DELETE_DEPARTMENT_NAME, "")}
                     </Typography>
                   </Box>
                 ))}
@@ -279,7 +282,7 @@ const makeUserInfoCard = (
                       variant="subtitle1"
                       sx={{ fontSize:textSubSize }}
                     >
-                      {department.departmentName}
+                      {department.departmentName.replace(DELETE_DEPARTMENT_NAME, "")}
                     </Typography>
                   </Box>
                 ))}
@@ -407,7 +410,7 @@ const UserList = ({ actionView, bodyValue }) => {
   }) => {
     return (
       <Grid2
-        sx={{ display: "flex", justifyContent: "space-between", margin: 2 }}
+        sx={{ display: "flex", justifyContent: "space-between", margin: 2, width:"100%" }}
       >
         <Button
           variant="contained"
@@ -436,7 +439,7 @@ const UserList = ({ actionView, bodyValue }) => {
         display: "flex",
         justifyContent: "flex-start",
         alignItems: "flex-start",
-        margin: 1
+        margin: 1,
       }}
     >
       {actionView === ACTIONVIEW_ALL_USER ||
@@ -467,8 +470,8 @@ const UserList = ({ actionView, bodyValue }) => {
             imagePath={imagePath}
             handleCardClick={handleCardClick}
             cardProps={{ xs: 4, sm: 3, md: 2, lg: 2, xl: 2 }}
-            imageSizeWidth={{ xs: 120, sm: 150 }}
-            imageSizeHeight={{ xs: 160, sm: 200 }}
+            imageSizeWidth={{ xs: 100, sm: 160, md: 180}}
+            imageSizeHeight={{ xs: 120, sm: 180,  md: 200}}
             textSize={"18px"}
             textSubSize={"16px"}
             actionView={actionView}
@@ -490,8 +493,8 @@ const UserList = ({ actionView, bodyValue }) => {
             imagePath={imagePath}
             handleCardClick={handleCardClick}
             cardProps={{ xs: 4, sm: 2 }}
-            imageSizeWidth={{ xs: 110}}
-            imageSizeHeight={{ xs: 120}}
+            imageSizeWidth={{ xs: 70}}
+            imageSizeHeight={{ xs: 90}}
             textSize={"10px"}
             textSubSize={"8px"}
             actionView={actionView}

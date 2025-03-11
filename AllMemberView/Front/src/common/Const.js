@@ -9,3 +9,5 @@ export const ACTIONVIEW_JOINMONTH_TITLE = "★★★今月の新入社員★★�
 
 export const REQUEST_METHOD_GET = "GET";
 export const REQUEST_METHOD_POST = "POST";
+
+export const DELETE_DEPARTMENT_NAME = "事業部";
