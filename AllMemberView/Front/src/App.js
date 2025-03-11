@@ -2,12 +2,8 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import LoginForm from "./layout/LoginLayout";
-import OrganizationChartComponent from "./components/OrganizationChartComponent";
 import ToolpadDashboardLayout from "./layout/DashboardLayout";
 import UserDetailComponent from "./components/UserDetailComponent";
-import MemberListComponent from "./components/MemberListComponent";
-import PasswordChangeComponent from "./components/PasswordChangeComponent";
-import ProjectDetailComponent from "./components/ProjectDetailComponent";
 
 const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);

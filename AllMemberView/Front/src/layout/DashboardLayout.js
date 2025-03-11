@@ -64,9 +64,7 @@ const DashboardLayout = ({ isAdmin }) => {
   const router = useDemoRouter("/home");
 
   const contnts = () => {
-    if (router.pathname === "/home") {
-      return <Home router={router}/>;
-    } else if (router.pathname === "/alluser") {
+    if (router.pathname === "/alluser") {
       return <MemberView actionView={ACTIONVIEW_ALL_USER} />;
     } else if (router.pathname === "/departmentuser") {
       const storedId = localStorage.getItem('selectedId');
@@ -80,7 +78,8 @@ const DashboardLayout = ({ isAdmin }) => {
     } else if (router.pathname === "/admin-page") {
       return <AdminPage />;
     } else {
-      return router.pathname;
+      router.pathname = "/home"
+      return <Home router={router}/>;
     }
   };
 
