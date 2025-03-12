@@ -2,8 +2,8 @@ package com.example.internaltools.dto;
 
 import java.util.List;
 
-import com.example.internaltools.entity.UserDepartmentEntity;
-import com.example.internaltools.entity.UserEntity;
+import com.example.internaltools.entity.VUserDepartmentEntity;
+import com.example.internaltools.entity.VUserEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DtoUserDepartment {
 
-	private UserEntity user;
+	private VUserEntity user;
 	
-    private List<UserDepartmentEntity> department;
+    private List<VUserDepartmentEntity> department;
 
 }

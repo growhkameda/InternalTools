@@ -6,17 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.internaltools.entity.DepartmentEntity;
-import com.example.internaltools.repository.DepartmentRepository;
+import com.example.internaltools.entity.MDepartmentEntity;
+import com.example.internaltools.repository.MDepartmentRepository;
 
 @Service
 @Transactional
-public class DepartmentService {
+public class MDepartmentService {
     
     @Autowired
-    private DepartmentRepository departmentRepository; // DepartmentEntity用のリポジトリ
+    private MDepartmentRepository departmentRepository; // DepartmentEntity用のリポジトリ
 
-    public List<DepartmentEntity> getDepartment() {
+    public List<MDepartmentEntity> getDepartment() {
 
         return departmentRepository.findAll();
     }

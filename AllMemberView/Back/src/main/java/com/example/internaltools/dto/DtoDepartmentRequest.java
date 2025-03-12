@@ -1,4 +1,4 @@
-package com.example.internaltools.entity;
+package com.example.internaltools.dto;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 
-public class DepartmentRequest {
+public class DtoDepartmentRequest {
 	@JsonProperty(Const.DEPARTMENT_ID_LIST)
 	private List<Integer> departmentId;
 }

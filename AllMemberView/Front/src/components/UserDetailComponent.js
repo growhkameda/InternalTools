@@ -32,6 +32,10 @@ const imagePath = (fileName) => {
   return "/profile/" + fileName;
 };
 
+const isDataURL = (image) => {
+  return image && image.startsWith('data:image/');
+};
+
 const UserProfile = ({ isAdmin }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -164,7 +168,7 @@ const UserProfile = ({ isAdmin }) => {
           <Box>
             <Avatar
               alt={profile.user.userName}
-              src={imagePath(profile.user.image)}
+              src={isDataURL(image) ? image : imagePath(image)}
               sx={{
                 width: 200,
                 height: 200,

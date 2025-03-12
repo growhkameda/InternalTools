@@ -1,9 +1,9 @@
-package com.example.internaltools.entity;
+package com.example.internaltools.dto;
 
 import lombok.Data;
 
 @Data
-public class AuthRequest {
+public class DtoAuthRequest {
 	private String email;
     private String password;
 }

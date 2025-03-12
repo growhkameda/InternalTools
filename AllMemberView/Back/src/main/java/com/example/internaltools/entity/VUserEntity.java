@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "v_user")
-public class UserEntity {
+public class VUserEntity {
 	
 	@Id
 	@Column(name = Const.USER_ID)
