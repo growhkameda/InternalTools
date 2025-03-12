@@ -21,19 +21,21 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.internaltools.dto.DtoAuthRequest;
+import com.example.internaltools.dto.DtoAuthResponse;
+import com.example.internaltools.dto.DtoDepartmentRequest;
+import com.example.internaltools.dto.DtoPasswordInfo;
 import com.example.internaltools.dto.DtoUserDepartment;
-import com.example.internaltools.entity.AuthRequest;
-import com.example.internaltools.entity.AuthResponse;
-import com.example.internaltools.entity.DepartmentEntity;
-import com.example.internaltools.entity.DepartmentRequest;
-import com.example.internaltools.entity.PasswordInfo;
-import com.example.internaltools.entity.UserDepartmentEntity;
-import com.example.internaltools.entity.UserEntity;
+import com.example.internaltools.entity.MDepartmentEntity;
+import com.example.internaltools.entity.VUserDepartmentEntity;
+import com.example.internaltools.entity.VUserEntity;
 import com.example.internaltools.service.AuthService;
-import com.example.internaltools.service.AuthServiceChangePassword;
-import com.example.internaltools.service.DepartmentService;
-import com.example.internaltools.service.UserDepartmentService;
-import com.example.internaltools.service.UserService;
+import com.example.internaltools.service.MDepartmentService;
+import com.example.internaltools.service.MUserService;
+import com.example.internaltools.service.TRelUserDepartmentService;
+import com.example.internaltools.service.TUserService;
+import com.example.internaltools.service.VUserDepartmentService;
+import com.example.internaltools.service.VUserService;
 import com.example.internaltools.utils.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,13 +50,22 @@ public class AllMemberViewController {
     private AuthService authService;
 
 	@Autowired
-	private UserService userService;
+	private MUserService mUserService;
 	
 	@Autowired
-	private DepartmentService departmentService;
+	private MDepartmentService mDepartmentService;
+    
+	@Autowired
+	private TUserService tUserService;
 	
 	@Autowired
-	private UserDepartmentService userDepartmentService;
+	private TRelUserDepartmentService tRelUserDepartmentService;
+	
+	@Autowired
+	private VUserService vUserService;
+		
+	@Autowired
+	private VUserDepartmentService vUserDepartmentService;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -63,13 +74,13 @@ public class AllMemberViewController {
 	private PasswordEncoder passwordEncoder;
 	
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<DtoAuthResponse> login(@RequestBody DtoAuthRequest authRequest) {
     	
     	String en = passwordEncoder.encode(authRequest.getPassword());
     	System.out.println(en);
     	
         String token = authService.login(authRequest);
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new DtoAuthResponse(token));
     }
     
     @GetMapping("/info")
@@ -95,14 +106,14 @@ public class AllMemberViewController {
             
             List<DtoUserDepartment> resultList = new ArrayList<>();
 
-            List<UserEntity> userList = userService.getAllUsers(); // DB内のデータを全件取得
-            List<UserDepartmentEntity> depatmentList = userDepartmentService.getAllUserDepartment();
+            List<VUserEntity> userList = vUserService.getAllUsers(); // DB内のデータを全件取得
+            List<VUserDepartmentEntity> depatmentList = vUserDepartmentService.getAllUserDepartment();
             
-            for(UserEntity user : userList) {
+            for(VUserEntity user : userList) {
             	DtoUserDepartment userDepartment = new DtoUserDepartment();
             	
-            	List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
-            	for(UserDepartmentEntity department : depatmentList) {
+            	List<VUserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
+            	for(VUserDepartmentEntity department : depatmentList) {
             		if(department.getUserId().equals(user.getUserId())) {
             			tmpDepartmentList.add(department);
             		}
@@ -124,28 +135,28 @@ public class AllMemberViewController {
     }
     
     @PostMapping("/department-users")
-    public ResponseEntity<String> getUsersByDepartment(@RequestHeader("Authorization") String token, @RequestBody DepartmentRequest departmentRequest) {
+    public ResponseEntity<String> getUsersByDepartment(@RequestHeader("Authorization") String token, @RequestBody DtoDepartmentRequest departmentRequest) {
         String returnValue = "";
         try {
             String jwt = token.substring(7);
             jwtUtil.extractUserId(jwt);
 
             // 指定された部署のユーザーを取得
-            Map<Integer, List<UserDepartmentEntity>> userDepartmentMap = new HashMap<>();
+            Map<Integer, List<VUserDepartmentEntity>> userDepartmentMap = new HashMap<>();
             List<DtoUserDepartment> resultList = new ArrayList<>();
             Set<Integer> memberIdList = new HashSet<>();
             
             // 部署に紐づくユーザIDを取得
             for(Integer departmentId : departmentRequest.getDepartmentId()) {
-            	List<UserDepartmentEntity> tmpDepatmentList = userDepartmentService.findUsersByDepartmentId(departmentId);
-            	for(UserDepartmentEntity tmpDepatment : tmpDepatmentList) {
+            	List<VUserDepartmentEntity> tmpDepatmentList = vUserDepartmentService.findUsersByDepartmentId(departmentId);
+            	for(VUserDepartmentEntity tmpDepatment : tmpDepatmentList) {
             		Integer userId = tmpDepatment.getUserId();
             		
             		memberIdList.add(userId);
             		
             		// 初回格納時に格納するための空のリストを追加
             		if(!userDepartmentMap.containsKey(userId)) {
-            			userDepartmentMap.put(userId, new ArrayList<UserDepartmentEntity>());
+            			userDepartmentMap.put(userId, new ArrayList<VUserDepartmentEntity>());
             		}
             		
             		// ユーザID毎に部署情報をまとめなおす
@@ -156,7 +167,7 @@ public class AllMemberViewController {
             // 部署情報とユーザ情報を格納
             for (Integer userId : memberIdList) {
             	DtoUserDepartment userDepartment = new DtoUserDepartment();
-            	userDepartment.setUser(userService.getUserById(userId));
+            	userDepartment.setUser(vUserService.getUserById(userId));
             	userDepartment.setDepartment(userDepartmentMap.get(userId));
             	resultList.add(userDepartment);
             }
@@ -183,14 +194,14 @@ public class AllMemberViewController {
             
             List<DtoUserDepartment> resultList = new ArrayList<>();
 
-            List<UserEntity> userList = userService.getBirthUser(); // DB内の誕生日月データを全件取得
-            List<UserDepartmentEntity> depatmentList = userDepartmentService.getAllUserDepartment();
+            List<VUserEntity> userList = vUserService.getBirthUser(); // DB内の誕生日月データを全件取得
+            List<VUserDepartmentEntity> depatmentList = vUserDepartmentService.getAllUserDepartment();
             
-            for(UserEntity user : userList) {
+            for(VUserEntity user : userList) {
             	DtoUserDepartment userDepartment = new DtoUserDepartment();
             	
-            	List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
-            	for(UserDepartmentEntity department : depatmentList) {
+            	List<VUserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
+            	for(VUserDepartmentEntity department : depatmentList) {
             		if(department.getUserId().equals(user.getUserId())) {
             			tmpDepartmentList.add(department);
             		}
@@ -215,7 +226,7 @@ public class AllMemberViewController {
     @GetMapping("/users-by-newEmployee")
     public ResponseEntity<String> getEmployeesByJoiningMonth(
     		@RequestHeader("Authorization") String token,
-    		@RequestParam("joiningMonth") String joiningMonth) {
+    		@RequestParam String joiningMonth) {
     	
     		String returnValue = "";
     		try {
@@ -224,19 +235,19 @@ public class AllMemberViewController {
     			jwtUtil.extractUserId(jwt);
     			
     			// サービスでDBから今月入社の社員(現状はuserIdでフィルタリング)を取得
-    			List<UserEntity> userList = userService.getEmployeesByJoiningMonth(joiningMonth);	//DB実装後引数をjoiningMonth(予定)に変更
+    			List<VUserEntity> userList = vUserService.getEmployeesByJoiningMonth(joiningMonth);	//DB実装後引数をjoiningMonth(予定)に変更
     			
     			// すべての社員の部署情報を取得
-    			List<UserDepartmentEntity> departmentList = userDepartmentService.getAllUserDepartment();	//DB実装後引数をjoiningMonth(予定)に変更
+    			List<VUserDepartmentEntity> departmentList = vUserDepartmentService.getAllUserDepartment();	//DB実装後引数をjoiningMonth(予定)に変更
     			
     			// 各社員に対して所属部署情報をDTOにまとめる
     			List<DtoUserDepartment> resultList = new ArrayList<>();
-    			for (UserEntity user : userList) {
+    			for (VUserEntity user : userList) {
     				DtoUserDepartment userDepartment = new DtoUserDepartment();
-    				List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
+    				List<VUserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
     				
     				// 取得した部署情報から該当社員の情報だけを取得
-    				for (UserDepartmentEntity department : departmentList) {
+    				for (VUserDepartmentEntity department : departmentList) {
     					if (department.getUserId().equals(user.getUserId())) {
     						tmpDepartmentList.add(department);
     					}
@@ -266,7 +277,7 @@ public class AllMemberViewController {
             jwtUtil.extractUserId(jwt);
 
             // 組織図データの取得
-            List<DepartmentEntity> organizationChart = departmentService.getDepartment();
+            List<MDepartmentEntity> organizationChart = mDepartmentService.getDepartment();
             returnValue = objectMapper.writeValueAsString(organizationChart);
             System.out.println(returnValue);
 
@@ -280,7 +291,7 @@ public class AllMemberViewController {
     
 	// パスワード変更エンドポイント
 	@PostMapping("/change-password")
-	public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody PasswordInfo passwordData) {
+	public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody DtoPasswordInfo passwordData) {
 		try {
 			System.out.println("パスワード変更ボタン押下後の変更処理開始");
 			// トークンの"Bearer "プレフィックスを削除
@@ -291,8 +302,8 @@ public class AllMemberViewController {
 			int userId = jwtUtil.extractUserId(jwt);
 			
 
-			// AuthServiceを使ってパスワード変更処理
-			String returnValue = AuthServiceChangePassword.changePassword(passwordData,userId);
+			// MUserServiceを使ってパスワード変更処理
+			String returnValue = mUserService.changePassword(passwordData,userId);
 
 			return ResponseEntity.ok(returnValue);
 		} catch (Exception e) {
@@ -311,7 +322,7 @@ public class AllMemberViewController {
             jwtUtil.extractUserId(jwt); // トークンの検証
 
             // ユーザー情報を取得
-            UserEntity user = userService.getUserById(id);
+            VUserEntity user = vUserService.getUserById(id);
             if (user == null) {
                 System.out.println("ユーザーが見つかりませんでした: " + id);
                 return ResponseEntity.status(404).body(Map.of("error", "User not found", "userId", id));
@@ -320,11 +331,11 @@ public class AllMemberViewController {
             System.out.println("取得したユーザー情報: " + user.toString());
 
             // ユーザーの部署情報を取得
-            List<UserDepartmentEntity> departmentList = userDepartmentService.getAllUserDepartment();
+            List<VUserDepartmentEntity> departmentList = vUserDepartmentService.getAllUserDepartment();
 
             // 指定したユーザーに関連する部署だけをフィルタリング
-            List<UserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
-            for (UserDepartmentEntity department : departmentList) {
+            List<VUserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
+            for (VUserDepartmentEntity department : departmentList) {
                 if (department.getUserId().equals(user.getUserId())) {
                     tmpDepartmentList.add(department);
                 }
@@ -354,11 +365,11 @@ public class AllMemberViewController {
     public ResponseEntity<?> updateUser(
         @RequestHeader("Authorization") String token,
         @PathVariable Integer id,
-        @RequestParam(value = "userName", required = false) String userName,
-        @RequestParam(value = "birthDate", required = false) String birthDate,
-        @RequestParam(value = "hobby", required = false) String hobby,
-        @RequestParam(value = "image", required = false) String image,
-        @RequestParam(value = "joiningMonth", required = false) String joiningMonth
+        @RequestParam(required = false) String userName,
+        @RequestParam(required = false) String birthDate,
+        @RequestParam(required = false) String hobby,
+        @RequestParam(required = false) String image,
+        @RequestParam(required = false) String joiningMonth
     ) {
         try {
         	
@@ -366,7 +377,7 @@ public class AllMemberViewController {
             jwtUtil.extractUserId(jwt); // JWT の検証
 
             // `t_user` を更新
-            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth);
+            tUserService.updateUser(id, userName, birthDate, hobby, image, joiningMonth);
 
             return ResponseEntity.ok(Map.of("message", "User updated successfully"));
 
@@ -381,12 +392,15 @@ public class AllMemberViewController {
             String jwt = token.substring(7);
             jwtUtil.extractUserId(jwt); // トークンの検証
 
-            // ユーザー削除
-            boolean deleted = userService.deleteUser(id);
-            if (!deleted) {
-                return ResponseEntity.status(404).body(Map.of("error", "User not found", "userId", id));
-            }
-
+            // Mユーザ情報削除
+            mUserService.deleteUser(id);
+            
+            // Tユーザー削除
+            tUserService.deleteUser(id);
+            
+            // 関連部署情報削除
+            tRelUserDepartmentService.deleteUserDepartment(id);
+            
             return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Error deleting user", "message", e.getMessage()));

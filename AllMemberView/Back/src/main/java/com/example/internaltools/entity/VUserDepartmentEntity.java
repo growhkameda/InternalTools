@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "v_user_department")
 @IdClass(UserDepartmentId.class) 
-public class UserDepartmentEntity {
+public class VUserDepartmentEntity {
 
 	@Id
 	@Column(name = Const.USER_ID)

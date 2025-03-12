@@ -9,9 +9,12 @@ import jakarta.persistence.Table;
 
 import com.example.internaltools.common.Const;
 
+import lombok.Data;
+
 @Entity
+@Data
 @Table(name = "t_user") // "t_user" に対応
-public class UserUpdateEntity {
+public class TUserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

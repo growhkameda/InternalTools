@@ -6,8 +6,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import com.example.internaltools.entity.AuthRequest;
-import com.example.internaltools.entity.LoginUser;
+import com.example.internaltools.dto.DtoAuthRequest;
+import com.example.internaltools.entity.MUserEntity;
 import com.example.internaltools.utils.JwtUtil;
 
 @Service
@@ -22,7 +22,7 @@ public class AuthService {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    public String login(AuthRequest authRequest) {
+    public String login(DtoAuthRequest authRequest) {
         try {
             // 認証を試みる
             authenticationManager.authenticate(
@@ -30,7 +30,7 @@ public class AuthService {
             );
 
             // LoginUserを取得
-            LoginUser loginUser = (LoginUser) userDetailsService.loadUserByUsername(authRequest.getEmail());
+            MUserEntity loginUser = (MUserEntity) userDetailsService.loadUserByUsername(authRequest.getEmail());
             Integer userId = loginUser.getId();  // ユーザーIDを取得
 
             // ユーザーのroleを取得

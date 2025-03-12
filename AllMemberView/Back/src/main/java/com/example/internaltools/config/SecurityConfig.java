@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,6 +27,9 @@ public class SecurityConfig {
 	
     @Autowired
     private UserDetailsService userDetailsService;  // UserDetailsService を Autowire
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     String envType = System.getenv("ENV_TYPE");
 
@@ -60,16 +62,11 @@ public class SecurityConfig {
         
         authenticationManagerBuilder
         .userDetailsService(userDetailsService)
-        .passwordEncoder(passwordEncoder());  // PasswordEncoder を設定
+        .passwordEncoder(passwordEncoder);  // PasswordEncoder を設定
 
         return authenticationManagerBuilder.build();
     }
-    
-    @Bean
-    protected PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // BCrypt でパスワードをハッシュ化
-    }
-    
+        
     @Bean
     protected JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(); // JWTフィルターを定義
