@@ -9,9 +9,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.internaltools.entity.TRelUserDepartmentEntity;
+import com.example.internaltools.expansion.UserDepartmentId;
 
 
-public interface TRelUserDepartmentRepository extends JpaRepository<TRelUserDepartmentEntity, Integer> {
+public interface TRelUserDepartmentRepository extends JpaRepository<TRelUserDepartmentEntity, UserDepartmentId> {
 	// ユーザIDに紐づく部署情報を取得
 	Optional<TRelUserDepartmentEntity> findByUserId(Integer userId);
 	

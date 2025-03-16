@@ -7,11 +7,13 @@ import {
   CardContent,
   Typography,
   CardActionArea,
-  TextField,
-  InputAdornment
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  OutlinedInput
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import axios from "axios";
+import { httpRequestUtil } from "../common/Utils";
 
 // 名前を五十音順にソートする関数
 const sortByKana = (a, b) => {
@@ -27,13 +29,17 @@ const PeopleList = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const envType = process.env.REACT_APP_ENV_TYPE;
+      let getUserUrl = "";
+      let responseData = [];
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8080/allmemberview/api/alluserinfo", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("APIレスポンス:", response.data);
-        const sortedData = response.data.sort(sortByKana);
+        if (envType === "stg") {
+          getUserUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/alluserinfo";
+        } else {
+          getUserUrl = "http://localhost:8080/allmemberview/api/alluserinfo";
+        }
+        responseData = await httpRequestUtil(getUserUrl, null, "GET");
+        const sortedData = responseData.sort(sortByKana);
         setPeople(sortedData);
       } catch (err) {
         console.error("ユーザー情報取得エラー:", err);
@@ -74,22 +80,21 @@ const PeopleList = () => {
     <Box sx={{ padding: 2, minHeight: "100vh" }}>
       {/* 🔹 フリーワード検索 */}
       <Box sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}>
-        <TextField
-          label="検索"
-          variant="outlined"
-          sx={{ marginRight: 2, backgroundColor: "white", width: "300px" }}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            shrink: true,
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <Button variant="contained" color="primary" sx={{ padding: "10px 20px" }} onClick={() => navigate('/create')}>
+      <FormControl variant="outlined" sx={{ marginRight: 2, backgroundColor: "white", width: "300px" }}>
+  <InputLabel htmlFor="search">検索</InputLabel>
+  <OutlinedInput
+    id="search"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    startAdornment={
+      <InputAdornment position="start">
+        <SearchIcon />
+      </InputAdornment>
+    }
+    label="検索"
+  />
+</FormControl>
+        <Button variant="contained" color="primary" sx={{ padding: "10px 20px" }} onClick={() => navigate("/regnewuser/0")}>
           新規作成
         </Button>
       </Box>

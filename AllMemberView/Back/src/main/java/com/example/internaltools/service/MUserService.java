@@ -1,5 +1,7 @@
 package com.example.internaltools.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,6 +29,14 @@ public class MUserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         return user;  // LoginUser を返す
+    }
+    
+    public MUserEntity getUserById(Integer userId) throws UsernameNotFoundException {
+        Optional<MUserEntity> user = mUserRepository.findById(userId); // メールでユーザーを検索
+        if (user.isEmpty()) {
+        	return null;
+        }
+        return user.get();
     }
 
     // ユーザIDに紐づくユーザ情報を削除

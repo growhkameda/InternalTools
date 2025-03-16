@@ -21,11 +21,9 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<LoginForm setIsAdmin={setIsAdmin} />} />
-        <Route
-          path="/dashboard"
-          element={<ToolpadDashboardLayout isAdmin={isAdmin} />}
-        />
+        <Route path="/dashboard" element={<ToolpadDashboardLayout isAdmin={isAdmin} />}/>
         <Route path="/user/:id" element={<UserDetailComponent isAdmin={isAdmin} />} />
+        <Route path="/regnewuser/:id" element={<UserDetailComponent isAdmin={isAdmin} isNew={true} />} />
       </Routes>
     </Router>
   );

@@ -39,6 +39,7 @@ export async function httpRequestUtil(url, body = null, requestType = 'GET') {
         }
     } catch (err) {
         console.error('Error URL:' + url, err);
+        throw err
     }
 
     return responseData;

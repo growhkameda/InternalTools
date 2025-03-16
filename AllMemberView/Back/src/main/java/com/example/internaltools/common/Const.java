@@ -20,8 +20,19 @@ public class Const {
 	public final static String PROJECT_PLACE = "project_place";
 	public final static String POSITION_ID = "position_id";
 	public final static String POSITION_NAME = "position_name";
-	
-	
+		
+	public final static String JSON_USER_ID = "userId";
+	public final static String JSON_USER_NAME = "userName";
+	public final static String JSON_EMAIL = "eMail";
+	public final static String JSON_PASSWORD = "password";
+	public final static String JSON_ROLE_ID = "roleId";
+	public final static String JSON_BIRTH_DATE = "birthDate";
+	public final static String JSON_HOBBY = "hobby";
+	public final static String JSON_JOINING_MONTH = "joiningMonth";
+	public final static String JSON_DEPARTMENT_POSITION_LIST = "departmentPosisitionIdList";
+	public final static String JSON_DEPARTMENT_ID = "departmentId";
+	public final static String JSON_POSITION_ID = "positionId";
+	public final static String JSON_IMAGE = "image";
 	public final static String DEPARTMENT_ID_LIST = "departmentIdList";
 	
 	public final static String ENV_TYPE = "stg";

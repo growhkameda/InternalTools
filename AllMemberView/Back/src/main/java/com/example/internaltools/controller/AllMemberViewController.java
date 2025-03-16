@@ -1,5 +1,7 @@
 package com.example.internaltools.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -20,17 +23,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.internaltools.dto.DtoAuthRequest;
 import com.example.internaltools.dto.DtoAuthResponse;
 import com.example.internaltools.dto.DtoDepartmentRequest;
+import com.example.internaltools.dto.DtoNewDepartmentPosition;
+import com.example.internaltools.dto.DtoNewUser;
 import com.example.internaltools.dto.DtoPasswordInfo;
 import com.example.internaltools.dto.DtoUserDepartment;
 import com.example.internaltools.entity.MDepartmentEntity;
+import com.example.internaltools.entity.MPositionEntity;
+import com.example.internaltools.entity.MRoleEntity;
+import com.example.internaltools.entity.MUserEntity;
+import com.example.internaltools.entity.TRelUserDepartmentEntity;
+import com.example.internaltools.entity.TUserEntity;
 import com.example.internaltools.entity.VUserDepartmentEntity;
 import com.example.internaltools.entity.VUserEntity;
 import com.example.internaltools.service.AuthService;
+import com.example.internaltools.service.CreateNewUserService;
 import com.example.internaltools.service.MDepartmentService;
+import com.example.internaltools.service.MPositionService;
+import com.example.internaltools.service.MRoleService;
 import com.example.internaltools.service.MUserService;
 import com.example.internaltools.service.TRelUserDepartmentService;
 import com.example.internaltools.service.TUserService;
@@ -54,6 +68,12 @@ public class AllMemberViewController {
 	
 	@Autowired
 	private MDepartmentService mDepartmentService;
+	
+	@Autowired
+	private MPositionService mPositionService;
+	
+	@Autowired
+	private MRoleService mRoleService;
     
 	@Autowired
 	private TUserService tUserService;
@@ -68,11 +88,14 @@ public class AllMemberViewController {
 	private VUserDepartmentService vUserDepartmentService;
 	
 	@Autowired
-	private ObjectMapper objectMapper;
+	private CreateNewUserService createNewUserService;
 	
 	@Autowired
+	private ObjectMapper objectMapper;
+		
+	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+		
     @PostMapping("/login")
     public ResponseEntity<DtoAuthResponse> login(@RequestBody DtoAuthRequest authRequest) {
     	
@@ -321,30 +344,64 @@ public class AllMemberViewController {
             String jwt = token.substring(7);
             jwtUtil.extractUserId(jwt); // トークンの検証
 
-            // ユーザー情報を取得
-            VUserEntity user = vUserService.getUserById(id);
-            if (user == null) {
-                System.out.println("ユーザーが見つかりませんでした: " + id);
-                return ResponseEntity.status(404).body(Map.of("error", "User not found", "userId", id));
-            }
-
-            System.out.println("取得したユーザー情報: " + user.toString());
-
-            // ユーザーの部署情報を取得
-            List<VUserDepartmentEntity> departmentList = vUserDepartmentService.getAllUserDepartment();
-
-            // 指定したユーザーに関連する部署だけをフィルタリング
+            VUserEntity user = new VUserEntity();
             List<VUserDepartmentEntity> tmpDepartmentList = new ArrayList<>();
-            for (VUserDepartmentEntity department : departmentList) {
-                if (department.getUserId().equals(user.getUserId())) {
-                    tmpDepartmentList.add(department);
-                }
+            
+            if(!id.equals(0)) {
+            	// ユーザー情報を取得
+            	user = vUserService.getUserById(id);
+            	if (user == null) {
+            		System.out.println("ユーザーが見つかりませんでした: " + id);
+            		return ResponseEntity.status(404).body(Map.of("error", "User not found", "userId", id));
+            	}
+            	
+            	System.out.println("取得したユーザー情報: " + user.toString());
+            	
+            	// ユーザーの部署情報を取得
+            	List<VUserDepartmentEntity> departmentList = vUserDepartmentService.getAllUserDepartment();
+            	
+            	// 指定したユーザーに関連する部署だけをフィルタリング
+            	for (VUserDepartmentEntity department : departmentList) {
+            		if (department.getUserId().equals(user.getUserId())) {
+            			tmpDepartmentList.add(department);
+            		}
+            	}            	
             }
+            
+            // 選択肢に表示するための部署情報一覧取得
+            List<MDepartmentEntity> selectDepartmentList = mDepartmentService.getDepartment();
+            // グロウコミュニティ組織図を削除
+            MDepartmentEntity deleteMDepartmentEntity = new MDepartmentEntity();
+            for(MDepartmentEntity departmentEntity : selectDepartmentList) {
+            	if(departmentEntity.getId().equals(0)) {
+            		deleteMDepartmentEntity = departmentEntity;
+            		break;
+            	}
+            }
+            selectDepartmentList.remove(deleteMDepartmentEntity);
+            
+            // 選択肢に表示するための役職情報一覧取得
+            List<MPositionEntity> selectPositionList = mPositionService.getPosition();
+            // 執行役員を削除
+            MPositionEntity deleteMPositionEntity = new MPositionEntity();
+            for(MPositionEntity positionEntity : selectPositionList) {
+            	if(positionEntity.getId().equals(2)) {
+            		deleteMPositionEntity = positionEntity;
+            		break;
+            	}
+            }
+            selectPositionList.remove(deleteMPositionEntity);
+            
+            // 権限一覧を取得
+            List<MRoleEntity> selecRoleList = mRoleService.getRole();
 
             // DTOにデータを格納
             DtoUserDepartment resultList = new DtoUserDepartment();
             resultList.setUser(user);
             resultList.setDepartment(tmpDepartmentList);
+            resultList.setSelectDepartmentList(selectDepartmentList);
+            resultList.setSelectPositionList(selectPositionList);
+            resultList.setSelectRoleList(selecRoleList);
 
             // JSON に変換
             String returnValue = objectMapper.writeValueAsString(resultList);
@@ -386,6 +443,82 @@ public class AllMemberViewController {
         }
     }
 
+    
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(@RequestHeader("Authorization") String token, @RequestBody DtoNewUser newUser) {
+        try {
+        	
+            String jwt = token.substring(7);
+            jwtUtil.extractUserId(jwt); // JWT の検証
+
+            //　既に登録済みのユーザでないかを確認
+            if(mUserService.getUserById(newUser.getUserId()) == null) {
+            	// 各Entityクラスに値を振り分ける
+            	MUserEntity mUserEntity = new MUserEntity();
+            	TUserEntity tUserEntity = new TUserEntity();
+            	List<TRelUserDepartmentEntity> tRelUserDepartmentEntityList = new ArrayList<>();
+            	
+            	Integer userId = newUser.getUserId();
+            	// MUserEntityに格納
+            	mUserEntity.setId(userId);
+            	mUserEntity.setEmail(newUser.getEMail());
+            	mUserEntity.setPassword(passwordEncoder.encode(newUser.getPassword()));
+            	mUserEntity.setRoleId(newUser.getRoleId());
+            	
+            	// TUserEntityに格納
+            	tUserEntity.setUserId(userId);
+            	tUserEntity.setUserName(newUser.getUserName());
+            	tUserEntity.setBirthDate(newUser.getBirthDate());
+            	tUserEntity.setHobby(newUser.getHobby());
+            	tUserEntity.setImage(newUser.getImage());
+            	tUserEntity.setJoiningMonth(newUser.getJoiningMonth());
+            	
+            	// 部署ユーザ関連Entityに格納
+            	for(DtoNewDepartmentPosition newDepartmentPostion : newUser.getDepartmentPosisitionIdList()) {
+            		TRelUserDepartmentEntity tRelUserDepartmentEntity = new TRelUserDepartmentEntity();
+            		tRelUserDepartmentEntity.setUserId(userId);
+            		tRelUserDepartmentEntity.setDepartmentId(newDepartmentPostion.getDepartmentId());
+            		tRelUserDepartmentEntity.setPositionId(newDepartmentPostion.getPositionId());
+            		tRelUserDepartmentEntityList.add(tRelUserDepartmentEntity);
+            	}
+            	
+            	// 登録処理
+            	createNewUserService.createNewUser(mUserEntity, tUserEntity, tRelUserDepartmentEntityList);
+            }
+            else {
+            	return ResponseEntity.status(500).body(Map.of("error", "User Exisit", "message", "exist user"));
+            }
+
+            return ResponseEntity.ok(Map.of("message", "User create successfully"));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Error create user", "message", e.getMessage()));
+        }
+    }
+
+    
+    @PutMapping("/uploadimage")
+    public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file, @RequestParam String filename) {
+    	if (file.isEmpty()) {
+            return new ResponseEntity<>("File is empty", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // ファイルを保存
+            File saveFile = new File(filename);
+            file.transferTo(saveFile);
+
+            // 追加のデータ（例：説明）をコンソールに出力（必要に応じてデータベースなどに保存）
+            System.out.println("Filename: " + filename);
+
+            return new ResponseEntity<>("File uploaded successfully", HttpStatus.OK);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("Could not upload the file", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @DeleteMapping("/user/{id}")
     public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String token, @PathVariable Integer id) {
         try {
