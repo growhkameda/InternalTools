@@ -41,16 +41,17 @@ import com.example.internaltools.entity.TUserEntity;
 import com.example.internaltools.entity.VUserDepartmentEntity;
 import com.example.internaltools.entity.VUserEntity;
 import com.example.internaltools.service.AuthService;
-import com.example.internaltools.service.CreateNewUserService;
 import com.example.internaltools.service.MDepartmentService;
 import com.example.internaltools.service.MPositionService;
 import com.example.internaltools.service.MRoleService;
 import com.example.internaltools.service.MUserService;
 import com.example.internaltools.service.TRelUserDepartmentService;
 import com.example.internaltools.service.TUserService;
+import com.example.internaltools.service.UserService;
 import com.example.internaltools.service.VUserDepartmentService;
 import com.example.internaltools.service.VUserService;
 import com.example.internaltools.utils.JwtUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
@@ -88,7 +89,7 @@ public class AllMemberViewController {
 	private VUserDepartmentService vUserDepartmentService;
 	
 	@Autowired
-	private CreateNewUserService createNewUserService;
+	private UserService userService;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -98,7 +99,7 @@ public class AllMemberViewController {
 		
     @PostMapping("/login")
     public ResponseEntity<DtoAuthResponse> login(@RequestBody DtoAuthRequest authRequest) {
-    	
+    	    	
     	String en = passwordEncoder.encode(authRequest.getPassword());
     	System.out.println(en);
     	
@@ -426,15 +427,28 @@ public class AllMemberViewController {
         @RequestParam(required = false) String birthDate,
         @RequestParam(required = false) String hobby,
         @RequestParam(required = false) String image,
-        @RequestParam(required = false) String joiningMonth
+        @RequestParam(required = false) String joiningMonth,
+        @RequestParam(required = false) String departmentPosisitionIdList
     ) {
         try {
         	
             String jwt = token.substring(7);
             jwtUtil.extractUserId(jwt); // JWT の検証
 
-            // `t_user` を更新
-            tUserService.updateUser(id, userName, birthDate, hobby, image, joiningMonth);
+            List<DtoNewDepartmentPosition> convertDepartmentPosisitionIdList = objectMapper.readValue(departmentPosisitionIdList, new TypeReference<List<DtoNewDepartmentPosition>>() {});
+            
+        	// 部署ユーザ関連Entityに格納
+            List<TRelUserDepartmentEntity> tRelUserDepartmentEntityList = new ArrayList<>();
+        	for(DtoNewDepartmentPosition departmentPostion : convertDepartmentPosisitionIdList) {
+        		TRelUserDepartmentEntity tRelUserDepartmentEntity = new TRelUserDepartmentEntity();
+        		tRelUserDepartmentEntity.setUserId(id);
+        		tRelUserDepartmentEntity.setDepartmentId(departmentPostion.getDepartmentId());
+        		tRelUserDepartmentEntity.setPositionId(departmentPostion.getPositionId());
+        		tRelUserDepartmentEntityList.add(tRelUserDepartmentEntity);
+        	}
+            
+            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth, tRelUserDepartmentEntityList);
+           
 
             return ResponseEntity.ok(Map.of("message", "User updated successfully"));
 
@@ -483,7 +497,7 @@ public class AllMemberViewController {
             	}
             	
             	// 登録処理
-            	createNewUserService.createNewUser(mUserEntity, tUserEntity, tRelUserDepartmentEntityList);
+            	userService.createNewUser(mUserEntity, tUserEntity, tRelUserDepartmentEntityList);
             }
             else {
             	return ResponseEntity.status(500).body(Map.of("error", "User Exisit", "message", "exist user"));

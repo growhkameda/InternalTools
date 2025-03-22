@@ -80,7 +80,7 @@ const UserProfile = ({ isAdmin, isNew }) => {
     const envType = process.env.REACT_APP_ENV_TYPE;
     let getUserUrl = "";
     if (envType === "stg") {
-      getUserUrl = "http://" + process.env.REACT_APP_MY_IP + `api/user/${id}`;
+      getUserUrl = process.env.REACT_APP_MY_IP + `user/${id}`;
     } else {
       getUserUrl = `http://localhost:8080/allmemberview/api/user/${id}`;
     }
@@ -91,7 +91,7 @@ const UserProfile = ({ isAdmin, isNew }) => {
     const envType = process.env.REACT_APP_ENV_TYPE;
     let createUserUrl = "";
     if (envType === "stg") {
-      createUserUrl = "http://" + process.env.REACT_APP_MY_IP + "/create";
+      createUserUrl = process.env.REACT_APP_MY_IP + "create";
     } else {
       createUserUrl = "http://localhost:8080/allmemberview/api/create";
     }
@@ -103,7 +103,7 @@ const UserProfile = ({ isAdmin, isNew }) => {
     let createUserUrl = "";
     let dirPath = "";
     if (envType === "stg") {
-      createUserUrl = "http://" + process.env.REACT_APP_MY_IP + "/uploadimage";
+      createUserUrl = process.env.REACT_APP_MY_IP + "uploadimage";
       dirPath = DIR_PATH_AWS;
     } else {
       createUserUrl = "http://localhost:8080/allmemberview/api/uploadimage";
@@ -112,41 +112,50 @@ const UserProfile = ({ isAdmin, isNew }) => {
     return { url: createUserUrl, path: dirPath };
   };
 
+  const fetchUserProfile = async () => {
+    try {
+      let responseData = [];
+      // トークンがない場合、ログイン画面にリダイレクト
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate("/")
+        return
+      }
+      responseData = await httpRequestUtil(getUrl(), null, "GET");
+      if (isNew) {
+        initData(responseData);
+        setIsEditing(true);
+      }
+
+      setProfile(responseData);
+      setImage(responseData.user.image);
+
+      if (responseData.department !== 0) {
+        let getDepartmentIds = responseData.department.map((value) => {
+          return {
+            id: value.departmentId,
+            name: value.departmentName,
+          };
+        });
+        let getPositionIds = responseData.department.map((value) => {
+          return value.positionId;
+        });
+        setSelectedValues(getDepartmentIds);
+        setDynamicSelects(getPositionIds);
+      }
+    } catch (err) {
+      console.error("ユーザー情報取得エラー:", err);
+      setError("ユーザー情報を取得できませんでした。");
+      localStorage.removeItem("token");
+      alert("エラーが発生しました。ログインからやり直してください");
+      navigate("/");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        let responseData = [];
-        responseData = await httpRequestUtil(getUrl(), null, "GET");
-        if (isNew) {
-          initData(responseData);
-          setIsEditing(true);
-        }
-
-        setProfile(responseData);
-        setImage(responseData.user.image);
-
-        if (responseData.department !== 0) {
-          let getDepartmentIds = responseData.department.map((value) => {
-            return {
-              id: value.departmentId,
-              name: value.departmentName,
-            };
-          });
-          let getPositionIds = responseData.department.map((value) => {
-            return value.positionId;
-          });
-          setSelectedValues(getDepartmentIds);
-          setDynamicSelects(getPositionIds);
-        }
-      } catch (err) {
-        console.error("ユーザー情報取得エラー:", err);
-        setError("ユーザー情報を取得できませんでした。");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isNew]);
@@ -291,6 +300,8 @@ const UserProfile = ({ isAdmin, isNew }) => {
         const formData = new FormData();
         const imageUrl = updateImageUrl();
         let filename = "";
+
+        // 画像ファイルの設定
         if (isImageUpdate) {
           // 拡張子を抽出するための正規表現。画像のファイル名作成のため
           const fileExtension = imageName.split(".").pop();
@@ -299,11 +310,14 @@ const UserProfile = ({ isAdmin, isNew }) => {
 
           // アップロード先の画像パス
           filename = imageUrl.path + newFilename;
+        } else {
+          formData.append("image", profile.user.image);
         }
         formData.append("userName", profile.user.userName);
         formData.append("birthDate", profile.user.birthDate);
         formData.append("hobby", profile.user.hobby);
         formData.append("joiningMonth", profile.user.joiningMonth);
+        formData.append("departmentPosisitionIdList", JSON.stringify(profile.user.departmentPosisitionIdList));
         await httpRequestUtil(getUrl(), formData, "PUT");
 
         // 画像の更新があった場合
@@ -315,6 +329,7 @@ const UserProfile = ({ isAdmin, isNew }) => {
         }
 
         alert("プロフィールが更新されました！");
+        await fetchUserProfile();
         setIsEditing(false);
       } else {
         let imgname = "def.png";

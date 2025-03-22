@@ -44,18 +44,24 @@ const sectionKeyMap = {
   "22":{section:"teckup", childFlg:false,  viewidList:[22]}
 }
 
-const organizationInfo = async () => {
+const organizationInfo = async (navigate) => {
   let responseData = [];
 
   let getorganizationUrl = "";
   const envType = process.env.REACT_APP_ENV_TYPE;
   if (envType === "stg") {
-    getorganizationUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/organization";
+    getorganizationUrl = process.env.REACT_APP_MY_IP + "organization";
   } else {
     getorganizationUrl = "http://localhost:8080/allmemberview/api/organization";
   }
+  try {
+    responseData = await httpRequestUtil(getorganizationUrl, null , "GET")
+  } catch (err) {
+    //メンバーリストでアラートを出すので画面遷移のみ
+    localStorage.removeItem("token");
+    navigate("/");
+  }
 
-  responseData = await httpRequestUtil(getorganizationUrl, null , "GET")
 
   return orgchartHierarchy(responseData)
 };
@@ -125,7 +131,13 @@ const NestedListWithIndentation = ({router}) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setTableData(await organizationInfo()); // 取得したデータをpeopleにセット
+      // トークンがない場合、ログイン画面にリダイレクト
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate("/")
+        return
+      }
+      setTableData(await organizationInfo(navigate)); // 取得したデータをpeopleにセット
     };
     fetchData();
   }, []);

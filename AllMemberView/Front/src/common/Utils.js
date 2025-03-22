@@ -3,6 +3,7 @@ import axios from 'axios';
 export async function httpRequestUtil(url, body = null, requestType = 'GET') {
     let responseData = [];
     try {
+
         // トークンを取得する（例: ローカルストレージから）
         const token = localStorage.getItem('token');
 

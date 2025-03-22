@@ -15,7 +15,7 @@ import com.example.internaltools.repository.TUserRepository;
 
 @Service
 @Transactional
-public class CreateNewUserService {
+public class UserService {
     
     @Autowired
     private MUserRepository mUserRepository;
@@ -25,6 +25,9 @@ public class CreateNewUserService {
     
     @Autowired
     private TRelUserDepartmentRepository tRelUserDepartmentRepository;
+    
+    @Autowired
+    private TUserService tUserService;
 
     @Transactional
     public void createNewUser(MUserEntity mUserEntity, TUserEntity tUserEntity, List<TRelUserDepartmentEntity> tRelUserDepartmentEntityList) {
@@ -35,6 +38,29 @@ public class CreateNewUserService {
     		
     		// TUserの登録処理
     		tUserRepository.save(tUserEntity);
+    		
+    		// 部署ユーザ関連テーブルの登録処理
+    		for(TRelUserDepartmentEntity tRelUserDepartmentEntity : tRelUserDepartmentEntityList) {
+    			tRelUserDepartmentRepository.save(tRelUserDepartmentEntity);    		
+    		}
+    		
+    	} catch (Exception e) {
+    		throw e;
+    	}
+    }
+    
+    @Transactional
+    public void updateUser(Integer userId, String userName, String birthDate, String hobby, String image, String joiningMonth, List<TRelUserDepartmentEntity> tRelUserDepartmentEntityList) {
+    	
+    	try {
+    		 // `t_user` を更新
+            tUserService.updateUser(userId, userName, birthDate, hobby, image, joiningMonth);
+    		
+            //　ユーザIDに紐づく部署情報を一度すべて削除
+            List<TRelUserDepartmentEntity> deleteUserDepartmentList = tRelUserDepartmentRepository.findByUserId(userId);
+            for(TRelUserDepartmentEntity deleteUserDepartment : deleteUserDepartmentList) {
+            	tRelUserDepartmentRepository.delete(deleteUserDepartment);
+            }
     		
     		// 部署ユーザ関連テーブルの登録処理
     		for(TRelUserDepartmentEntity tRelUserDepartmentEntity : tRelUserDepartmentEntityList) {

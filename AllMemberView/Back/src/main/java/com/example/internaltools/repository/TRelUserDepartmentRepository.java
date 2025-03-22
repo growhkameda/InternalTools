@@ -1,6 +1,6 @@
 package com.example.internaltools.repository;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,7 +14,7 @@ import com.example.internaltools.expansion.UserDepartmentId;
 
 public interface TRelUserDepartmentRepository extends JpaRepository<TRelUserDepartmentEntity, UserDepartmentId> {
 	// ユーザIDに紐づく部署情報を取得
-	Optional<TRelUserDepartmentEntity> findByUserId(Integer userId);
+	List<TRelUserDepartmentEntity> findByUserId(Integer userId);
 	
 	// ユーザIDに紐づく部署情報を削除
     @Modifying

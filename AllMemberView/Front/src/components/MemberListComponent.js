@@ -23,32 +23,25 @@ import {
 } from "../common/Const";
 
 const Icon = ({ num }) => {
-  let text;
+  let iconImage = null;
   if (num === 1) {
-    text = "社";
+    iconImage = "/icons/ceo.png"
   } else if (num === 3) {
-    text = "部";
+    iconImage = "/icons/manager.png"
   } else if (num === 4) {
-    text = "課";
+    iconImage = "/icons/department.png"
   } else if (num === 5) {
-    text = "リ";
+    iconImage = "/icons/leader.png"
   }
   return (
-    <Typography
-      variant="subtitle"
-      component="div"
+    <Box
+      component="img"
+      src={iconImage}
       sx={{
-        fontWeight: "bold",
-        color: "#ffffff", // 文字色を白に設定
-        textAlign: "center",
-        fontFamily: "Arial",
-        backgroundColor: "#4caf50", // 背景を緑に設定 (MUIのgreen[500]色)
-        borderRadius: "8px", // 角を少し丸く
-        border: "2px solid #ffffff", // 白い罫線を追加
+        width: { xs: 15, md: 15 }, 
+        height: { xs: 25, md: 25 },
       }}
-    >
-      {text}
-    </Typography>
+    />
   );
 };
 
@@ -62,14 +55,14 @@ const getCurrentJoiningMonth = () => {
   return `${year}/${month < 10 ? "0" + month : month}`;
 };
 
-const getDisplayUser = async (actionView, bodyValue) => {
+const getDisplayUser = async (actionView, bodyValue, navigate) => {
   let responseData = [];
   let getUserUrl = "";
   const envType = process.env.REACT_APP_ENV_TYPE;
 
   if (actionView === ACTIONVIEW_ALL_USER) {
     if (envType === "stg") {
-      getUserUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/alluserinfo";
+      getUserUrl = process.env.REACT_APP_MY_IP + "alluserinfo";
     } else {
       getUserUrl = "http://localhost:8080/allmemberview/api/alluserinfo";
     }
@@ -77,8 +70,7 @@ const getDisplayUser = async (actionView, bodyValue) => {
     responseData = await httpRequestUtil(getUserUrl, null, "GET");
   } else if (actionView === ACTIONVIEW_DEPARTMENT_USER) {
     if (envType === "stg") {
-      getUserUrl =
-        "http://" + process.env.REACT_APP_MY_IP + "/api/department-users";
+      getUserUrl = process.env.REACT_APP_MY_IP + "department-users";
     } else {
       getUserUrl = "http://localhost:8080/allmemberview/api/department-users";
     }
@@ -90,8 +82,7 @@ const getDisplayUser = async (actionView, bodyValue) => {
     responseData = await httpRequestUtil(getUserUrl, body, "POST");
   } else if (actionView === ACTIONVIEW_BIRTHDAY_USER) {
     if (envType === "stg") {
-      getUserUrl =
-        "http://" + process.env.REACT_APP_MY_IP + "/api/birthuserinfo";
+      getUserUrl = process.env.REACT_APP_MY_IP + "birthuserinfo";
     } else {
       getUserUrl = "http://localhost:8080/allmemberview/api/birthuserinfo";
     }
@@ -99,18 +90,18 @@ const getDisplayUser = async (actionView, bodyValue) => {
     responseData = await httpRequestUtil(getUserUrl, null, "GET");
   } else if (actionView === ACTIONVIEW_JOINMONTH_USER) {
     if (envType === "stg") {
-      getUserUrl =
-        "http://" +
-        process.env.REACT_APP_MY_IP +
-        "/api/users-by-newEmployee?joiningMonth=" +
-        getCurrentJoiningMonth();
+      getUserUrl = process.env.REACT_APP_MY_IP +"users-by-newEmployee?joiningMonth=" + getCurrentJoiningMonth();
     } else {
-      getUserUrl =
-        "http://localhost:8080/allmemberview/api/users-by-newEmployee?joiningMonth=" +
-        getCurrentJoiningMonth();
+      getUserUrl = "http://localhost:8080/allmemberview/api/users-by-newEmployee?joiningMonth=" + getCurrentJoiningMonth();
     }
 
-    responseData = await httpRequestUtil(getUserUrl, null, "GET");
+    try {
+      responseData = await httpRequestUtil(getUserUrl, null, "GET");
+    } catch(err) {
+      localStorage.removeItem("token");
+      alert("エラーが発生しました。ログインからやり直してください");
+      navigate("/");
+    }
   }
 
   return responseData;
@@ -204,7 +195,6 @@ const makeUserInfoCard = (
           alignItems: "flex-start",
           backgroundColor: "transparent",
           boxShadow: "none",
-          width: "100%",
         }}
       >
         {/* カードがクリックされた際の動作やエリアの設定 */}
@@ -230,7 +220,7 @@ const makeUserInfoCard = (
           />
 
           {/* カードに記載される内容を設定 */}
-          <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <CardContent sx={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
             {/* 社員の名前を表示 */}
             <Typography
               variant="h6"
@@ -250,15 +240,9 @@ const makeUserInfoCard = (
               <>
                 {/* 社員の部署情報を表示 */}
                 {person.department.map((department, index) => (
-                  <Box
-                    key={index}
-                    sx={{ display: "flex", alignItems: "center" }}
-                  >
-                    {/* 社員の部署名を表示 */}
                     <Typography variant="subtitle" sx={{ fontSize:textSubSize}}>
                       {department.departmentName.replace(DELETE_DEPARTMENT_NAME, "")}
                     </Typography>
-                  </Box>
                 ))}
               </>
             ) : (
@@ -273,7 +257,6 @@ const makeUserInfoCard = (
                     {department.positionId && (
                       <Icon
                         num={Number(department.positionId)}
-                        sx={{ ml: 1 }}
                       />
                     )}
 
@@ -305,7 +288,13 @@ const UserList = ({ actionView, bodyValue }) => {
   // コンポーネントの初期レンダリング時にユーザー情報を取得
   useEffect(() => {
     const fetchData = async () => {
-      setDisplayUser(await getDisplayUser(actionView, bodyValue));
+      // トークンがない場合、ログイン画面にリダイレクト
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate("/")
+        return
+      }
+      setDisplayUser(await getDisplayUser(actionView, bodyValue, navigate));
     };
     fetchData();
   }, []);
@@ -372,7 +361,7 @@ const UserList = ({ actionView, bodyValue }) => {
           justifyContent: "flex-start", // カードを中心に配置
           alignItems: "flex-start", // 上寄せ
           flexWrap: "wrap", // 折り返しを有効にする
-          gap: 2, // アイテム間の隙間を設定
+          margin: 2,
         }}
       >
         {users.length === 0 ? (
@@ -456,7 +445,7 @@ const UserList = ({ actionView, bodyValue }) => {
             }}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            Input={{
+            input={{
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon />
@@ -469,11 +458,11 @@ const UserList = ({ actionView, bodyValue }) => {
             users={displayedPeople}
             imagePath={imagePath}
             handleCardClick={handleCardClick}
-            cardProps={{ xs: 4, sm: 3, md: 2, lg: 2, xl: 2 }}
-            imageSizeWidth={{ xs: 100, sm: 160, md: 180}}
-            imageSizeHeight={{ xs: 120, sm: 180,  md: 200}}
-            textSize={"18px"}
-            textSubSize={"16px"}
+            cardProps={{ xs: 4, sm: 2}}
+            imageSizeWidth={{ xs: 90, sm: 120}}
+            imageSizeHeight={{ xs: 110, sm: 140}}
+            textSize={{xs:"10px", sm:"14px"}}
+            textSubSize={{xs:"8px", sm:"12px"}}
             actionView={actionView}
           />
           {/* 1Pに20人表示するため次の20人や前の20人を表示するためのボタン表示 */}
@@ -492,11 +481,11 @@ const UserList = ({ actionView, bodyValue }) => {
             users={sortedBirthDateUser}
             imagePath={imagePath}
             handleCardClick={handleCardClick}
-            cardProps={{ xs: 4, sm: 2 }}
-            imageSizeWidth={{ xs: 70}}
-            imageSizeHeight={{ xs: 90}}
-            textSize={"10px"}
-            textSubSize={"8px"}
+            cardProps={{ xs: 4, sm: 3 }}
+            imageSizeWidth={{ xs: 80, sm: 100}}
+            imageSizeHeight={{ xs: 100, sm: 120}}
+            textSize={"9px"}
+            textSubSize={"9px"}
             actionView={actionView}
           />
         </>

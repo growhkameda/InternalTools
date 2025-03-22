@@ -11,8 +11,6 @@ import {
   Typography,
   Stack,
 } from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { teal } from "@mui/material/colors";
 
 const LoginForm = ({ setIsAdmin }) => {
   const [email, setEmail] = useState("");
@@ -23,7 +21,7 @@ const LoginForm = ({ setIsAdmin }) => {
   let loginUrl = "";
   const envType = process.env.REACT_APP_ENV_TYPE;
   if (envType === "stg") {
-    loginUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/login";
+    loginUrl = process.env.REACT_APP_MY_IP + "login";
   } else {
     loginUrl = "http://localhost:8080/allmemberview/api/login";
   }
@@ -86,7 +84,7 @@ const LoginForm = ({ setIsAdmin }) => {
           <Typography
             variant="h6"
             sx={{
-              color: "blue",
+              color: "orange",
               fontWeight: "bold"
             }}
           >

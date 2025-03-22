@@ -29,12 +29,19 @@ const PeopleList = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // トークンがない場合、ログイン画面にリダイレクト
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate("/")
+        return
+      }
+
       const envType = process.env.REACT_APP_ENV_TYPE;
       let getUserUrl = "";
       let responseData = [];
       try {
         if (envType === "stg") {
-          getUserUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/alluserinfo";
+          getUserUrl = process.env.REACT_APP_MY_IP + "alluserinfo";
         } else {
           getUserUrl = "http://localhost:8080/allmemberview/api/alluserinfo";
         }
@@ -43,6 +50,9 @@ const PeopleList = () => {
         setPeople(sortedData);
       } catch (err) {
         console.error("ユーザー情報取得エラー:", err);
+        localStorage.removeItem("token");
+        alert("エラーが発生しました。ログインからやり直してください");
+        navigate("/");
       }
     };
     fetchData();

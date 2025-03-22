@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Button, Card, CardContent, CardHeader, Divider, FormControl, InputLabel, OutlinedInput, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from "axios";
 import { httpRequestUtil } from "../common/Utils";
 import { REQUEST_METHOD_POST } from "../common/Const";
 
@@ -17,7 +16,7 @@ const PasswordChangeForm = () => {
   let changePasswordUrl = ""
   const envType = process.env.REACT_APP_ENV_TYPE;
   if(envType === "stg") {
-    changePasswordUrl = "http://" + process.env.REACT_APP_MY_IP + "/api/change-password"
+    changePasswordUrl = process.env.REACT_APP_MY_IP + "change-password"
   }
   else {
     changePasswordUrl = "http://localhost:8080/allmemberview/api/change-password"

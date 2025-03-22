@@ -18,7 +18,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.example.internaltools.common.Const;
 import com.example.internaltools.filter.JwtAuthenticationFilter;
 
 @Configuration
@@ -47,10 +46,7 @@ public class SecurityConfig {
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // フィルターを追加;
 
-        	if(!Const.ENV_TYPE.equals(envType)) {
-        		// CORSを有効化
-        		http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        	}
+        	http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         
         return http.build();
     }
@@ -75,7 +71,7 @@ public class SecurityConfig {
     @Bean
     protected CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 許可するオリジン
+        configuration.setAllowedOrigins(List.of( "http://localhost:3000/","http://grow-navi.gc-systems.com/","https://grow-navi.gc-systems.com/")); // 許可するオリジン
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 許可するメソッド
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // 許可するヘッダー
         configuration.setAllowCredentials(true); // 認証情報を含むリクエストを許可
