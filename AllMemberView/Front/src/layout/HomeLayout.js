@@ -15,7 +15,7 @@ const Home = ({router}) => {
       <Grid2 container spacing={2} sx={{ height: "100%" }}>
         {/* 左側: 組織図 (モバイル1列、PC 2分割) */}
         <Grid2
-          size={{xs:12, md:6}}
+          size={{xs:12, lg:6}}
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -34,7 +34,6 @@ const Home = ({router}) => {
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "flex-start",
-              padding: 2,
             }}
           >
             {/* 組織図コンポーネント */}
@@ -44,7 +43,7 @@ const Home = ({router}) => {
 
         {/* 右側: 今月の誕生日社員 (モバイル1列、PC 2分割) */}
         <Grid2
-          size={{xs:12, md:6}}
+          size={{xs:12, lg:6}}
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -62,7 +61,6 @@ const Home = ({router}) => {
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "flex-start",
-              padding: 2,
             }}
           >
             <MemberView actionView={ACTIONVIEW_BIRTHDAY_USER} />
@@ -83,7 +81,6 @@ const Home = ({router}) => {
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "flex-start",
-              padding: 2,
             }}
           >
             <MemberView actionView={ACTIONVIEW_JOINMONTH_USER} />

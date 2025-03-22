@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import MainLayout from './MainContentsLayout'
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -9,7 +8,12 @@ const UserList = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             const token = localStorage.getItem('token'); // ローカルストレージからトークンを取得
-            console.log('Token:', token); // トークンをコンソールに出力
+            
+            // トークンがない場合、homeにリダイレクト
+            if (!token) {
+                alert("ログインがされていません。ログインに遷移します")
+                navigate("/")
+            }
             
             try {
                 const response = await axios.get('http://localhost:8080/api/auth/alluserinfo/', {
