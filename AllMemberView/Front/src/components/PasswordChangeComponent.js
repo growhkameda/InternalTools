@@ -35,15 +35,20 @@ const PasswordChangeForm = () => {
         newPassword: newPassword,
       }
 
-      await httpRequestUtil(changePasswordUrl, body, REQUEST_METHOD_POST);
-
-      // パスワード変更処理をここに実装（成功時）
-      setSuccessMessage('パスワードが変更されました');
-      setErrorMessage('');
-
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+      try {
+        await httpRequestUtil(changePasswordUrl, body, REQUEST_METHOD_POST);
+  
+        // パスワード変更処理をここに実装（成功時）
+        setSuccessMessage('パスワードが変更されました');
+        setErrorMessage('');
+  
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } catch(err) {
+        setErrorMessage('現在のパスワードに不備があります。見直してください');
+        setSuccessMessage('');
+      }
     };
   }  
   return (
