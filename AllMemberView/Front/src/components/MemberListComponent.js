@@ -165,6 +165,7 @@ const sortDates = (userList) => {
 const makeUserInfoCard = (
   userInfoList,
   imagePath,
+  handleImageLoad,
   handleCardClick,
   gridSize,
   imageSizeWidth,
@@ -212,6 +213,7 @@ const makeUserInfoCard = (
           <CardMedia
             component="img"
             image={imagePath(person.user.image)}
+            onLoad={handleImageLoad}
             alt={person.user.userName}
             sx={{
               width: imageSizeWidth,
@@ -284,6 +286,11 @@ const UserList = ({ actionView, bodyValue }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 20; // 4×5のレイアウト
   const navigate = useNavigate(); // useNavigateフックを使用
+  const [loading, setLoading] = useState(true); // 画像のローディング状態を管理
+
+  const handleImageLoad = () => {
+    setLoading(false); // 画像が読み込まれたらローディング状態をfalseに
+  };
 
   // コンポーネントの初期レンダリング時にユーザー情報を取得
   useEffect(() => {
@@ -345,6 +352,7 @@ const UserList = ({ actionView, bodyValue }) => {
   const UserCardList = ({
     users,
     imagePath,
+    handleImageLoad,
     handleCardClick,
     cardProps,
     imageSizeWidth,
@@ -377,6 +385,7 @@ const UserList = ({ actionView, bodyValue }) => {
           makeUserInfoCard(
             users,
             imagePath,
+            handleImageLoad,
             handleCardClick,
             cardProps,
             imageSizeWidth,
@@ -454,9 +463,11 @@ const UserList = ({ actionView, bodyValue }) => {
             }}
           />
           {/* 人数分の社員情報一覧のカードを作成 */}
+          {loading && <p>Loading...</p>} {/* ローディング中のインジケーター */}
           <UserCardList
             users={displayedPeople}
             imagePath={imagePath}
+            handleImageLoad={handleImageLoad}
             handleCardClick={handleCardClick}
             cardProps={{ xs: 4, sm: 2}}
             imageSizeWidth={{ xs: 90, sm: 120}}
