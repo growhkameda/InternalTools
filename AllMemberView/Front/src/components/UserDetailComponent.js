@@ -58,7 +58,7 @@ const initData = (targertInitData) => {
   targertInitData.user = data;
 };
 
-const UserProfile = ({ isAdmin, isNew }) => {
+const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -667,7 +667,7 @@ const UserProfile = ({ isAdmin, isNew }) => {
               title="ユーザー詳細"
               action={
                 !isNew &&
-                isAdmin && (
+                isAdmin && isFromAdminPage && (
                   <Box display="flex" alignItems="center">
                     <Typography variant="body2" sx={{ marginRight: 1 }}>
                       {isEditing ? "編集モード" : "閲覧モード"}

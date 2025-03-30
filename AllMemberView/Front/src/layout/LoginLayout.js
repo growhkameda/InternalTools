@@ -12,11 +12,12 @@ import {
   Stack,
 } from "@mui/material";
 
-const LoginForm = ({ setIsAdmin }) => {
+const LoginForm = ({ setIsAdmin, setIsFromAdminPage}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate(); // useNavigateフックを使用
+  setIsFromAdminPage(false)
 
   let loginUrl = "";
   const envType = process.env.REACT_APP_ENV_TYPE;
