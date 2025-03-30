@@ -7,6 +7,7 @@ import UserDetailComponent from "./components/UserDetailComponent";
 
 const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isFromAdminPage, setIsFromAdminPage] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -20,10 +21,10 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginForm setIsAdmin={setIsAdmin} />} />
-        <Route path="/dashboard" element={<ToolpadDashboardLayout isAdmin={isAdmin} />}/>
-        <Route path="/user/:id" element={<UserDetailComponent isAdmin={isAdmin} />} />
-        <Route path="/regnewuser/:id" element={<UserDetailComponent isAdmin={isAdmin} isNew={true} />} />
+        <Route path="/" element={<LoginForm setIsAdmin={setIsAdmin} setIsFromAdminPage={setIsFromAdminPage}/>} />
+        <Route path="/dashboard" element={<ToolpadDashboardLayout isAdmin={isAdmin} setIsFromAdminPage={setIsFromAdminPage}/>}/>
+        <Route path="/user/:id" element={<UserDetailComponent isAdmin={isAdmin} isFromAdminPage={isFromAdminPage}/>} />
+        <Route path="/regnewuser/:id" element={<UserDetailComponent isAdmin={isAdmin} isNew={true} isFromAdminPage={isFromAdminPage}/>} />
       </Routes>
     </Router>
   );

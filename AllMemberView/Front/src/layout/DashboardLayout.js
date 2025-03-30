@@ -52,8 +52,9 @@ const LogoutButton = ({ isMobile }) => {
   );
 };
 
-const DashboardLayout = ({ isAdmin }) => {
+const DashboardLayout = ({ isAdmin, setIsFromAdminPage }) => {
   const [drawerOpen, setDrawerOpen] = React.useState(false); // ドロワーの開閉状態を管理
+  setIsFromAdminPage(false)
 
   const handleDrawerToggle = () => {
     // ドロワーが閉じているときにボタンを押しても開かないようにする
@@ -76,7 +77,8 @@ const DashboardLayout = ({ isAdmin }) => {
     } else if (router.pathname === "/change-password") {
       return <PasswordChangeComponent />;
     } else if (router.pathname === "/admin-page") {
-      return <AdminPage />;
+      setIsFromAdminPage(true)
+      return <AdminPage/>;
     } else {
       router.pathname = "/home"
       return <Home router={router}/>;
