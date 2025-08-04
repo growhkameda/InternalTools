@@ -52,7 +52,10 @@ const PeopleList = () => {
         console.error("ユーザー情報取得エラー:", err);
         localStorage.removeItem("token");
         alert("エラーが発生しました。ログインからやり直してください");
-        navigate("/");
+        // alert の後に画面遷移を遅延させる
+        setTimeout(() => {
+          navigate("/");
+        }, 100);  // 100ms の遅延
       }
     };
     fetchData();
