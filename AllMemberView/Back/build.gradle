@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.6'
-    id 'org.graalvm.buildtools.native' version '0.10.1'
+    id 'org.graalvm.buildtools.native' version '0.10.4'
 }
 
 group = 'com.example'
@@ -37,6 +37,9 @@ dependencies {
 graalvmNative {
     binaries {
         main {
+            agent {
+                enabled = true
+            }
             buildArgs.add('--initialize-at-build-time=org.springframework.boot.loader.nio.file.NestedFileSystemProvider')
             imageName.set("grow-navi")
         }
