@@ -32,6 +32,10 @@ public class TUserEntity {
     
     @Column(name = Const.JOINING_MONTH) // "t_user" のカラムに合わせる
     private String joiningMonth;
+    
+    @Column(name = Const.MBTI) // "t_user" のカラムに合わせる
+    private String mbti;
+
 
 
 }
