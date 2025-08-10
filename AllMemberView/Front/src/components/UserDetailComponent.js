@@ -53,11 +53,52 @@ const initData = (targertInitData) => {
     birthDate: "",
     hobby: "",
     image: "",
+	mbti: "",
     departmentPosisitionIdList: "",
   };
   targertInitData.user = data;
 };
 
+const mbtiOptions = [
+  { value: "INTJ", label: "INTJ_建築家" },
+  { value: "INTP", label: "INTP_論理学者" },
+  { value: "ENTJ", label: "ENTJ_指揮官" },
+  { value: "ENTP", label: "ENTP_討論者" },
+  { value: "INFJ", label: "INFJ_提唱者" },
+  { value: "INFP", label: "INFP_仲介者" },
+  { value: "ENFJ", label: "ENFJ_主人公" },
+  { value: "ENFP", label: "ENFP_運動家" },
+  { value: "ISTJ", label: "ISTJ_ロジスティシャン" },
+  { value: "ISFJ", label: "ISFJ_擁護者" },
+  { value: "ESTJ", label: "ESTJ_幹部" },
+  { value: "ESFJ", label: "ESFJ_領事" },
+  { value: "ISTP", label: "ISTP_巨匠" },
+  { value: "ISFP", label: "ISFP_冒険家" },
+  { value: "ESTP", label: "ESTP_起業家" },
+  { value: "ESFP", label: "ESFP_エンターテイナー" }
+ ];
+ 
+ const mbtiLinks = {
+
+	INTJ: "https://www.16personalities.com/ja/intj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+ 	INTP: "https://www.16personalities.com/ja/intp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ENTJ: "https://www.16personalities.com/ja/entj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+ 	ENTP: "https://www.16personalities.com/ja/entp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+ 	INFJ: "https://www.16personalities.com/ja/infj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	INFP: "https://www.16personalities.com/ja/infp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+ 	ENFJ: "https://www.16personalities.com/ja/enfj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ENFP: "https://www.16personalities.com/ja/enfp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+ 	ISTJ: "https://www.16personalities.com/ja/istj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ISFJ: "https://www.16personalities.com/ja/isfj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ESTJ: "https://www.16personalities.com/ja/estj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ESFJ: "https://www.16personalities.com/ja/esfj%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ISTP: "https://www.16personalities.com/ja/istp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ISFP: "https://www.16personalities.com/ja/isfp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ESTP: "https://www.16personalities.com/ja/estp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC",
+	ESFP: "https://www.16personalities.com/ja/esfp%E5%9E%8B%E3%81%AE%E6%80%A7%E6%A0%BC"
+  };
+ 
+  
 const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -66,6 +107,7 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
   const [image, setImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [imageName, setImageName] = useState(null);
+ // const [mbtiType, setMbtiType] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [inputError, setInputError] = useState(false);
@@ -317,6 +359,7 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
         formData.append("birthDate", profile.user.birthDate);
         formData.append("hobby", profile.user.hobby);
         formData.append("joiningMonth", profile.user.joiningMonth);
+		formData.append("mbti", profile.user.mbti);
         formData.append("departmentPosisitionIdList", JSON.stringify(profile.user.departmentPosisitionIdList));
         await httpRequestUtil(getUrl(), formData, "PUT");
 
@@ -355,6 +398,7 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
           joiningMonth: profile.user.joiningMonth,
           hobby: profile.user.hobby,
           image: imgname,
+		  mbti: profile.user.mbti,
           departmentPosisitionIdList: profile.user.departmentPosisitionIdList,
         };
 
@@ -629,7 +673,7 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
       <Grid2 container justifyContent="center">
         {/* 画像 */}
         <Grid2 size={{ xs: 12, md: 3 }} display="flex" justifyContent="center">
-          <Box>
+          <Box display="flex" flexDirection="column" alignItems="center">
             <Avatar
               alt={profile.user.userName}
               src={isDataURL(image) ? image : imagePath(image)}
@@ -640,25 +684,76 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
                 boxShadow: 3,
               }}
             />
-            {isEditing && (
-              <Box display="flex" justifyContent="center" mt={2}>
-                <Button
-                  component="label"
-                  variant="contained"
-                  startIcon={<AddAPhotoIcon />}
-                >
-                  画像を選択
-                  <input
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={handleImageFileChange}
-                  />
-                </Button>
-              </Box>
-            )}
+			
+			{isEditing && (
+			              <Box display="flex" justifyContent="center" mt={2}>
+			                <Button
+			                  component="label"
+			                  variant="contained"
+			                  startIcon={<AddAPhotoIcon />}
+			                >
+			                  画像を選択
+			                  <input
+			                    type="file"
+			                    accept="image/*"
+			                    hidden
+			                    onChange={handleImageFileChange}
+			                  />
+			                </Button>		
+			              </Box>
+			            )}
+						
+			<Box mt={2} p={1} 
+				sx={{ display: "inline-block", border: "2px dashed #1976d2", 
+				borderRadius: "8px", backgroundColor: "#eef6fb" }}>
+				{profile.user.mbti ? (
+				<a href={mbtiLinks[profile.user.mbti]} 
+				target="_blank" 
+				rel="noopener noreferrer">
+				<img src={`/mbti-icons/${profile.user.mbti}.png`} 
+				alt={profile.user.mbti} 
+				style={{ height: 200, cursor: "pointer" }} />
+				</a>
+				) : (
+			  <Typography color="text.secondary">MBTI未設定</Typography>)}
+			</Box>
+			
+			<Box mt={2} />
+            
+			<Box display="flex" alignItems="center" mb={2}>
+			  <Typography sx={{ width: "70px" }}>MBTI</Typography>
+			  <FormControl 	fullWidth >
+			    {isEditing ? (
+			      <Select
+			        value={profile.user.mbti}
+			        onChange={(e) => 
+						setProfile(prev => ({
+					      ...prev,
+					      user: {
+					        ...prev.user,
+					        mbti: e.target.value
+					      }
+					    }))
+					}
+			      >
+			        {mbtiOptions.map(option => (
+			          <MenuItem key={option.value} value={option.value}>
+			            {option.label}
+			          </MenuItem>
+			        ))}
+			      </Select>
+			    ) : (
+			      <OutlinedInput value = {profile.user.mbti || "MBTI未設定"} readOnly 
+				  sx={{width: "120px"}}/>
+			    )}
+				</FormControl>
+				
+			 </Box>
+			
           </Box>
+		  
         </Grid2>
+		 
 
         {/* プロフィール部分 */}
         <Grid2 size={{ xs: 12, md: 5 }}>

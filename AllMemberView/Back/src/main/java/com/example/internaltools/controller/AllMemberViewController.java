@@ -406,6 +406,7 @@ public class AllMemberViewController {
 
             // JSON に変換
             String returnValue = objectMapper.writeValueAsString(resultList);
+            System.out.println(returnValue);
 
             // 正常なレスポンスを返す
             return ResponseEntity.ok(returnValue);
@@ -428,6 +429,7 @@ public class AllMemberViewController {
         @RequestParam(required = false) String hobby,
         @RequestParam(required = false) String image,
         @RequestParam(required = false) String joiningMonth,
+        @RequestParam(required = false) String mbti,        
         @RequestParam(required = false) String departmentPosisitionIdList
     ) {
         try {
@@ -447,7 +449,7 @@ public class AllMemberViewController {
         		tRelUserDepartmentEntityList.add(tRelUserDepartmentEntity);
         	}
             
-            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth, tRelUserDepartmentEntityList);
+            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth, mbti, tRelUserDepartmentEntityList);
            
 
             return ResponseEntity.ok(Map.of("message", "User updated successfully"));
