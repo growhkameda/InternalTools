@@ -3,6 +3,7 @@ package com.example.internaltools.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.internaltools.dto.DtoPasswordInfo;
 import com.example.internaltools.entity.MUserEntity;
+import com.example.internaltools.entity.SecurityUserDetails;
 import com.example.internaltools.repository.MUserRepository;
 
 @Service
@@ -23,12 +25,12 @@ public class MUserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public MUserEntity loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         MUserEntity user = mUserRepository.findByEmail(username).get(); // メールでユーザーを検索
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        return user;  // LoginUser を返す
+        return new SecurityUserDetails(user);  // LoginUser を返す
     }
     
     public MUserEntity getUserById(Integer userId) throws UsernameNotFoundException {

@@ -19,13 +19,17 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    // data-jpaがjdbcを含むため、重複していたdata-jdbcは削除
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
-    implementation 'javax.xml.bind:jaxb-api:2.3.1'
-    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
+    // 古いJJWTとJAXBを削除し、GraalVM互換の最新JJWTライブラリに更新
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -37,13 +41,21 @@ dependencies {
 graalvmNative {
     binaries {
         main {
+            // Spring AOTプラグインの自動設定を優先するため、agentは無効化を推奨
             agent {
-                enabled = true
+                enabled = false
             }
             buildArgs.add('--initialize-at-build-time=org.springframework.boot.loader.nio.file.NestedFileSystemProvider')
             imageName.set("grow-navi")
         }
     }
+}
+
+// bootJarタスクを追加して、出力されるJARファイル名を明示的に指定
+bootJar {
+    archiveBaseName = 'grow-navi'
+    archiveVersion = '0.0.1-SNAPSHOT'
+    archiveClassifier = '' // '-plain' などの余分な接尾辞を削除
 }
 
 tasks.named('test') {
