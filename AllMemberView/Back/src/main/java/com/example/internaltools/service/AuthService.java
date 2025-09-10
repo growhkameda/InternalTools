@@ -3,11 +3,13 @@ package com.example.internaltools.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.example.internaltools.dto.DtoAuthRequest;
 import com.example.internaltools.entity.MUserEntity;
+import com.example.internaltools.entity.SecurityUserDetails;
 import com.example.internaltools.utils.JwtUtil;
 
 @Service
@@ -29,8 +31,10 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
             );
 
-            // LoginUserを取得
-            MUserEntity loginUser = (MUserEntity) userDetailsService.loadUserByUsername(authRequest.getEmail());
+            // ユーザ情報を取得
+            UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
+            MUserEntity loginUser = ((SecurityUserDetails) userDetails).getUser();
+            
             Integer userId = loginUser.getId();  // ユーザーIDを取得
 
             // ユーザーのroleを取得

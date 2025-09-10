@@ -28,7 +28,7 @@ public class JwtUtil {
             synchronized (this) {
                 result = SECRET_KEY;
                 if (result == null) {
-                    SECRET_KEY = result = Keys.hmacShaKeyFor("secret".getBytes());
+                    SECRET_KEY = result = Keys.hmacShaKeyFor("aZtq-9K_cR-Vb7pLgN3xW8yF_sH2jU5mD4gE1hP6oI0nC7rQkYlB3fT9u".getBytes());
                 }
             }
         }
@@ -56,7 +56,6 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        // ★★★ SECRET_KEYを直接参照せず、getSecretKey()メソッド経由で取得する ★★★
         return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
     }
 

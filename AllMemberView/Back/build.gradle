@@ -1,8 +1,8 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.1'
+    id 'org.springframework.boot' version '3.2.8'
     id 'io.spring.dependency-management' version '1.1.6'
-    id 'org.graalvm.buildtools.native' version '0.10.4'
+    id 'org.graalvm.buildtools.native' version '0.10.1'
 }
 
 group = 'com.example'
@@ -19,17 +19,14 @@ repositories {
 }
 
 dependencies {
-    // data-jpaがjdbcを含むため、重複していたdata-jdbcは削除
+    // 依存関係は変更ありません
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
-
-    // 古いJJWTとJAXBを削除し、GraalVM互換の最新JJWTライブラリに更新
     implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
-
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -38,26 +35,16 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 }
 
-graalvmNative {
-    binaries {
-        main {
-            // Spring AOTプラグインの自動設定を優先するため、agentは無効化を推奨
-            agent {
-                enabled = false
-            }
-            buildArgs.add('--initialize-at-build-time=org.springframework.boot.loader.nio.file.NestedFileSystemProvider')
-            imageName.set("grow-navi")
-        }
-    }
-}
-
-// bootJarタスクを追加して、出力されるJARファイル名を明示的に指定
-bootJar {
-    archiveBaseName = 'grow-navi'
-    archiveVersion = '0.0.1-SNAPSHOT'
-    archiveClassifier = '' // '-plain' などの余分な接尾辞を削除
-}
-
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+bootBuildImage {
+    builder = "paketobuildpacks/builder-jammy-base:0.4.380"
+    runImage = "paketobuildpacks/run-jammy-base:0.1.2"
+    environment = [
+        "BP_NATIVE_IMAGE": "true",
+        "BP_SPRING_AOT_ENABLED": "true"
+    ]
+    imageName = "grow-navi:latest"
 }
