@@ -5,17 +5,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
 
-    private String SECRET_KEY = "secret";  // 秘密鍵は本番環境ではより強固にする
+    // volatileを付けて、マルチスレッド環境での可視性を保証する
+    private volatile SecretKey SECRET_KEY;
+
+    // キーを取得するための専用メソッドを用意し、スレッドセーフにする
+    private SecretKey getSecretKey() {
+        // Double-Checked Locking パターンで効率的に初期化
+        SecretKey result = SECRET_KEY;
+        if (result == null) {
+            synchronized (this) {
+                result = SECRET_KEY;
+                if (result == null) {
+                    SECRET_KEY = result = Keys.hmacShaKeyFor("aZtq-9K_cR-Vb7pLgN3xW8yF_sH2jU5mD4gE1hP6oI0nC7rQkYlB3fT9u".getBytes());
+                }
+            }
+        }
+        return result;
+    }
 
     // トークンからユーザー名を取得
     public String extractUsername(String token) {
@@ -38,7 +56,7 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -48,18 +66,18 @@ public class JwtUtil {
     // ユーザー名からトークンを生成
     public String generateToken(String userName, int userId, boolean isAdmin) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);  // ユーザーIDをトークンに含める
-        claims.put("isAdmin", isAdmin); // isAdminをトークンに含める
+        claims.put("userId", userId);
+        claims.put("isAdmin", isAdmin);
         return createToken(claims, userName);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))  // 10時間有効
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(getSecretKey())
                 .compact();
     }
 
@@ -68,5 +86,4 @@ public class JwtUtil {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-
 }
