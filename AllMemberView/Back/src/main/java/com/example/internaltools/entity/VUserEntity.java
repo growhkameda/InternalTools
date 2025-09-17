@@ -48,5 +48,9 @@ public class VUserEntity {
     
     @Column(name = Const.HOBBY)
     private String hobby;
+    
+    @Column(name = Const.MBTI)
+    private String mbti;
+    
 
 }
