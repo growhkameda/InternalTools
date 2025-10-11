@@ -18,7 +18,7 @@ public interface TUserRepository extends JpaRepository<TUserEntity, Integer> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE TUserEntity u SET u.userName = :userName, u.birthDate = :birthDate, u.hobby = :hobby, u.image = :image , u.joiningMonth = :joiningMonth, u.ruby = :ruby WHERE u.userId = :userId")
+    @Query("UPDATE TUserEntity u SET u.userName = :userName, u.birthDate = :birthDate, u.hobby = :hobby, u.image = :image , u.joiningMonth = :joiningMonth, u.ruby = :ruby, u.mbti = :mbti WHERE u.userId = :userId")
     void updateUser(@Param("userId") Integer userId, @Param("userName") String userName, @Param("birthDate") String birthDate, @Param("hobby") String hobby, @Param("image") String image, @Param("joiningMonth") String joiningMonth, @Param("ruby") String ruby, @Param("mbti") String mbti);
     
     @Modifying
