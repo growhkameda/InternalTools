@@ -2,16 +2,13 @@ package com.example.internaltools.config;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -23,62 +20,51 @@ import com.example.internaltools.filter.JwtAuthenticationFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    
+    // UserDetailsServiceとPasswordEncoderは、別の場所で@Beanとして定義されていれば
+    // Springが自動的に認識してくれるため、ここでの@Autowiredは不要です。
 	
-    @Autowired
-    private UserDetailsService userDetailsService;  // UserDetailsService を Autowire
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    
-    String envType = System.getenv("ENV_TYPE");
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+	    return authenticationConfiguration.getAuthenticationManager();
+	}
 
     @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())  // CSRFを無効化
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/login").permitAll()  // 認証不要のエンドポイント
-                .requestMatchers("/api/alluserinfo").authenticated()  // 認証が必要なエンドポイント
-                .anyRequest().authenticated()  // 他のエンドポイントは認証が必要
-            )
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS設定を先に適用
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // セッションをステートレスに
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // フィルターを追加;
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/login").permitAll()
+                .requestMatchers("/api/alluserinfo").authenticated()
+                .anyRequest().authenticated()
+            )
+            // フィルターのBeanを直接注入する形に変更
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        	http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        
         return http.build();
     }
-    
-    @Bean
-    protected AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = 
-            http.getSharedObject(AuthenticationManagerBuilder.class);
-        
-        authenticationManagerBuilder
-        .userDetailsService(userDetailsService)
-        .passwordEncoder(passwordEncoder);  // PasswordEncoder を設定
-
-        return authenticationManagerBuilder.build();
-    }
         
     @Bean
-    protected JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(); // JWTフィルターを定義
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        // このBean定義は、もしJwtAuthenticationFilter内で@Autowiredなどを使っている場合に必要です。
+        // そうでなければ、 new JwtAuthenticationFilter() を直接addFilterBeforeに渡しても構いません。
+        return new JwtAuthenticationFilter();
     }
     
     @Bean
-    protected CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of( "http://localhost:3000/","http://grow-navi.gc-systems.com/","https://grow-navi.gc-systems.com/")); // 許可するオリジン
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 許可するメソッド
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // 許可するヘッダー
-        configuration.setAllowCredentials(true); // 認証情報を含むリクエストを許可
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 全エンドポイントに適用
-
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

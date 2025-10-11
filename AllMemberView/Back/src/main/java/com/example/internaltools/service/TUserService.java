@@ -14,9 +14,9 @@ public class TUserService {
     private TUserRepository tUserUpdateRepository;
 	
 	// ユーザIDに紐づくユーザ情報を更新
-    public void updateUser(Integer userId, String userName, String birthDate, String hobby, String image, String joiningMonth, String ruby) {
+    public void updateUser(Integer userId, String userName, String birthDate, String hobby, String image, String joiningMonth, String ruby, String mbti) {
     //tUserUpdateRepository.updateUser(userId, userName, birthDate, hobby, image, joiningMonth);
-    	tUserUpdateRepository.updateUser(userId, userName, birthDate, hobby, image, joiningMonth, ruby);
+    	tUserUpdateRepository.updateUser(userId, userName, birthDate, hobby, image, joiningMonth, ruby,  mbti);
     }
     
     // ユーザIDに紐づくユーザ情報を削除
