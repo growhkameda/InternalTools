@@ -49,4 +49,6 @@ public class VUserEntity {
     @Column(name = Const.HOBBY)
     private String hobby;
 
+    @Column(name = Const.RUBY)
+    private String ruby;
 }

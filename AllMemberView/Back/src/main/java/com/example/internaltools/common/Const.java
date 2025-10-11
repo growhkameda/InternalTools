@@ -20,7 +20,6 @@ public class Const {
 	public final static String PROJECT_PLACE = "project_place";
 	public final static String POSITION_ID = "position_id";
 	public final static String POSITION_NAME = "position_name";
-		
 	public final static String JSON_USER_ID = "userId";
 	public final static String JSON_USER_NAME = "userName";
 	public final static String JSON_EMAIL = "eMail";
@@ -36,6 +35,6 @@ public class Const {
 	public final static String DEPARTMENT_ID_LIST = "departmentIdList";
 	
 	public final static String ENV_TYPE = "stg";
-	
+	public final static String RUBY = "ruby";
 }
 

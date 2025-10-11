@@ -33,5 +33,6 @@ public class TUserEntity {
     @Column(name = Const.JOINING_MONTH) // "t_user" のカラムに合わせる
     private String joiningMonth;
 
-
+    @Column(name = Const.RUBY) // "t_user" のカラムに合わせる
+    private String ruby;
 }

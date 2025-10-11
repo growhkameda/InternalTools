@@ -50,11 +50,11 @@ public class UserService {
     }
     
     @Transactional
-    public void updateUser(Integer userId, String userName, String birthDate, String hobby, String image, String joiningMonth, List<TRelUserDepartmentEntity> tRelUserDepartmentEntityList) {
+    public void updateUser(Integer userId, String userName, String birthDate, String hobby, String image, String joiningMonth, String ruby, List<TRelUserDepartmentEntity> tRelUserDepartmentEntityList) {
     	
     	try {
     		 // `t_user` を更新
-            tUserService.updateUser(userId, userName, birthDate, hobby, image, joiningMonth);
+            tUserService.updateUser(userId, userName, birthDate, hobby, image, joiningMonth, ruby);
     		
             //　ユーザIDに紐づく部署情報を一度すべて削除
             List<TRelUserDepartmentEntity> deleteUserDepartmentList = tRelUserDepartmentRepository.findByUserId(userId);

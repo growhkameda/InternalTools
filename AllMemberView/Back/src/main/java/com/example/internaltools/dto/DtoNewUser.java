@@ -44,4 +44,7 @@ public class DtoNewUser {
 	@JsonProperty(Const.JSON_IMAGE)
 	private String image;
 
+	@JsonProperty(Const.RUBY)
+	private String ruby;
+	
 }

@@ -428,7 +428,8 @@ public class AllMemberViewController {
         @RequestParam(required = false) String hobby,
         @RequestParam(required = false) String image,
         @RequestParam(required = false) String joiningMonth,
-        @RequestParam(required = false) String departmentPosisitionIdList
+        @RequestParam(required = false) String departmentPosisitionIdList,
+        @RequestParam(required = false) String ruby
     ) {
         try {
         	
@@ -447,7 +448,8 @@ public class AllMemberViewController {
         		tRelUserDepartmentEntityList.add(tRelUserDepartmentEntity);
         	}
             
-            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth, tRelUserDepartmentEntityList);
+        	// 丸下追加分//////////////////////////
+            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth, ruby, tRelUserDepartmentEntityList);
            
 
             return ResponseEntity.ok(Map.of("message", "User updated successfully"));
