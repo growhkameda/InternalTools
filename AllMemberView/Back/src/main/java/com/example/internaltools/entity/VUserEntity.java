@@ -53,4 +53,6 @@ public class VUserEntity {
     private String mbti;
     
 
+    @Column(name = Const.RUBY)
+    private String ruby;
 }

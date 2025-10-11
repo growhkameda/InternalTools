@@ -429,6 +429,7 @@ public class AllMemberViewController {
         @RequestParam(required = false) String hobby,
         @RequestParam(required = false) String image,
         @RequestParam(required = false) String joiningMonth,
+        @RequestParam(required = false) String ruby,
         @RequestParam(required = false) String mbti,        
         @RequestParam(required = false) String departmentPosisitionIdList
     ) {
@@ -449,7 +450,7 @@ public class AllMemberViewController {
         		tRelUserDepartmentEntityList.add(tRelUserDepartmentEntity);
         	}
             
-            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth, mbti, tRelUserDepartmentEntityList);
+            userService.updateUser(id, userName, birthDate, hobby, image, joiningMonth, ruby, mbti, tRelUserDepartmentEntityList);
            
 
             return ResponseEntity.ok(Map.of("message", "User updated successfully"));

@@ -55,6 +55,11 @@ const initData = (targertInitData) => {
     image: "",
 	mbti: "",
     departmentPosisitionIdList: "",
+
+    // ふりがな修正//////////////////
+    ruby: "",
+    // ふりがな修正//////////////////
+
   };
   targertInitData.user = data;
 };
@@ -361,6 +366,11 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
         formData.append("joiningMonth", profile.user.joiningMonth);
 		formData.append("mbti", profile.user.mbti);
         formData.append("departmentPosisitionIdList", JSON.stringify(profile.user.departmentPosisitionIdList));
+
+        // ふりがな修正
+        formData.append("ruby", profile.user.ruby);
+        // ふりがな修正
+
         await httpRequestUtil(getUrl(), formData, "PUT");
 
         // 画像の更新があった場合
@@ -400,6 +410,11 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
           image: imgname,
 		  mbti: profile.user.mbti,
           departmentPosisitionIdList: profile.user.departmentPosisitionIdList,
+
+          // ふりがな修正//////////////////////
+          ruby: profile.user.ruby
+          // ふりがな修正//////////////////////
+
         };
 
         // プロフィール部分の登録
@@ -525,7 +540,9 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
     inputName,
     required,
     type,
-    regularExpression
+    regularExpression,
+    rubyText,
+    displayValue
   ) => {
     return (
       <Box display="flex" alignItems="center" mb={2}>
@@ -535,28 +552,59 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
           required={isEditing || isNew ? required : false}
           error={inputError[inputName]}
         >
-          {(isEditing || isNew) && (
-            <InputLabel htmlFor={inputName}>
-              {required ? "Required" : ""}
-            </InputLabel>
-          )}
-
-          <OutlinedInput
-            value={inputValue}
-            name={inputName}
-            onChange={handleInputChange}
-            readOnly={!isEditing}
-            label={(isEditing || isNew) && (required ? "Required" : "")}
-            type={type}
-            onBlur={(e) => handleBlur(e, regularExpression)}
-            inputProps={
-              regularExpression && regularExpression.length !== 0
-                ? { pattern: regularExpression }
-                : {}
-            }
-            multiline={inputName === "hobby"} // hobbyの時は複数行
-            minRows={inputName === "hobby" ? 3 : 1} // hobbyの場合は最小3行
-          />
+          {(isEditing || isNew) ? 
+          (
+            <>
+              {(isEditing || isNew) && (
+                <InputLabel htmlFor={inputName}>
+                  {required ? "Required" : ""}
+                </InputLabel>
+                )
+              }
+              <OutlinedInput
+                value={inputValue}
+                name={inputName}
+                onChange={handleInputChange}
+                readOnly={!isEditing}
+                label={(isEditing || isNew) && (required ? "Required" : "")}
+                type={type}
+                onBlur={(e) => handleBlur(e, regularExpression)}
+                inputProps={
+                  regularExpression && regularExpression.length !== 0
+                    ? { pattern: regularExpression }
+                    : {}
+                }
+                multiline={inputName === "hobby"} // hobbyの時は複数行
+                minRows={inputName === "hobby" ? 3 : 1} // hobbyの場合は最小3行
+              />
+            </>
+          ) : (
+            rubyText && inputName ? (
+            <Box
+              sx={{
+                padding: "15px 10px 10px 10px",
+                border: "1px solid rgba(0, 0, 0, 0.23)",
+                borderRadius: "4px",
+                fontSize: "1.05rem", "&:hover": { border: "1px solid black" }, "& ruby rt": { fontSize: "0.65rem" }
+              }}
+            >
+              <ruby>
+                {displayValue || inputValue}
+              <rt>{rubyText}</rt>
+              </ruby>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                padding: "9px 13px",
+                border: "1px solid rgba(0, 0, 0, 0.23)",  
+                borderRadius: "4px", "&:hover": { border: "1px solid black" }
+              }}
+            >
+              {displayValue || inputValue}
+            </Box>
+          )
+        )}
         </FormControl>
       </Box>
     );
@@ -836,14 +884,37 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
                 </Box>
               )}
 
+              {/* ふりがな修正 */}
+              {/* ふりがな*/}
+              {(isEditing || isNew) && baseInputBox(
+                "ふりがな",
+                profile.user.ruby,
+                "ruby",
+                false,
+                "text",
+                "",
+                profile.user.ruby
+              )}
+              {/* ふりがな修正 */}
+
               {/* 名前 */}
               {baseInputBox(
                 "名前",
                 profile.user.userName,
                 "userName",
                 true,
+                
+                // ふりがな修正
+                "text",
+                // ふりがな修正
+
                 "",
-                ""
+
+                // ふりがな修正
+                profile.user.ruby,
+                profile.user.userName
+                // ふりがな修正
+
               )}
 
               {/* 入社月 */}

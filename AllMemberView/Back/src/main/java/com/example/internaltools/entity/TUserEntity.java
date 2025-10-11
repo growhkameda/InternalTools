@@ -37,5 +37,6 @@ public class TUserEntity {
     private String mbti;
 
 
-
+    @Column(name = Const.RUBY) // "t_user" のカラムに合わせる
+    private String ruby;
 }
