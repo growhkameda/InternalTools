@@ -6,7 +6,7 @@ import { Button, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { rootData } from "../RootConfig";
-import { useDemoRouter } from "@toolpad/core/internal";
+import { useRouterContext } from "../context/RouterContext";
 import Home from "./HomeLayout";
 import MemberView from "../components/MemberListComponent";
 import AdminPage from "../components/AdminPageComponent";
@@ -62,7 +62,7 @@ const DashboardLayout = ({ isAdmin, setIsFromAdminPage }) => {
     setDrawerOpen(!drawerOpen);
   };
 
-  const router = useDemoRouter("/home");
+  const router = useRouterContext();
 
   const contnts = () => {
     if (router.pathname === "/alluser") {
