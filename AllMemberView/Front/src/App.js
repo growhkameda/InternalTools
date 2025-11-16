@@ -4,6 +4,7 @@ import {jwtDecode} from "jwt-decode";
 import LoginForm from "./layout/LoginLayout";
 import ToolpadDashboardLayout from "./layout/DashboardLayout";
 import UserDetailComponent from "./components/UserDetailComponent";
+import { RouterProvider } from "./context/RouterContext";
 
 const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -19,14 +20,16 @@ const App = () => {
   }, []); // 空の依存配列でコンポーネントのマウント時のみ実行
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginForm setIsAdmin={setIsAdmin} setIsFromAdminPage={setIsFromAdminPage}/>} />
-        <Route path="/dashboard" element={<ToolpadDashboardLayout isAdmin={isAdmin} setIsFromAdminPage={setIsFromAdminPage}/>}/>
-        <Route path="/user/:id" element={<UserDetailComponent isAdmin={isAdmin} isFromAdminPage={isFromAdminPage}/>} />
-        <Route path="/regnewuser/:id" element={<UserDetailComponent isAdmin={isAdmin} isNew={true} isFromAdminPage={isFromAdminPage}/>} />
-      </Routes>
-    </Router>
+    <RouterProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginForm setIsAdmin={setIsAdmin} setIsFromAdminPage={setIsFromAdminPage}/>} />
+          <Route path="/dashboard" element={<ToolpadDashboardLayout isAdmin={isAdmin} setIsFromAdminPage={setIsFromAdminPage}/>}/>
+          <Route path="/user/:id" element={<UserDetailComponent isAdmin={isAdmin} isFromAdminPage={isFromAdminPage}/>} />
+          <Route path="/regnewuser/:id" element={<UserDetailComponent isAdmin={isAdmin} isNew={true} isFromAdminPage={isFromAdminPage}/>} />
+        </Routes>
+      </Router>
+    </RouterProvider>
   );
 };
 
