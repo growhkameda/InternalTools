@@ -26,10 +26,21 @@ public class VUserService {
     }
 	
 	// 今月が誕生日の社員を呼び出し取得
-	public List<VUserEntity> getBirthUser() {
-		int month = LocalDate.now().getMonthValue();
-		String monthStr = String.valueOf(month);
-		return vUserRepository.findUsersByBirthMonth(monthStr);
+	public List<VUserEntity> getBirthUser(String month) {
+		int m;
+		if(month == null || month.isBlank()) {
+			m = LocalDate.now().getMonthValue();
+		} else {
+			m = Integer.parseInt(month);
+			if(m < 1 || m > 12) {
+				throw new IllegalArgumentException("month must be 1-12");
+			}
+		}
+		return vUserRepository.findUsersByBirthMonth(String.valueOf(m));
+	}
+	
+	public List<VUserEntity> getBirthUser(){
+		return getBirthUser(null);
 	}
 	
 	// フロントから受け取った入社年月(joiningMonth)からリポジトリのメソッドを呼び出し該当社員のリストを返す
