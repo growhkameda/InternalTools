@@ -946,15 +946,56 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
                 )}
               </Box>
 
-              {/* 誕生日 */}
-              {baseInputBox(
-                "誕生日",
-                profile.user.birthDate,
-                "birthDate",
-                true,
-                "",
-                "^(1[1-2]|[1-9])/(3[01]|[12][0-9]|[1-9])$"
-              )}
+              {/* 誕生日(入力制限あり) */}
+              <Box display="flex" alignItems="center" mb={2}>
+                <Typography sx={{ width: labelPx }}>誕生日</Typography>
+
+                <FormControl
+                  fullWidth
+                  required={isEditing || isNew}
+                  error={
+                    inputError["birthDate"] ||
+                    (
+                      profile.user.birthDate !== "" &&
+                      !/^(?:[1-9]|1[0-2])\/(?:[1-9]|[12][0-9]|3[01])$/.test(profile.user.birthDate)
+                    )
+                  }
+                >
+                  <TextField
+                    label={(isEditing || isNew) ? "M/D（例：1/23）" : ""}
+                    value={profile.user.birthDate || ""}
+                    placeholder="「月/日（例：1/23）」で入力してください"
+                    slotProps={{
+                      input: {
+                        readOnly: !isEditing && !isNew,
+                      },
+                    }}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      // 数字と / 以外は入力不可
+                      if (!/^[0-9/]*$/.test(value)) return;
+
+                      // / は1個まで
+                      if ((value.match(/\//g) || []).length > 1) return;
+
+                      setProfile((prev) => ({
+                        ...prev,
+                        user: {
+                          ...prev.user,
+                          birthDate: value,
+                        },
+                      }));
+
+                      // エラー解除
+                      setInputError((prev) => ({
+                        ...prev,
+                        birthDate: false,
+                      }));
+                    }}
+                  />
+                </FormControl>
+              </Box>
 
               {/* 趣味 */}
               {baseInputBox("趣味", profile.user.hobby, "hobby", false, "", "")}

@@ -207,7 +207,9 @@ public class AllMemberViewController {
     }
     
     @GetMapping("/birthuserinfo")
-    public ResponseEntity<String> getBirthUser(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> getBirthUser(
+    		@RequestHeader("Authorization") String token,
+    		@RequestParam(required = false) String month) {
         String returnValue = "";
         try {
             // トークンの"Bearer "プレフィックスを削除
@@ -218,7 +220,7 @@ public class AllMemberViewController {
             
             List<DtoUserDepartment> resultList = new ArrayList<>();
 
-            List<VUserEntity> userList = vUserService.getBirthUser(); // DB内の誕生日月データを全件取得
+            List<VUserEntity> userList = vUserService.getBirthUser(month); // DB内の誕生日月データを取得
             List<VUserDepartmentEntity> depatmentList = vUserDepartmentService.getAllUserDepartment();
             
             for(VUserEntity user : userList) {

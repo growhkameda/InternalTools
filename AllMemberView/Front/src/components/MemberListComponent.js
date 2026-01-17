@@ -55,7 +55,7 @@ const getCurrentJoiningMonth = () => {
   return `${year}/${month < 10 ? "0" + month : month}`;
 };
 
-const getDisplayUser = async (actionView, bodyValue, navigate) => {
+const getDisplayUser = async (actionView, bodyValue, navigate, birthdayMonth ) => {
   let responseData = [];
   let getUserUrl = "";
   const envType = process.env.REACT_APP_ENV_TYPE;
@@ -85,6 +85,10 @@ const getDisplayUser = async (actionView, bodyValue, navigate) => {
       getUserUrl = process.env.REACT_APP_MY_IP + "birthuserinfo";
     } else {
       getUserUrl = "http://localhost:8080/allmemberview/api/birthuserinfo";
+    }
+
+    if(birthdayMonth){
+      getUserUrl += `?month=${birthdayMonth}`;
     }
 
     responseData = await httpRequestUtil(getUserUrl, null, "GET");
@@ -280,7 +284,7 @@ const makeUserInfoCard = (
   ));
 };
 
-const UserList = ({ actionView, bodyValue }) => {
+const UserList = ({ actionView, bodyValue, birthdayMonth }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [userList, setDisplayUser] = useState([]); // 人情報を管理するステート
   const [currentPage, setCurrentPage] = useState(0);
@@ -301,10 +305,10 @@ const UserList = ({ actionView, bodyValue }) => {
         navigate("/")
         return
       }
-      setDisplayUser(await getDisplayUser(actionView, bodyValue, navigate));
+      setDisplayUser(await getDisplayUser(actionView, bodyValue, navigate, birthdayMonth));
     };
     fetchData();
-  }, []);
+  }, [actionView, bodyValue, birthdayMonth, navigate]);
 
   // 表示するユーザを役職がある人順にソート
   let sortedDisplayUser = sortDisplayUser(userList);

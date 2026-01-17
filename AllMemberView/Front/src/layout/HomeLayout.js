@@ -1,15 +1,17 @@
-import { Box, Paper, Grid2, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Paper, Grid2, Typography, FormControl, Select, MenuItem } from "@mui/material";
 import OrganizationChartComponent from "../components/OrganizationChartComponent";
 import MemberView from "../components/MemberListComponent";
 import {
   ACTIONVIEW_BIRTHDAY_USER,
   ACTIONVIEW_ORGCHART_TITLE,
-  ACTIONVIEW_BIRTHDAY_TITLE,
+  //ACTIONVIEW_BIRTHDAY_TITLE,
   ACTIONVIEW_JOINMONTH_TITLE,
   ACTIONVIEW_JOINMONTH_USER,
 } from "../common/Const";
 
 const Home = ({router}) => {
+  const [ birthdayMonth, setBirthdayMounth ] = useState(new Date().getMonth() + 1);
   return (
     <Box sx={{ height: "100vh", padding: 2 }}>
       <Grid2 container spacing={2} sx={{ height: "100%" }}>
@@ -50,9 +52,23 @@ const Home = ({router}) => {
             justifyContent: "flex-start",
           }}
         >
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: "bold", textAlign: "center" }}>
-            {ACTIONVIEW_BIRTHDAY_TITLE}
+            ★★★{birthdayMonth}月の誕生日★★★
           </Typography>
+
+          <FormControl size="small" sx={{ minWidth: 90 }}>
+            <Select
+              value={birthdayMonth}
+              onChange={(e) => setBirthdayMounth(Number(e.target.value))}>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <MenuItem key={m} value={m}>
+                  {m}月
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
 
           <Paper
             elevation={3}
@@ -63,7 +79,7 @@ const Home = ({router}) => {
               alignItems: "flex-start",
             }}
           >
-            <MemberView actionView={ACTIONVIEW_BIRTHDAY_USER} />
+            <MemberView actionView={ACTIONVIEW_BIRTHDAY_USER} birthdayMonth={birthdayMonth} />
           </Paper>
 
           <Typography
