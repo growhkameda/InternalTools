@@ -166,6 +166,22 @@ const sortDates = (userList) => {
   return tmpDataList;
 };
 
+// 役職ごとの装飾色
+const POSITION_COLORS = {
+  1: "#FFD700", // CEO      - 金
+  3: "#C62828", // 部長     - レッド
+  4: "#E65100", // 課長     - オレンジ
+  5: "#00ACC1", // リーダー - シアン
+};
+
+// 最上位の役職IDを取得
+const getTopPositionId = (department) => {
+  const ids = department
+    .map(dep => Number(dep.positionId))
+    .filter(id => !isNaN(id) && id > 0);
+  return ids.length > 0 ? Math.min(...ids) : null;
+};
+
 const makeUserInfoCard = (
   userInfoList,
   imagePath,
@@ -176,7 +192,8 @@ const makeUserInfoCard = (
   imageSizeHeight,
   textSize,
   textSubSize,
-  actionView
+  actionView,
+  decorationPattern
 ) => {
   return userInfoList.map((person) => (
     // カードのレイアウト設定
@@ -193,13 +210,28 @@ const makeUserInfoCard = (
       }}
     >
       {/* 一人分の社員情報のカードを作成 */}
+      {(() => {
+        const positionColor = POSITION_COLORS[getTopPositionId(person.department)];
+        return (
       <Card
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "flex-start",
-          backgroundColor: "transparent",
           boxShadow: "none",
+          width: { xs: 105, sm: 145 },
+          paddingTop: 1,
+          ...(!positionColor ? { backgroundColor: "transparent" } :
+            decorationPattern === "A" ? {
+              backgroundColor: "transparent",
+              border: `3px solid ${positionColor}`,
+              borderRadius: "8px",
+            } :
+            decorationPattern === "B" ? {
+              backgroundColor: `${positionColor}44`,
+              borderRadius: "8px",
+            } : { backgroundColor: "transparent" }
+          ),
         }}
       >
         {/* カードがクリックされた際の動作やエリアの設定 */}
@@ -211,6 +243,7 @@ const makeUserInfoCard = (
             justifyContent: "flex-start",
             alignItems: "center",
             height: "100%",
+            backgroundColor: "transparent",
           }}
         >
           {/* カードで表示されるメディアの設定 */}
@@ -221,12 +254,16 @@ const makeUserInfoCard = (
             alt={person.user.userName}
             sx={{
               width: imageSizeWidth,
-              height: imageSizeHeight
+              height: imageSizeHeight,
+              ...(decorationPattern === "C" && positionColor ? {
+                border: `3px solid ${positionColor}`,
+                borderRadius: "4px",
+              } : {}),
             }}
           />
 
           {/* カードに記載される内容を設定 */}
-          <CardContent sx={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <CardContent sx={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", paddingBottom: 1, "&:last-child": { paddingBottom: 1 } }}>
             {/* 社員の名前を表示 */}
             <Typography
               variant="h6"
@@ -280,6 +317,8 @@ const makeUserInfoCard = (
           </CardContent>
         </CardActionArea>
       </Card>
+        );
+      })()}
     </Grid2>
   ));
 };
@@ -288,6 +327,7 @@ const UserList = ({ actionView, bodyValue, birthdayMonth }) => {
   const location = useLocation();
   const storageKey = `memberList_page_${actionView}`;
   const [searchTerm, setSearchTerm] = useState("");
+  const [decorationPattern, setDecorationPattern] = useState("A");
   const [userList, setDisplayUser] = useState([]); // 人情報を管理するステート
   const [currentPage, setCurrentPage] = useState(() => {
     if (location.state?.returnPage !== undefined) return location.state.returnPage;
@@ -407,7 +447,8 @@ const UserList = ({ actionView, bodyValue, birthdayMonth }) => {
             imageSizeHeight,
             textSize,
             textSubSize,
-            actionView
+            actionView,
+            decorationPattern
           )
         )}
       </Grid2>
@@ -477,6 +518,30 @@ const UserList = ({ actionView, bodyValue, birthdayMonth }) => {
               ),
             }}
           />
+          {/* 役職装飾パターン切り替えボタン */}
+          <Box sx={{ display: "flex", gap: 1, margin: "0 16px 8px" }}>
+            <Button
+              variant={decorationPattern === "A" ? "contained" : "outlined"}
+              size="small"
+              onClick={() => setDecorationPattern("A")}
+            >
+              パターンA（枠線）
+            </Button>
+            <Button
+              variant={decorationPattern === "B" ? "contained" : "outlined"}
+              size="small"
+              onClick={() => setDecorationPattern("B")}
+            >
+              パターンB（背景色）
+            </Button>
+            <Button
+              variant={decorationPattern === "C" ? "contained" : "outlined"}
+              size="small"
+              onClick={() => setDecorationPattern("C")}
+            >
+              パターンC（画像枠線）
+            </Button>
+          </Box>
           {/* 人数分の社員情報一覧のカードを作成 */}
           {loading && <p>Loading...</p>} {/* ローディング中のインジケーター */}
           <UserCardList
