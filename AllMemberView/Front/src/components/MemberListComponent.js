@@ -11,7 +11,7 @@ import {
   InputAdornment,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Grid2 from "@mui/material/Grid2";
 import { httpRequestUtil } from "../common/Utils";
 import {
@@ -285,9 +285,15 @@ const makeUserInfoCard = (
 };
 
 const UserList = ({ actionView, bodyValue, birthdayMonth }) => {
+  const location = useLocation();
+  const storageKey = `memberList_page_${actionView}`;
   const [searchTerm, setSearchTerm] = useState("");
   const [userList, setDisplayUser] = useState([]); // 人情報を管理するステート
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (location.state?.returnPage !== undefined) return location.state.returnPage;
+    const saved = sessionStorage.getItem(storageKey);
+    return saved !== null ? Number(saved) : 0;
+  });
   const itemsPerPage = 20; // 4×5のレイアウト
   const navigate = useNavigate(); // useNavigateフックを使用
   const [loading, setLoading] = useState(true); // 画像のローディング状態を管理
@@ -295,6 +301,11 @@ const UserList = ({ actionView, bodyValue, birthdayMonth }) => {
   const handleImageLoad = () => {
     setLoading(false); // 画像が読み込まれたらローディング状態をfalseに
   };
+
+  // ページ番号をセッションに保存（リロード対応）
+  useEffect(() => {
+    sessionStorage.setItem(storageKey, currentPage);
+  }, [currentPage, storageKey]);
 
   // コンポーネントの初期レンダリング時にユーザー情報を取得
   useEffect(() => {
@@ -350,7 +361,7 @@ const UserList = ({ actionView, bodyValue, birthdayMonth }) => {
 
   // 社員詳細ページに遷移する関数
   const handleCardClick = (userid) => {
-    navigate(`/user/${userid}`); // クリックされた社員の詳細ページに遷移
+    navigate(`/user/${userid}`, { state: { page: currentPage } });
   };
 
   const UserCardList = ({
