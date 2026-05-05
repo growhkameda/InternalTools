@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -99,12 +102,21 @@ public class AllMemberViewController {
 		
     @PostMapping("/login")
     public ResponseEntity<DtoAuthResponse> login(@RequestBody DtoAuthRequest authRequest) {
-    	    	
-    	String en = passwordEncoder.encode(authRequest.getPassword());
-    	System.out.println(en);
+        final Logger accessLogger =
+                LoggerFactory.getLogger("ACCESS_LOG");
     	
-        String token = authService.login(authRequest);
-        return ResponseEntity.ok(new DtoAuthResponse(token));
+    	DtoAuthResponse response = authService.login(authRequest);
+    	ResponseEntity<DtoAuthResponse> responseEntity = ResponseEntity.ok(response);
+
+    	MDC.put("userId", String.valueOf(response.getUserId()));
+    	MDC.put("status", String.valueOf(responseEntity.getStatusCode().value()));
+    	if (response.isAdmin()) {
+    		accessLogger.info("Admin login success");
+        } else {
+        	accessLogger.info("User login success");
+        }
+
+    	return responseEntity;
     }
     
     @GetMapping("/info")

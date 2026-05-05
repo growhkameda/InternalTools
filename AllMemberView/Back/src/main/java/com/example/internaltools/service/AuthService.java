@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.example.internaltools.dto.DtoAuthRequest;
+import com.example.internaltools.dto.DtoAuthResponse;
 import com.example.internaltools.entity.MUserEntity;
 import com.example.internaltools.entity.SecurityUserDetails;
 import com.example.internaltools.utils.JwtUtil;
@@ -24,7 +25,7 @@ public class AuthService {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    public String login(DtoAuthRequest authRequest) {
+    public DtoAuthResponse login(DtoAuthRequest authRequest) {
         try {
             // 認証を試みる
             authenticationManager.authenticate(
@@ -45,7 +46,7 @@ public class AuthService {
 
             // ユーザー名とユーザーIDでトークンを生成
             final String token = jwtUtil.generateToken(authRequest.getEmail(), userId, isAdmin);
-            return token;
+            return new DtoAuthResponse(token, userId, isAdmin);
         } catch (Exception e) {
             throw new RuntimeException("Invalid credentials"); // 認証失敗時のエラーメッセージ
         }

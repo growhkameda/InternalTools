@@ -9,4 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DtoAuthResponse {
 	private String token;
+	private Integer userId;
+	private boolean isAdmin;
 }
