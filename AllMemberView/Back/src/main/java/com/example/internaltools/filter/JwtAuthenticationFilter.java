@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,13 +37,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String requestTokenHeader = request.getHeader("Authorization");
 
         String username = null;
+        Integer userId = null;
         String jwtToken = null;
+        String uri = request.getRequestURI();
 
         // JWT トークンは "Bearer " で始まることを確認
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwtToken);
+                userId = jwtUtil.extractUserId(jwtToken);
             } catch (IllegalArgumentException e) {
                 System.out.println("Unable to get JWT Token");
             } catch (ExpiredJwtException e) {
@@ -67,6 +71,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // コンテキストに設定
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
+        }
+        if ("/allmemberview/api/login".equals(uri)) {
+        	/* 何もしない (/login時のみControllerで制御しているため)*/
+        } else {
+        	MDC.put("userId", String.valueOf(userId));
         }
         chain.doFilter(request, response);
     }

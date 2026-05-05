@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LOG_PATH" value="logs"/>
+
+    <appender name="ACCESS_LOG"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_PATH}/access.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        	<!-- 当日分以外はzip化 -->
+            <fileNamePattern>
+                ${LOG_PATH}/access.%d{yyyy-MM-dd}.%i.log.zip
+            </fileNamePattern>
+            <!-- 1ファイルの最大保管サイズ設定 -->
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- アクセスログの保管日数設定 -->
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS}
+                userId=%X{userId}
+                method=%X{method}
+                uri=%X{uri}
+                status=%X{status}
+                %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+	<!-- アクセスログ専用ロガー -->
+    <logger name="ACCESS_LOG" level="INFO" additivity="false">
+        <appender-ref ref="ACCESS_LOG"/>
+    </logger>
+
+</configuration>
