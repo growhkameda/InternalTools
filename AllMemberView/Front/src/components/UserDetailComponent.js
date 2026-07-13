@@ -19,7 +19,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { httpRequestUtil } from "../common/Utils";
 import Grid2 from "@mui/material/Grid2";
 import { DIR_PATH_AWS, DIR_PATH_LOCAL } from "../common/Const";
@@ -107,6 +107,7 @@ const mbtiOptions = [
 const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [image, setImage] = useState(null);
@@ -1028,7 +1029,7 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
               <Button
                 variant="contained"
                 color="secondary"
-                onClick={() => navigate("/dashboard")} // 不要なカッコを削除
+                onClick={() => navigate("/dashboard", { state: { returnPage: location.state?.page } })}
                 sx={{ marginRight: 2 }}
               >
                 戻る

@@ -1,10 +1,17 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useDemoRouter } from "@toolpad/core/internal";
 
 const RouterContext = createContext(null);
+const STORAGE_KEY = "toolpad_pathname";
 
 export const RouterProvider = ({ children }) => {
-  const router = useDemoRouter("/home");
+  const initialPath = sessionStorage.getItem(STORAGE_KEY) || "/home";
+  const router = useDemoRouter(initialPath);
+
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, router.pathname);
+  }, [router.pathname]);
+
   return (
     <RouterContext.Provider value={router}>
       {children}
