@@ -365,13 +365,11 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
         formData.append("birthDate", profile.user.birthDate);
         formData.append("hobby", profile.user.hobby);
         formData.append("joiningMonth", profile.user.joiningMonth);
-		formData.append("mbti", profile.user.mbti);
+		    formData.append("mbti", profile.user.mbti);
         formData.append("departmentPosisitionIdList", JSON.stringify(profile.user.departmentPosisitionIdList));
 
         // ふりがな修正
         formData.append("ruby", profile.user.ruby);
-        // ふりがな修正
-
         await httpRequestUtil(getUrl(), formData, "PUT");
 
         // 画像の更新があった場合
@@ -392,7 +390,7 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
         if (isImageUpdate) {
           // 拡張子を抽出するための正規表現。画像のファイル名作成のため
           const fileExtension = imageName.split(".").pop();
-          const newFilename = `${id}.${fileExtension}`;
+          const newFilename = `${profile.user.userId}.${fileExtension}`;
           imgname = newFilename;
 
           formData.append("file", imageFile);
@@ -409,12 +407,11 @@ const UserProfile = ({ isAdmin, isNew, isFromAdminPage }) => {
           joiningMonth: profile.user.joiningMonth,
           hobby: profile.user.hobby,
           image: imgname,
-		  mbti: profile.user.mbti,
+		      mbti: profile.user.mbti,
           departmentPosisitionIdList: profile.user.departmentPosisitionIdList,
 
-          // ふりがな修正//////////////////////
+          // ふりがな修正
           ruby: profile.user.ruby
-          // ふりがな修正//////////////////////
 
         };
 
