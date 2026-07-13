@@ -54,6 +54,8 @@ import com.example.internaltools.utils.JwtUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.common.util.StringUtils;
+
 @Controller
 @RequestMapping("/api")
 public class AllMemberViewController {
@@ -491,6 +493,12 @@ public class AllMemberViewController {
             	tUserEntity.setHobby(newUser.getHobby());
             	tUserEntity.setImage(newUser.getImage());
             	tUserEntity.setJoiningMonth(newUser.getJoiningMonth());
+            	if(StringUtils.isEmpty(newUser.getRuby())) {
+            		tUserEntity.setRuby("");
+            	} 
+            	else {
+            		tUserEntity.setRuby(newUser.getRuby());
+            	}
             	
             	// 部署ユーザ関連Entityに格納
             	for(DtoNewDepartmentPosition newDepartmentPostion : newUser.getDepartmentPosisitionIdList()) {
